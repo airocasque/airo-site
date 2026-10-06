@@ -589,17 +589,28 @@ async function init() {
   window.addEventListener("resize", resize);
 
   /* ---------- rotation à la souris / au doigt ---------- */
-  let userRot = 0, dragging = false, lastX = 0, lastDrag = 0;
-  canvas.addEventListener("pointerdown", (e) => { dragging = true; lastX = e.clientX; canvas.setPointerCapture(e.pointerId); stage.classList.add("is-grabbing"); });
-  canvas.addEventListener("pointermove", (e) => {
-    if (!dragging) return;
-    userRot += (e.clientX - lastX) * 0.01; lastX = e.clientX; lastDrag = performance.now();
+  let userRot = 0, spin = 0, dragging = false, dragId = null, lastX = 0, lastT = 0, lastDrag = 0;
+  canvas.addEventListener("pointerdown", (e) => {
+    if (dragging) return; // un seul doigt pilote la rotation
+    dragging = true; dragId = e.pointerId; lastX = e.clientX; lastT = performance.now(); spin = 0;
+    canvas.setPointerCapture(e.pointerId); stage.classList.add("is-grabbing");
   });
-  const endDrag = () => { dragging = false; stage.classList.remove("is-grabbing"); };
+  canvas.addEventListener("pointermove", (e) => {
+    if (!dragging || e.pointerId !== dragId) return;
+    const now = performance.now(), dx = (e.clientX - lastX) * 0.01;
+    userRot += dx;
+    spin = dx / Math.max(8, now - lastT) * 16; // vitesse par image, conservée au relâchement
+    lastX = e.clientX; lastT = now; lastDrag = now;
+  });
+  const endDrag = (e) => {
+    if (e && e.pointerId !== dragId) return;
+    dragging = false; dragId = null; stage.classList.remove("is-grabbing");
+    if (performance.now() - lastT > 80) spin = 0; // geste arrêté avant de lâcher : pas d'élan
+  };
   canvas.addEventListener("pointerup", endDrag);
   canvas.addEventListener("pointercancel", endDrag);
 
-  let mx = 0, my = 0;
+  let mx = 0, my = 0, smx = 0, smy = 0;
   window.addEventListener("pointermove", (e) => { mx = e.clientX / window.innerWidth - 0.5; my = e.clientY / window.innerHeight - 0.5; }, { passive: true });
 
   /* ---------- progression au défilement ---------- */
@@ -662,7 +673,10 @@ async function init() {
     const rIntro = -0.55 + idle * (1 - smooth(0.0, 0.1, p));
     let rot = lerp(rIntro, Math.PI * 2, smooth(B[1], B[2], p));
     rot = lerp(rot, Math.PI * 2 - 0.5, smooth(B[6], B[7], p));
-    if (!dragging && now - lastDrag > 1800) userRot *= 0.94;
+    if (!dragging) {
+      userRot += spin; spin *= 0.94; // élan après un lancer, freiné progressivement
+      if (Math.abs(spin) < 0.0005 && now - lastDrag > 1800) userRot *= 0.95;
+    }
     machine.rotation.y = rot + userRot;
 
     // caméra
@@ -676,7 +690,9 @@ async function init() {
       // sur mobile le texte occupe le bas de l'écran : on remonte la borne dans le cadre
       v3.y += 0.1; look.y -= 0.32;
     }
-    if (!reduceMotion) { v3.x += mx * 0.25; v3.y -= my * 0.12; }
+    // parallaxe amortie : la caméra suit la souris avec inertie plutôt qu'instantanément
+    smx += (mx - smx) * 0.05; smy += (my - smy) * 0.05;
+    if (!reduceMotion) { v3.x += smx * 0.25; v3.y -= smy * 0.12; }
     camera.position.copy(v3);
     camera.lookAt(look);
 

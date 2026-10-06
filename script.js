@@ -56,13 +56,16 @@
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          entry.target.classList.add("is-in");
-          io.unobserve(entry.target);
+          var el = entry.target;
+          el.classList.add("is-in");
+          io.unobserve(el);
+          // le décalage en cascade ne sert qu'à l'apparition : on le retire pour que les survols restent immédiats
+          setTimeout(function () { el.style.transitionDelay = ""; }, 900);
         }
       });
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
     items.forEach(function (el, i) {
-      el.style.transitionDelay = (i % 4) * 70 + "ms";
+      el.style.transitionDelay = (i % 4) * 60 + "ms";
       io.observe(el);
     });
   } else {
