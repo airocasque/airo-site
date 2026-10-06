@@ -10,6 +10,7 @@
 <meta property="og:title" content="AIRO — L'entretien des casques entre dans une nouvelle ère">
 <meta property="og:description" content="Vapeur sèche, désinfection prouvée, compatible tous casques. Demandez votre devis.">
 <meta property="og:image" content="assets/img/og.jpg">
+<script>document.documentElement.classList.add("js")</script>
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,23 +43,33 @@
     <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
     <symbol id="i-insta" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-drag" viewBox="0 0 24 24"><path d="M8 7l-4 5 4 5M16 7l4 5-4 5M4 12h16"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
   </defs>
 </svg>
 
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro__steam"><span></span><span></span><span></span></div>
+  <img class="intro__logo" src="assets/img/logo.png" alt="" width="180" height="172">
+  <p class="intro__word">AIRO</p>
+  <div class="intro__bar"><span></span></div>
+</div>
+
+<div class="smoke-bg" aria-hidden="true"><span></span><span></span><span></span></div>
+
 <a class="skip" href="#contenu">Aller au contenu</a>
 
 <header class="nav" id="nav">
   <div class="container nav__inner">
-    <a class="nav__brand" href="#top" aria-label="AIRO, retour en haut">
+    <a class="nav__brand" href="#xp" aria-label="AIRO, retour en haut">
       <img src="assets/img/logo-sm.png" alt="" width="44" height="42">
       <span>AIRO</span>
     </a>
     <nav class="nav__links" id="navLinks" aria-label="Navigation principale">
       <a href="#solution">La solution</a>
-      <a href="#fonctionnement">Fonctionnement</a>
+      <a href="#xp-fonctionnement">Fonctionnement</a>
       <a href="#technologie">Technologie</a>
       <a href="#professionnels">Professionnels</a>
       <a href="#secteurs">Secteurs</a>
@@ -73,26 +84,100 @@
 
 <main id="contenu">
 
-  <!-- HERO -->
-  <section class="hero" id="top">
-    <div class="hero__bg" aria-hidden="true"><img src="assets/img/hero-helmet.jpg" alt=""></div>
-    <div class="container hero__inner">
-      <div class="hero__copy">
-        <p class="eyebrow">Nettoyage de casques par vapeur sèche</p>
-        <h1>L'entretien des casques <span class="accent">entre dans une nouvelle ère.</span></h1>
-        <p class="lead">AIRO nettoie, désinfecte et sèche les casques en quelques minutes, automatiquement. Pour les particuliers comme pour les professionnels.</p>
-        <div class="hero__actions">
-          <a class="btn btn--primary" href="#devis">Demander un devis <svg class="ico"><use href="#i-arrow"/></svg></a>
-          <a class="btn btn--ghost" href="#fonctionnement">Voir comment ça marche</a>
+  <!-- EXPÉRIENCE 3D -->
+  <section class="xp" id="xp" aria-label="Découvrir la borne AIRO">
+    <div class="xp__stage" id="xpStage">
+      <canvas id="xpCanvas" aria-label="Modèle 3D de la borne AIRO. Faites glisser pour la faire tourner." role="img"></canvas>
+      <img class="xp__fallback" src="assets/img/machine.jpg" alt="La borne AIRO avec ses deux casiers A et B et son écran tactile">
+      <nav class="xp-dots" aria-label="Étapes de la présentation">
+        <button type="button" aria-label="Accueil"></button>
+        <button type="button" aria-label="La borne à 360°"></button>
+        <button type="button" aria-label="Étape 1 : choisir le programme"></button>
+        <button type="button" aria-label="Étape 2 : déposer le casque"></button>
+        <button type="button" aria-label="Étape 3 : le cycle"></button>
+        <button type="button" aria-label="Étape 4 : récupérer le casque"></button>
+        <button type="button" aria-label="Conclusion"></button>
+      </nav>
+      <p class="xp__hint" aria-hidden="true"><svg class="ico"><use href="#i-drag"/></svg>Glissez pour faire tourner</p>
+    </div>
+
+    <div class="xp__steps container">
+      <div class="xp-step xp-step--hero is-active" id="top">
+        <div class="xp-step__inner">
+          <p class="eyebrow">Nettoyage de casques par vapeur sèche</p>
+          <h1>L'entretien des casques <span class="accent">entre dans une nouvelle ère.</span></h1>
+          <p class="lead">AIRO nettoie, désinfecte et sèche les casques en quelques minutes, automatiquement. Pour les particuliers comme pour les professionnels.</p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#devis">Demander un devis <svg class="ico"><use href="#i-arrow"/></svg></a>
+            <a class="btn btn--ghost" href="#probleme">En savoir plus</a>
+          </div>
+          <ul class="hero__badges">
+            <li><svg class="ico"><use href="#i-steam"/></svg>Vapeur sèche haute performance</li>
+            <li><svg class="ico"><use href="#i-shield"/></svg>Désinfection prouvée</li>
+            <li><svg class="ico"><use href="#i-helmet"/></svg>Compatible tous casques</li>
+          </ul>
+          <p class="xp__scroll" aria-hidden="true"><span></span>Faites défiler pour découvrir la machine</p>
         </div>
-        <ul class="hero__badges">
-          <li><svg class="ico"><use href="#i-steam"/></svg>Vapeur sèche haute performance</li>
-          <li><svg class="ico"><use href="#i-shield"/></svg>Désinfection prouvée</li>
-          <li><svg class="ico"><use href="#i-helmet"/></svg>Compatible tous casques</li>
-        </ul>
       </div>
-      <div class="hero__visual">
-        <img src="assets/img/machine.jpg" alt="La borne AIRO avec ses deux casiers A et B et son écran tactile" width="581" height="1000">
+
+      <div class="xp-step">
+        <div class="xp-step__inner">
+          <p class="eyebrow">360°</p>
+          <h2>Une borne pensée <span class="accent">dans les moindres détails.</span></h2>
+          <p>Écran tactile, deux casiers vitrés indépendants, signature lumineuse AIRO : un design premium qui valorise votre point de vente.</p>
+        </div>
+      </div>
+
+      <div class="xp-step" id="xp-fonctionnement">
+        <div class="xp-step__inner">
+          <p class="eyebrow">Étape 1</p>
+          <h2>Choisissez <span class="accent">votre programme.</span></h2>
+          <ul class="xp-programs">
+            <li><span>Express</span><strong>≈ 3 min</strong></li>
+            <li><span>Standard</span><strong>≈ 5 min</strong></li>
+            <li><span>Intensif</span><strong>≈ 9-10 min</strong></li>
+          </ul>
+          <p>Programmes, durées et tarifs entièrement personnalisables selon votre activité.</p>
+        </div>
+      </div>
+
+      <div class="xp-step">
+        <div class="xp-step__inner">
+          <p class="eyebrow">Étape 2</p>
+          <h2>Déposez <span class="accent">votre casque.</span></h2>
+          <p>Le casier s'ouvre, vous posez votre casque sur son support et refermez la porte. C'est tout.</p>
+        </div>
+      </div>
+
+      <div class="xp-step">
+        <div class="xp-step__inner">
+          <p class="eyebrow">Étape 3</p>
+          <h2>AIRO lance <span class="accent">le cycle.</span></h2>
+          <ul class="xp-chips">
+            <li><svg class="ico"><use href="#i-steam"/></svg>Vapeur sèche</li>
+            <li><svg class="ico"><use href="#i-shield"/></svg>Désinfection 99,9 %</li>
+            <li><svg class="ico"><use href="#i-fan"/></svg>Séchage intégré</li>
+          </ul>
+          <p>La vapeur sèche pénètre les mousses en profondeur, élimine 99,9 % des bactéries et neutralise les odeurs, puis le casque est séché.</p>
+        </div>
+      </div>
+
+      <div class="xp-step">
+        <div class="xp-step__inner">
+          <p class="eyebrow">Étape 4</p>
+          <h2>Récupérez un casque <span class="accent">propre, désinfecté et sec.</span></h2>
+          <p>Prêt à être reporté immédiatement. Deux casiers : deux clients servis en même temps.</p>
+        </div>
+      </div>
+
+      <div class="xp-step xp-step--end">
+        <div class="xp-step__inner">
+          <h2>Déposez votre casque. <span class="accent">AIRO s'occupe du reste.</span></h2>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#devis">Demander un devis <svg class="ico"><use href="#i-arrow"/></svg></a>
+            <a class="btn btn--ghost" href="#secteurs">Voir les secteurs</a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -132,37 +217,6 @@
           <li class="reveal"><span class="feat__ico"><svg class="ico"><use href="#i-touch"/></svg></span><div><h3>Simple &amp; automatique</h3><p>Aucune manipulation complexe. AIRO s'occupe de tout.</p></div></li>
         </ul>
         <p class="tagline reveal">Déposez votre casque. <span class="accent">AIRO s'occupe du reste.</span></p>
-      </div>
-    </div>
-  </section>
-
-  <!-- FONCTIONNEMENT -->
-  <section class="section how" id="fonctionnement">
-    <div class="container">
-      <header class="section__head center reveal">
-        <p class="eyebrow">Fonctionnement</p>
-        <h2>Une expérience <span class="accent">pensée pour l'utilisateur.</span></h2>
-        <p>Quelques gestes suffisent. AIRO s'occupe du reste.</p>
-      </header>
-      <ol class="steps">
-        <li class="step reveal"><figure><img src="assets/img/step1.jpg" alt="Écran tactile AIRO affichant les programmes Express, Standard et Intensif" loading="lazy"></figure><span class="step__num">1</span><h3>Choisissez votre programme</h3><p>Adapté à votre besoin.</p></li>
-        <li class="step reveal"><figure><img src="assets/img/step2.jpg" alt="Une main dépose un casque dans le casier A" loading="lazy"></figure><span class="step__num">2</span><h3>Déposez votre casque</h3><p>Dans le casier A ou B, puis fermez la porte.</p></li>
-        <li class="step reveal"><figure><img src="assets/img/step3.jpg" alt="Casque enveloppé de vapeur sèche dans le casier" loading="lazy"></figure><span class="step__num">3</span><h3>AIRO lance le cycle</h3><p>Nettoyage, désinfection et séchage automatiques.</p></li>
-        <li class="step reveal"><figure><img src="assets/img/step4.jpg" alt="Une main récupère le casque propre" loading="lazy"></figure><span class="step__num">4</span><h3>Récupérez votre casque</h3><p>Propre, désinfecté et sec.</p></li>
-      </ol>
-
-      <div class="programs reveal">
-        <div class="programs__list" role="list">
-          <div class="program" role="listitem"><span>Express</span><strong>≈ 3 min</strong></div>
-          <div class="program" role="listitem"><span>Standard</span><strong>≈ 5 min</strong></div>
-          <div class="program" role="listitem"><span>Intensif</span><strong>≈ 9-10 min</strong></div>
-        </div>
-        <div class="programs__custom">
-          <div><svg class="ico"><use href="#i-sliders"/></svg><p><strong>Programmes entièrement personnalisables</strong> selon votre activité.</p></div>
-          <div><svg class="ico"><use href="#i-clock"/></svg><p><strong>Durées adaptées</strong> de 3 à 10 min.</p></div>
-          <div><svg class="ico"><use href="#i-layers"/></svg><p><strong>Programmes modulables</strong> : 1, 2, 3 ou plus.</p></div>
-          <div><svg class="ico"><use href="#i-tag"/></svg><p><strong>Tarifs personnalisables</strong> selon votre stratégie.</p></div>
-        </div>
       </div>
     </div>
   </section>
@@ -349,7 +403,7 @@
     </div>
     <nav class="footer__links" aria-label="Liens de pied de page">
       <a href="#solution">La solution</a>
-      <a href="#fonctionnement">Fonctionnement</a>
+      <a href="#xp-fonctionnement">Fonctionnement</a>
       <a href="#secteurs">Secteurs</a>
       <a href="#devis">Demander un devis</a>
     </nav>
@@ -357,6 +411,10 @@
   </div>
 </footer>
 
+<script type="importmap">
+{ "imports": { "three": "./assets/vendor/three/three.module.min.js", "three/addons/": "./assets/vendor/three/addons/" } }
+</script>
 <script src="script.js" defer></script>
+<script type="module" src="assets/js/experience.js"></script>
 </body>
 </html>

@@ -4,10 +4,14 @@ Site de présentation de la machine AIRO (nettoyage, désinfection et séchage d
 
 ## Structure
 
-- `index.html` — page unique : accueil, problème, solution, fonctionnement, technologie, professionnels, secteurs, devis.
+- `index.html` — page unique : expérience 3D (accueil, 360°, 4 étapes du cycle), problème, solution, technologie, professionnels, secteurs, devis.
 - `style.css` — styles (thème sombre, accent bleu AIRO), responsive mobile.
-- `script.js` — menu mobile, animations au défilement, validation et envoi du formulaire.
+- `script.js` — écran d'intro, menu mobile, animations au défilement, validation et envoi du formulaire.
+- `assets/js/experience.js` — la borne AIRO modélisée en 3D (Three.js) : rotation à 360°, écran tactile animé, portes des casiers A et B qui s'ouvrent, casque, vapeur, fumée et néons. L'animation suit le défilement de la page ; on peut aussi faire tourner la borne à la souris ou au doigt.
+- `assets/vendor/three/` — moteur 3D Three.js (r170, licence MIT) hébergé avec le site.
 - `assets/img/` — photos extraites de la présentation AIRO, logo et favicon.
+
+Si le navigateur ne gère pas la 3D (WebGL), la photo de la borne s'affiche à la place. Les animations sont réduites quand le visiteur a activé « réduire les animations » sur son appareil.
 
 ## Formulaire de devis
 

@@ -7,6 +7,30 @@
   document.documentElement.classList.add("js");
   document.getElementById("year").textContent = new Date().getFullYear();
 
+  /* Écran d'introduction : disparaît quand la scène 3D est prête (ou au bout de 4 s). */
+  var intro = document.getElementById("intro");
+  if (intro) {
+    var seen = false;
+    try { seen = sessionStorage.getItem("airo-intro") === "1"; sessionStorage.setItem("airo-intro", "1"); } catch (e) { /* stockage indisponible */ }
+    var minDelay = seen ? 400 : 1700, start = Date.now(), closed = false;
+    var close = function () {
+      if (closed) return;
+      closed = true;
+      setTimeout(function () { intro.classList.add("is-done"); }, Math.max(0, minDelay - (Date.now() - start)));
+    };
+    window.addEventListener("airo:ready", close);
+    setTimeout(close, 4000);
+  }
+
+  /* Halo lumineux qui suit la souris sur les cartes */
+  document.addEventListener("pointermove", function (e) {
+    var card = e.target.closest && e.target.closest(".threat, .benefit, .sector, .features li");
+    if (!card) return;
+    var r = card.getBoundingClientRect();
+    card.style.setProperty("--mx", (e.clientX - r.left) + "px");
+    card.style.setProperty("--my", (e.clientY - r.top) + "px");
+  }, { passive: true });
+
   /* Navigation */
   var nav = document.getElementById("nav");
   var toggle = document.getElementById("navToggle");
@@ -97,7 +121,7 @@
       '<svg class="ico"><use href="#i-check"/></svg>' +
       "<h3>Merci" + (name ? " " + name.replace(/[<>&"]/g, "") : "") + " !</h3>" +
       "<p>Votre demande a bien été envoyée. L'équipe AIRO vous recontacte très rapidement.</p>" +
-      '<a class="btn btn--ghost" href="#top">Retour en haut</a></div>';
+      '<a class="btn btn--ghost" href="#xp">Retour en haut</a></div>';
   }
 
   form.addEventListener("submit", function (e) {
