@@ -1,203 +1,137 @@
-(() => {
+(function () {
   "use strict";
 
-  /* ============ Année du footer ============ */
-  const yearEl = document.getElementById("year");
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
+  var EMAIL = "airo.casque@gmail.com";
+  var ENDPOINT = "https://formsubmit.co/ajax/" + EMAIL;
 
-  /* ============ Halo qui suit le curseur ============ */
-  const glow = document.getElementById("cursorGlow");
-  if (glow) {
-    let raf = null;
-    window.addEventListener("pointermove", (e) => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        glow.style.setProperty("--x", `${e.clientX}px`);
-        glow.style.setProperty("--y", `${e.clientY}px`);
-        raf = null;
-      });
-    });
+  document.documentElement.classList.add("js");
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  /* Navigation */
+  var nav = document.getElementById("nav");
+  var toggle = document.getElementById("navToggle");
+  var links = document.getElementById("navLinks");
+
+  function onScroll() { nav.classList.toggle("is-scrolled", window.scrollY > 20); }
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  function setMenu(open) {
+    nav.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
+    toggle.querySelector("use").setAttribute("href", open ? "#i-close" : "#i-menu");
   }
+  toggle.addEventListener("click", function () { setMenu(!nav.classList.contains("is-open")); });
+  links.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu(false); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") setMenu(false); });
 
-  /* ============ Header : fond au scroll ============ */
-  const header = document.getElementById("siteHeader");
-  const onScrollHeader = () => {
-    if (!header) return;
-    header.classList.toggle("is-scrolled", window.scrollY > 12);
-  };
-  onScrollHeader();
-  window.addEventListener("scroll", onScrollHeader, { passive: true });
-
-  /* ============ Menu mobile ============ */
-  const burger = document.getElementById("burgerBtn");
-  const mobileNav = document.getElementById("mobileNav");
-  if (burger && mobileNav) {
-    burger.addEventListener("click", () => {
-      const open = mobileNav.classList.toggle("is-open");
-      burger.setAttribute("aria-expanded", String(open));
-      burger.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
-    });
-    mobileNav.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => {
-        mobileNav.classList.remove("is-open");
-        burger.setAttribute("aria-expanded", "false");
+  /* Reveal on scroll */
+  var items = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-in");
+          io.unobserve(entry.target);
+        }
       });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    items.forEach(function (el, i) {
+      el.style.transitionDelay = (i % 4) * 70 + "ms";
+      io.observe(el);
     });
-  }
-
-  /* ============ Reveal au scroll ============ */
-  const revealEls = document.querySelectorAll(".reveal");
-  if ("IntersectionObserver" in window && revealEls.length) {
-    const revealObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            revealObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
-    );
-    revealEls.forEach((el) => revealObserver.observe(el));
   } else {
-    revealEls.forEach((el) => el.classList.add("is-visible"));
+    items.forEach(function (el) { el.classList.add("is-in"); });
   }
 
-  /* ============ Boutons magnétiques ============ */
-  const magneticButtons = document.querySelectorAll(".btn--primary, .btn--outline");
-  magneticButtons.forEach((btn) => {
-    const icon = btn.querySelector(".btn__icon");
-    btn.addEventListener("pointermove", (e) => {
-      const rect = btn.getBoundingClientRect();
-      const relX = (e.clientX - rect.left) / rect.width - 0.5;
-      const relY = (e.clientY - rect.top) / rect.height - 0.5;
-      btn.style.transform = `translate(${relX * 6}px, ${relY * 6}px)`;
-      if (icon) icon.style.transform = `translate(${relX * 10}px, ${relY * 10}px)`;
+  /* Quote form */
+  var form = document.getElementById("quoteForm");
+  var submit = document.getElementById("quoteSubmit");
+  var status = document.getElementById("formStatus");
+  var consent = document.getElementById("f-consent");
+  var consentErr = document.getElementById("f-consent-err");
+
+  // Les champs professionnels ne s'affichent que pour un profil "Professionnel".
+  function syncProfile() {
+    var pro = form.querySelector('input[name="Profil"]:checked').value === "Professionnel";
+    form.querySelectorAll("[data-pro]").forEach(function (f) {
+      f.hidden = !pro;
+      f.querySelectorAll("input, select").forEach(function (i) { i.disabled = !pro; });
     });
-    btn.addEventListener("pointerleave", () => {
-      btn.style.transform = "";
-      if (icon) icon.style.transform = "";
+  }
+  form.querySelectorAll('input[name="Profil"]').forEach(function (r) { r.addEventListener("change", syncProfile); });
+  syncProfile();
+
+  function validateField(input) {
+    var field = input.closest(".field");
+    var ok = input.checkValidity() && input.value.trim() !== "";
+    if (input.type === "email") ok = ok && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim());
+    field.classList.toggle("is-invalid", !ok);
+    input.setAttribute("aria-invalid", String(!ok));
+    var err = field.querySelector(".field__err");
+    if (err) input.setAttribute("aria-describedby", err.id);
+    return ok;
+  }
+
+  var required = form.querySelectorAll("input[required]:not([type=checkbox]), textarea[required]");
+  required.forEach(function (input) {
+    input.addEventListener("blur", function () { if (input.value) validateField(input); });
+    input.addEventListener("input", function () {
+      if (input.closest(".field").classList.contains("is-invalid")) validateField(input);
     });
   });
+  consent.addEventListener("change", function () { consentErr.classList.toggle("is-visible", !consent.checked); });
 
-  /* ============ Borne du hero : porte au clic ============ */
-  const kioskHero = document.getElementById("kioskHero");
-  if (kioskHero) {
-    const screenText = kioskHero.querySelector(".kiosk__screen-text");
-    kioskHero.addEventListener("click", () => {
-      const isOpen = kioskHero.classList.toggle("is-open");
-      kioskHero.setAttribute("aria-pressed", String(isOpen));
-      if (screenText) {
-        screenText.textContent = isOpen ? "CASQUE PRÊT · UV-C OK" : "TOUCHEZ POUR OUVRIR";
-      }
-    });
+  function mailtoFallback(data) {
+    var body = [];
+    data.forEach(function (v, k) { if (k.charAt(0) !== "_" && v) body.push(k + " : " + v); });
+    return "mailto:" + EMAIL + "?subject=" + encodeURIComponent("Demande depuis le site AIRO") +
+      "&body=" + encodeURIComponent(body.join("\n"));
   }
 
-  /* ============ Section "Fonctionnement" : porte pilotée par le scroll ============ */
-  const howScroller = document.getElementById("howScroller");
-  const kioskHow = document.getElementById("kioskHow");
-  const kioskHowDoor = document.getElementById("kioskHowDoor");
-  const howProgressBar = document.getElementById("howProgressBar");
-  const howSteps = Array.from(document.querySelectorAll(".how__step"));
-  const howScreenText = document.getElementById("howScreenText");
-
-  const STEP_MESSAGES = [
-    "SCAN EN COURS…",
-    "DÉVERROUILLAGE…",
-    "PORTE OUVERTE",
-    "CYCLE UV-C…",
-  ];
-
-  if (howScroller && kioskHow && kioskHowDoor) {
-    let ticking = false;
-    let lastStepIndex = -1;
-
-    const updateHow = () => {
-      ticking = false;
-      const rect = howScroller.getBoundingClientRect();
-      const viewportH = window.innerHeight;
-      const scrollable = rect.height - viewportH;
-      let progress = scrollable > 0 ? -rect.top / scrollable : 0;
-      progress = Math.min(1, Math.max(0, progress));
-
-      const doorAngle = progress * 108; // aligné avec .kiosk.is-open (rotateY -108deg)
-      kioskHowDoor.style.transform = `rotateY(-${doorAngle}deg)`;
-
-      kioskHow.classList.toggle("is-opening", progress > 0.08);
-
-      if (howProgressBar) howProgressBar.style.width = `${progress * 100}%`;
-
-      const stepIndex = Math.min(howSteps.length - 1, Math.floor(progress * howSteps.length));
-      if (stepIndex !== lastStepIndex) {
-        lastStepIndex = stepIndex;
-        howSteps.forEach((step, i) => step.classList.toggle("is-active", i === stepIndex));
-        if (howScreenText) howScreenText.textContent = STEP_MESSAGES[stepIndex];
-      }
-    };
-
-    const onScrollHow = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(updateHow);
-      }
-    };
-
-    updateHow();
-    window.addEventListener("scroll", onScrollHow, { passive: true });
-    window.addEventListener("resize", onScrollHow);
+  function showSuccess(name) {
+    form.classList.add("is-sent");
+    form.innerHTML =
+      '<div class="form__success" role="status">' +
+      '<svg class="ico"><use href="#i-check"/></svg>' +
+      "<h3>Merci" + (name ? " " + name.replace(/[<>&"]/g, "") : "") + " !</h3>" +
+      "<p>Votre demande a bien été envoyée. L'équipe AIRO vous recontacte très rapidement.</p>" +
+      '<a class="btn btn--ghost" href="#top">Retour en haut</a></div>';
   }
 
-  /* ============ Diagramme technique : anime quand visible ============ */
-  const diagramWrap = document.getElementById("techDiagramWrap");
-  const cutawayWrap = document.querySelector(".tech__cutaway-wrap");
-  if ("IntersectionObserver" in window) {
-    const techObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          entry.target.classList.toggle("in-view", entry.isIntersecting);
-        });
-      },
-      { threshold: 0.3 }
-    );
-    if (diagramWrap) techObserver.observe(diagramWrap);
-    if (cutawayWrap) techObserver.observe(cutawayWrap);
-  } else {
-    if (diagramWrap) diagramWrap.classList.add("in-view");
-    if (cutawayWrap) cutawayWrap.classList.add("in-view");
-  }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    status.textContent = "";
+    status.className = "form__status";
 
-  /* ============ Formulaire de contact (mailto) ============ */
-  const contactForm = document.getElementById("contactForm");
-  if (contactForm) {
-    contactForm.addEventListener("submit", (e) => {
-      e.preventDefault();
+    var firstInvalid = null;
+    required.forEach(function (input) { if (!validateField(input) && !firstInvalid) firstInvalid = input; });
+    consentErr.classList.toggle("is-visible", !consent.checked);
+    if (!consent.checked && !firstInvalid) firstInvalid = consent;
+    if (firstInvalid) { firstInvalid.focus(); return; }
 
-      const name = contactForm.name.value.trim();
-      const email = contactForm.email.value.trim();
-      const company = contactForm.company.value.trim();
-      const message = contactForm.message.value.trim();
+    var data = new FormData(form);
+    if (data.get("_honey")) return;
+    var name = (data.get("Nom") || "").trim().split(" ")[0];
+    data.set("_replyto", data.get("email"));
+    data.set("_subject", data.get("Type de demande") + " — " + (data.get("Entreprise") || data.get("Nom")) + " (site AIRO)");
 
-      if (!name || !email || !message) {
-        contactForm.reportValidity();
-        return;
-      }
+    submit.disabled = true;
+    submit.querySelector(".btn__label").textContent = "Envoi en cours…";
 
-      const subject = `Demande de démo AIRO — ${name}`;
-      const bodyLines = [
-        `Nom : ${name}`,
-        `Email : ${email}`,
-        company ? `Société / Site : ${company}` : null,
-        "",
-        message,
-      ].filter((line) => line !== null);
-
-      const mailto =
-        `mailto:contact@airo-machine.com` +
-        `?subject=${encodeURIComponent(subject)}` +
-        `&body=${encodeURIComponent(bodyLines.join("\n"))}`;
-
-      window.location.href = mailto;
-    });
-  }
+    fetch(ENDPOINT, { method: "POST", headers: { Accept: "application/json" }, body: data })
+      .then(function (res) { return res.json().then(function (json) { return { ok: res.ok, json: json }; }); })
+      .then(function (r) {
+        if (!r.ok || String(r.json.success) !== "true") throw new Error(r.json.message || "Erreur d'envoi");
+        showSuccess(name);
+      })
+      .catch(function () {
+        submit.disabled = false;
+        submit.querySelector(".btn__label").textContent = "Envoyer ma demande";
+        status.className = "form__status is-error";
+        status.innerHTML = "L'envoi n'a pas abouti. Réessayez ou <a href=\"" + mailtoFallback(data) +
+          "\">envoyez-nous votre demande par e-mail</a>.";
+      });
+  });
 })();
