@@ -13,6 +13,28 @@
 <meta property="og:image" content="assets/img/og.jpg">
 <script>document.documentElement.classList.add("js")</script>
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "AIRO",
+      "email": "airo.casque@gmail.com",
+      "telephone": "+33 6 68 73 12 07",
+      "sameAs": ["https://www.instagram.com/airo.officiel/"]
+    },
+    {
+      "@type": "Product",
+      "name": "Borne AIRO",
+      "brand": { "@type": "Brand", "name": "AIRO" },
+      "category": "Borne de nettoyage de casques",
+      "description": "Borne en libre-service à deux casiers qui nettoie, désinfecte et sèche les casques à la vapeur sèche, en 3 à 10 minutes."
+    }
+  ]
+}
+</script>
 <link rel="preload" href="assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="modulepreload" href="assets/vendor/three/three.module.min.js">
 <link rel="modulepreload" href="assets/js/experience.js">
@@ -309,7 +331,7 @@
 
         <label class="consent">
           <input type="checkbox" id="f-consent" required>
-          <span>J’accepte que mes informations servent à me recontacter au sujet de cette demande.</span>
+          <span>J’accepte que mes informations servent à me recontacter au sujet de cette demande. <a href="confidentialite.html">En savoir plus</a></span>
         </label>
         <p class="field__err" id="f-consent-err">Cochez la case pour envoyer la demande.</p>
 
@@ -338,6 +360,7 @@
         <a href="#fiche">Fiche technique</a>
         <a href="#secteurs">Secteurs</a>
         <a href="#devis">Demander un devis</a>
+        <a href="confidentialite.html">Confidentialité</a>
       </nav>
       <p class="footer__copy">© <span id="year">2026</span> AIRO</p>
     </div>
@@ -347,7 +370,11 @@
 <script type="importmap">
 { "imports": { "three": "./assets/vendor/three/three.module.min.js", "three/addons/": "./assets/vendor/three/addons/" } }
 </script>
+<script src="assets/vendor/gsap/gsap.min.js" defer></script>
+<script src="assets/vendor/gsap/ScrollTrigger.min.js" defer></script>
+<script src="assets/vendor/lenis/lenis.min.js" defer></script>
 <script src="script.js" defer></script>
+<script src="assets/js/motion.js" defer></script>
 <script type="module" src="assets/js/experience.js"></script>
 </body>
 </html>

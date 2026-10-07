@@ -215,8 +215,7 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .sector-index img { display: none; }
 .sector-index strong { font-stretch: 62%; font-weight: 800; font-size: clamp(2.6rem, 6vw, 5.4rem); line-height: .95; transition: transform 300ms var(--ease-out), color 150ms ease; }
 .sector-index span { color: var(--steel); }
-.sector-preview { position: fixed; left: 0; top: 0; width: 240px; height: 240px; object-fit: cover; pointer-events: none; z-index: 5; opacity: 0; transform: translate3d(-9999px, 0, 0); transition: opacity 200ms ease; border-radius: var(--radius); }
-.sector-preview.is-on { opacity: 1; }
+.sector-preview { position: fixed; left: 0; top: 0; width: 240px; height: 240px; object-fit: cover; pointer-events: none; z-index: 5; opacity: 0; visibility: hidden; border-radius: var(--radius); }
 @media (hover: hover) and (pointer: fine) {
   .sector-index li:hover strong { transform: translateX(16px); }
 }
@@ -281,6 +280,22 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .footer__links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--steel); text-decoration: none; font-size: .95rem; }
 .footer__links a:hover { color: var(--bone); }
 .footer__copy { margin-left: auto; color: var(--steel); font-size: .9rem; }
+
+/* Page confidentialité */
+.legal { padding-top: calc(var(--nav-h) + clamp(48px, 8vw, 96px)); border-top: 0; }
+.legal__body { max-width: 40em; }
+.legal__body h2 { font-stretch: 75%; font-size: 1.5rem; line-height: 1.2; margin: 40px 0 10px; }
+.legal__body p { color: var(--steel); }
+.legal__body a { color: var(--bone); }
+.legal__back { margin-left: auto; }
+
+/* Mouvement (GSAP + Lenis) */
+html.lenis, html.lenis body { height: auto; }
+html.lenis { scroll-behavior: auto; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.w > span { display: inline-block; will-change: transform; }
 
 /* Adaptations */
 @media (max-width: 1080px) {

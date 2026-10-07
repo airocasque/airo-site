@@ -5,6 +5,7 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 
 const stage = document.getElementById("xpStage");
 const canvas = document.getElementById("xpCanvas");
@@ -555,6 +556,9 @@ async function init() {
   floor.rotation.x = -Math.PI / 2; scene.add(floor);
   const halo = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 3.2), basic({ map: radialTex("rgba(47,107,255,0.28)"), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
   halo.rotation.x = -Math.PI / 2; halo.position.y = 0.002; scene.add(halo);
+  // ombre de contact : ancre la borne au sol (suit sa rotation)
+  const contact = new THREE.Mesh(new THREE.PlaneGeometry(W * 1.9, D * 1.9), basic({ map: radialTex("rgba(0,0,0,0.92)", "rgba(0,0,0,0)"), transparent: true, depthWrite: false }));
+  contact.rotation.x = -Math.PI / 2; contact.position.y = 0.003; contact.renderOrder = 1; machine.add(contact);
   const backdrop = new THREE.Mesh(new THREE.PlaneGeometry(16, 9), basic({ map: radialTex("rgba(40,70,140,0.12)", "rgba(0,0,0,0)", 512), transparent: true, depthWrite: false, fog: false }));
   backdrop.position.set(0, 2.4, -5); scene.add(backdrop);
 
@@ -608,6 +612,22 @@ async function init() {
   const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.4, 1.05);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
+  // finition « film » : vignettage et grain très légers, appliqués après la conversion des couleurs
+  const finish = new ShaderPass({
+    uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uGrain: { value: mobile ? 0.025 : 0.035 }, uVig: { value: 0.32 } },
+    vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: `precision mediump float;
+      uniform sampler2D tDiffuse; uniform float uTime, uGrain, uVig; varying vec2 vUv;
+      float rand(vec2 c){ return fract(sin(dot(c, vec2(12.9898, 78.233))) * 43758.5453); }
+      void main(){
+        vec4 c = texture2D(tDiffuse, vUv);
+        float d = distance(vUv, vec2(0.5));
+        c.rgb *= 1.0 - uVig * smoothstep(0.35, 0.85, d);
+        c.rgb += (rand(vUv * 913.0 + fract(uTime)) - 0.5) * uGrain;
+        gl_FragColor = c;
+      }`,
+  });
+  composer.addPass(finish);
 
   /* ---------- taille & cadrage ---------- */
   let vw = 1, vh = 1, sideLayout = true;
@@ -689,7 +709,8 @@ async function init() {
     const r = xp.getBoundingClientRect();
     const total = r.height - window.innerHeight;
     const target = window.scrollY + r.top + total * ((B[k] + B[k + 1]) / 2);
-    window.scrollTo({ top: target, behavior: reduceMotion ? "auto" : "smooth" });
+    if (window.airoLenis) window.airoLenis.scrollTo(target, { duration: 1.6 });
+    else window.scrollTo({ top: target, behavior: reduceMotion ? "auto" : "smooth" });
   }));
 
   /* ---------- repères techniques (pendant la rotation à 360°) ---------- */
@@ -749,8 +770,11 @@ async function init() {
   const vis = new IntersectionObserver((e) => { running = e[0].isIntersecting; if (running && !looping) loop(); });
   vis.observe(xp);
 
+  let lastNow = performance.now();
+  const damp = (k, dt) => 1 - Math.pow(1 - k, dt * 60); // même rendu à 30, 60 ou 144 images/s
   function frame(now) {
     const t = (now - t0) / 1000;
+    const dt = Math.min(0.1, (now - lastNow) / 1000); lastNow = now;
     // mise sous tension à l'apparition : LED qui se tracent, écran qui s'allume, casiers éclairés
     if (bootStart === null) bootStart = now;
     const bt = reduceMotion ? 9 : (now - bootStart) / 1000;
@@ -759,7 +783,7 @@ async function init() {
     leds[2].scale.x = Math.max(0.001, smooth(0.7, 1.1, bt));
     leds[3].scale.y = leds[4].scale.y = Math.max(0.001, smooth(0.4, 1.3, bt));
     mats.screen.color.setScalar(0.92 * smooth(1.0, 1.5, bt) * (bt < 1.12 && bt > 1.02 ? 0.3 : 1));
-    shown += (progress - shown) * (reduceMotion ? 1 : 0.09);
+    shown += (progress - shown) * (reduceMotion ? 1 : damp(0.12, dt));
     const p = shown;
     const seg = (i) => clamp((p - B[i]) / (B[i + 1] - B[i]));
     let step = 0; for (let i = 0; i < B.length - 1; i++) if (progress >= B[i]) step = i;
@@ -771,8 +795,8 @@ async function init() {
     let rot = lerp(rIntro, Math.PI * 2, smooth(B[1], B[2], p));
     rot = lerp(rot, Math.PI * 2 - 0.5, smooth(B[6], B[7], p));
     if (!dragging) {
-      userRot += spin; spin *= 0.94; // élan après un lancer, freiné progressivement
-      if (Math.abs(spin) < 0.0005 && now - lastDrag > 1800) userRot *= 0.95;
+      userRot += spin * dt * 60; spin *= Math.pow(0.94, dt * 60); // élan après un lancer, freiné progressivement
+      if (Math.abs(spin) < 0.0005 && now - lastDrag > 1800) userRot *= Math.pow(0.95, dt * 60);
     }
     machine.rotation.y = rot + userRot;
 
@@ -791,7 +815,7 @@ async function init() {
       v3.y += 0.1; look.y -= 0.32;
     }
     // parallaxe amortie : la caméra suit la souris avec inertie plutôt qu'instantanément
-    smx += (mx - smx) * 0.05; smy += (my - smy) * 0.05;
+    smx += (mx - smx) * damp(0.05, dt); smy += (my - smy) * damp(0.05, dt);
     if (!reduceMotion) { v3.x += smx * 0.25; v3.y -= smy * 0.12; }
     camera.position.copy(v3);
     camera.lookAt(look);
@@ -879,7 +903,7 @@ async function init() {
       s.position.set(Math.cos(a) * u.d, u.y + Math.sin(t * 0.3 + u.ph) * 0.08, Math.sin(a) * u.d - 0.4);
       s.material.rotation = u.ph + t * u.sp;
       const target = u.base * (1 + steamAmt * 0.6);
-      s.material.opacity += (target - s.material.opacity) * 0.02;
+      s.material.opacity += (target - s.material.opacity) * damp(0.02, dt);
     });
 
     // pulsation des LED
@@ -887,6 +911,7 @@ async function init() {
     mats.led.color.copy(ledColor).multiplyScalar(breathe);
 
     updateCallouts(sideLayout && step === 1 && !dragging);
+    finish.uniforms.uTime.value = reduceMotion ? 0 : t;
     composer.render();
     if (firstFrame) { firstFrame = false; stage.classList.add("is-live"); ready(); }
   }
@@ -903,7 +928,7 @@ async function init() {
       quality++;
       if (quality === 1) renderer.setPixelRatio(Math.max(1, maxDpr * 0.75));
       if (quality === 2) renderer.setPixelRatio(1);
-      if (quality === 3) bloom.enabled = false;
+      if (quality === 3) { bloom.enabled = false; finish.enabled = false; }
       resize();
     }
   }
