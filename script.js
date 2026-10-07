@@ -114,9 +114,16 @@
     form.innerHTML =
       '<div class="form__success" role="status">' +
       "<h3>Demande envoyée" + (name ? ", merci " + name.replace(/[<>&"]/g, "") : "") + ".</h3>" +
-      "<p>Nous l'avons bien reçue et vous répondons par e-mail ou par téléphone.</p>" +
+      "<p>Nous l’avons bien reçue et vous répondons par e-mail ou par téléphone.</p>" +
       '<a class="btn btn--ghost" href="#xp">Retour en haut</a></div>';
   }
+
+  // Prévient avant de quitter la page si une demande est en cours de saisie
+  var dirty = false;
+  form.addEventListener("input", function () { dirty = true; });
+  window.addEventListener("beforeunload", function (e) {
+    if (dirty && !form.classList.contains("is-sent")) { e.preventDefault(); e.returnValue = ""; }
+  });
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -148,7 +155,7 @@
         submit.disabled = false;
         submit.querySelector(".btn__label").textContent = "Envoyer la demande";
         status.className = "form__status is-error";
-        status.innerHTML = "La demande n'est pas partie : la connexion au service d'envoi a échoué. Réessayez, ou <a href=\"" + mailtoFallback(data) +
+        status.innerHTML = "La demande n’est pas partie : la connexion au service d’envoi a échoué. Réessayez, ou <a href=\"" + mailtoFallback(data) +
           "\">envoyez-la par e-mail</a>.";
       });
   });

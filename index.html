@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
 <title>AIRO — Borne de nettoyage de casques à la vapeur sèche</title>
 <meta name="description" content="AIRO nettoie, désinfecte et sèche les casques en libre-service, en 3 à 10 minutes. Une borne à deux casiers pour concessions, kartings, circuits, centres équestres, écoles et stations. Demandez un devis.">
 <meta name="theme-color" content="#000000">
@@ -13,6 +14,9 @@
 <script>document.documentElement.classList.add("js")</script>
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="modulepreload" href="assets/vendor/three/three.module.min.js">
+<link rel="modulepreload" href="assets/js/experience.js">
+<link rel="preconnect" href="https://formsubmit.co">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -26,7 +30,7 @@
 </svg>
 
 <div class="intro" id="intro" aria-hidden="true">
-  <p class="intro__word">AIRO</p>
+  <p class="intro__word" translate="no">AIRO</p>
   <span class="intro__led"></span>
 </div>
 
@@ -34,7 +38,7 @@
 
 <header class="nav" id="nav">
   <div class="wrap nav__inner">
-    <a class="nav__brand" href="#xp" aria-label="AIRO, retour en haut">AIRO</a>
+    <a class="nav__brand" href="#xp" aria-label="AIRO, retour en haut" translate="no">AIRO</a>
     <nav class="nav__links" id="navLinks" aria-label="Navigation principale">
       <a href="#xp-fonctionnement">Fonctionnement</a>
       <a href="#technologie">Technologie</a>
@@ -54,8 +58,8 @@
   <!-- La borne en 3D, pilotée par le défilement -->
   <section class="xp" id="xp" aria-label="Découvrir la borne AIRO">
     <div class="xp__stage" id="xpStage">
-      <canvas id="xpCanvas" aria-label="Modèle 3D de la borne AIRO. Faites glisser pour la faire tourner." role="img"></canvas>
-      <img class="xp__fallback" src="assets/img/machine.webp" alt="La borne AIRO avec ses deux casiers A et B et son écran tactile">
+      <canvas id="xpCanvas" tabindex="0" aria-label="Modèle 3D de la borne AIRO. Faites glisser, ou utilisez les flèches gauche et droite, pour la faire tourner." role="img"></canvas>
+      <img class="xp__fallback" src="assets/img/machine.webp" alt="La borne AIRO avec ses deux casiers A et B et son écran tactile" width="581" height="1000" loading="lazy">
       <div class="xp-callouts" id="xpCallouts" aria-hidden="true"></div>
       <nav class="xp-dots" aria-label="Étapes de la présentation">
         <button type="button" aria-label="Début"></button>
@@ -73,7 +77,7 @@
       <div class="xp-step xp-step--hero is-active">
         <div class="xp-step__inner">
           <h1>Un casque propre, désinfecté et sec en quelques minutes.</h1>
-          <p class="lead">AIRO est une borne en libre-service qui nettoie les casques à la vapeur sèche. Vous l'installez, vos clients s'en servent.</p>
+          <p class="lead">AIRO est une borne en libre-service qui nettoie les casques à la vapeur sèche. Vous l’installez, vos clients s’en servent.</p>
           <div class="actions">
             <a class="btn btn--primary" href="#devis">Demander un devis</a>
             <a class="btn btn--ghost" href="#xp-borne">Voir la borne</a>
@@ -84,7 +88,7 @@
       <div class="xp-step" id="xp-borne">
         <div class="xp-step__inner">
           <h2>Deux casiers, un écran, rien à manipuler.</h2>
-          <p>La borne tient dans un coin de magasin. Chaque casier fonctionne seul : deux clients peuvent l'utiliser en même temps.</p>
+          <p>La borne tient dans un coin de magasin. Chaque casier fonctionne seul : deux clients peuvent l’utiliser en même temps.</p>
         </div>
       </div>
 
@@ -105,7 +109,7 @@
         <div class="xp-step__inner">
           <p class="step-no" aria-hidden="true">2</p>
           <h2>Il pose son casque et ferme la porte.</h2>
-          <p>Le casier s'ouvre après le paiement. Le casque se pose sur le support, la porte se referme.</p>
+          <p>Le casier s’ouvre après le paiement. Le casque se pose sur le support, la porte se referme.</p>
         </div>
       </div>
 
@@ -127,7 +131,7 @@
 
       <div class="xp-step xp-step--end">
         <div class="xp-step__inner">
-          <h2>Déposez votre casque. AIRO s'occupe du reste.</h2>
+          <h2>Déposez votre casque. AIRO s’occupe du reste.</h2>
           <div class="actions">
             <a class="btn btn--primary" href="#devis">Demander un devis</a>
             <a class="btn btn--ghost" href="#fiche">Lire la fiche technique</a>
@@ -140,14 +144,14 @@
   <!-- Le problème -->
   <section class="block problem" id="probleme">
     <div class="wrap">
-      <h2 class="block__title">Un casque protège votre tête. Rien ne protège l'intérieur du casque.</h2>
+      <h2 class="block__title">Un casque protège votre tête. Rien ne protège l’intérieur du casque.</h2>
       <ul class="threats">
         <li><strong>Humidité</strong><span>La transpiration reste dans les mousses après chaque sortie.</span></li>
         <li><strong>Bactéries</strong><span>Un intérieur chaud et humide où les germes se multiplient.</span></li>
-        <li><strong>Odeurs</strong><span>Elles s'installent et ne partent plus à l'air libre.</span></li>
+        <li><strong>Odeurs</strong><span>Elles s’installent et ne partent plus à l’air libre.</span></li>
         <li><strong>Saletés</strong><span>Poussière et sébum là où le chiffon ne passe pas.</span></li>
       </ul>
-      <p class="problem__note">Moto, karting, circuit, équitation, ski : l'usage change, le problème reste le même. Et quand un casque est partagé entre plusieurs personnes, il devient un vrai sujet d'hygiène.</p>
+      <p class="problem__note">Moto, karting, circuit, équitation, ski : l’usage change, le problème reste le même. Et quand un casque est partagé entre plusieurs personnes, il devient un vrai sujet d’hygiène.</p>
     </div>
   </section>
 
@@ -155,16 +159,16 @@
   <section class="block tech" id="technologie">
     <div class="wrap tech__grid">
       <figure class="tech__media">
-        <img src="assets/img/cutaway.webp" alt="Vue en coupe d'un casque traversé par la vapeur sèche" loading="lazy">
+        <img src="assets/img/cutaway.webp" alt="Vue en coupe d'un casque traversé par la vapeur sèche" width="675" height="640" loading="lazy">
         <figcaption>Vue en coupe : la vapeur atteint les mousses sans mouiller le casque.</figcaption>
       </figure>
       <div class="tech__body">
         <h2 class="block__title">Nettoyer en profondeur, sans abîmer.</h2>
         <dl class="specs-list">
-          <div><dt>Vapeur sèche</dt><dd>Elle pénètre les mousses en profondeur avec très peu d'eau.</dd></div>
+          <div><dt>Vapeur sèche</dt><dd>Elle pénètre les mousses en profondeur avec très peu d’eau.</dd></div>
           <div><dt>Désinfection</dt><dd>Réduit les bactéries responsables des mauvaises odeurs.</dd></div>
           <div><dt>Matériaux</dt><dd>Mousses, textiles et finitions sont préservés.</dd></div>
-          <div><dt>Électronique</dt><dd>Compatible avec les casques équipés d'intercom.</dd></div>
+          <div><dt>Électronique</dt><dd>Compatible avec les casques équipés d’intercom.</dd></div>
           <div><dt>Séchage</dt><dd>Intégré au cycle : le casque ressort prêt à être porté.</dd></div>
         </dl>
       </div>
@@ -174,10 +178,10 @@
   <!-- Professionnels -->
   <section class="block pros" id="professionnels">
     <figure class="pros__photo">
-      <img src="assets/img/client.webp" alt="Un vendeur remet un casque propre à un client" loading="lazy">
+      <img src="assets/img/client.webp" alt="Un vendeur remet un casque propre à un client" width="547" height="419" loading="lazy">
     </figure>
     <div class="wrap pros__body">
-      <h2 class="block__title">Pour vous, c'est un service en plus. Pour vos clients, une raison de revenir.</h2>
+      <h2 class="block__title">Pour vous, c’est un service en plus. Pour vos clients, une raison de revenir.</h2>
       <dl class="specs-list specs-list--two">
         <div><dt>Un nouveau revenu</dt><dd>Chaque nettoyage est une prestation payée sur la borne, sans personnel.</dd></div>
         <div><dt>Un meilleur accueil</dt><dd>Vos clients repartent avec un casque propre et une bonne impression.</dd></div>
@@ -200,7 +204,7 @@
           <tr><th scope="row">Casques acceptés</th><td>Intégral, modulable, jet, karting, automobile, équitation, ski, vélo et plus</td></tr>
           <tr><th scope="row">Électronique</th><td>Compatible casques avec intercom</td></tr>
           <tr><th scope="row">Utilisation</th><td>Libre-service sur écran tactile, paiement sécurisé sur la borne</td></tr>
-          <tr><th scope="row">Tarifs</th><td>Fixés par l'exploitant</td></tr>
+          <tr><th scope="row">Tarifs</th><td>Fixés par l’exploitant</td></tr>
         </tbody>
       </table>
     </div>
@@ -211,14 +215,14 @@
     <div class="wrap">
       <h2 class="block__title">Là où un casque est porté, AIRO a sa place.</h2>
       <ul class="sector-index" id="sectorIndex">
-        <li data-img="assets/img/sec-l0.webp"><img src="assets/img/sec-l0.webp" alt="" loading="lazy"><strong>Moto</strong><span>Concessions, magasins, ateliers, garages, loueurs, contrôles techniques</span></li>
-        <li data-img="assets/img/sec-l1.webp"><img src="assets/img/sec-l1.webp" alt="" loading="lazy"><strong>Loisirs</strong><span>Kartings, bases de loisirs, parcs d'attractions, activités indoor</span></li>
-        <li data-img="assets/img/sec-l2.webp"><img src="assets/img/sec-l2.webp" alt="" loading="lazy"><strong>Sport auto</strong><span>Circuits, écuries, écoles de pilotage, compétitions</span></li>
-        <li data-img="assets/img/sec-r0.webp"><img src="assets/img/sec-r0.webp" alt="" loading="lazy"><strong>Sports</strong><span>Ski, snowboard, hockey, VTT, BMX, paintball, airsoft, escalade</span></li>
-        <li data-img="assets/img/sec-r1.webp"><img src="assets/img/sec-r1.webp" alt="" loading="lazy"><strong>Équitation</strong><span>Clubs, écuries, centres de formation, promenades</span></li>
-        <li data-img="assets/img/sec-r2.webp"><img src="assets/img/sec-r2.webp" alt="" loading="lazy"><strong>Formation</strong><span>Auto-écoles, centres de formation, casernes, collectivités</span></li>
+        <li data-img="assets/img/sec-l0.webp"><img src="assets/img/sec-l0.webp" alt="" width="228" height="228" loading="lazy"><strong>Moto</strong><span>Concessions, magasins, ateliers, garages, loueurs, contrôles techniques</span></li>
+        <li data-img="assets/img/sec-l1.webp"><img src="assets/img/sec-l1.webp" alt="" width="228" height="228" loading="lazy"><strong>Loisirs</strong><span>Kartings, bases de loisirs, parcs d’attractions, activités indoor</span></li>
+        <li data-img="assets/img/sec-l2.webp"><img src="assets/img/sec-l2.webp" alt="" width="228" height="228" loading="lazy"><strong>Sport auto</strong><span>Circuits, écuries, écoles de pilotage, compétitions</span></li>
+        <li data-img="assets/img/sec-r0.webp"><img src="assets/img/sec-r0.webp" alt="" width="228" height="228" loading="lazy"><strong>Sports</strong><span>Ski, snowboard, hockey, VTT, BMX, paintball, airsoft, escalade</span></li>
+        <li data-img="assets/img/sec-r1.webp"><img src="assets/img/sec-r1.webp" alt="" width="228" height="228" loading="lazy"><strong>Équitation</strong><span>Clubs, écuries, centres de formation, promenades</span></li>
+        <li data-img="assets/img/sec-r2.webp"><img src="assets/img/sec-r2.webp" alt="" width="228" height="228" loading="lazy"><strong>Formation</strong><span>Auto-écoles, centres de formation, casernes, collectivités</span></li>
       </ul>
-      <img class="sector-preview" id="sectorPreview" src="assets/img/sec-l0.webp" alt="" aria-hidden="true">
+      <img class="sector-preview" id="sectorPreview" src="assets/img/sec-l0.webp" alt="" aria-hidden="true" width="228" height="228" loading="lazy">
     </div>
   </section>
 
@@ -261,7 +265,7 @@
           </div>
           <div class="field">
             <label for="f-email">E-mail</label>
-            <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required>
+            <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" spellcheck="false" required>
             <p class="field__err" id="f-email-err">Indiquez une adresse e-mail valide, par exemple nom@domaine.fr.</p>
           </div>
           <div class="field">
@@ -298,14 +302,14 @@
           </div>
           <div class="field field--full">
             <label for="f-msg">Votre message</label>
-            <textarea id="f-msg" name="Message" rows="5" required placeholder="Votre activité, l'emplacement prévu, vos questions"></textarea>
+            <textarea id="f-msg" name="Message" rows="5" required placeholder="Votre activité, l’emplacement prévu, vos questions…"></textarea>
             <p class="field__err" id="f-msg-err">Écrivez quelques mots sur votre projet.</p>
           </div>
         </div>
 
         <label class="consent">
           <input type="checkbox" id="f-consent" required>
-          <span>J'accepte que mes informations servent à me recontacter au sujet de cette demande.</span>
+          <span>J’accepte que mes informations servent à me recontacter au sujet de cette demande.</span>
         </label>
         <p class="field__err" id="f-consent-err">Cochez la case pour envoyer la demande.</p>
 
@@ -326,9 +330,9 @@
 
 <footer class="footer">
   <div class="wrap">
-    <p class="footer__mark" aria-hidden="true">AIRO</p>
+    <p class="footer__mark" aria-hidden="true" translate="no">AIRO</p>
     <div class="footer__row">
-      <img src="assets/img/logo-sm.png" alt="Logo AIRO nettoyage casque" width="56" height="54" loading="lazy">
+      <img src="assets/img/logo-sm.webp" alt="Logo AIRO nettoyage casque" width="56" height="54" loading="lazy">
       <nav class="footer__links" aria-label="Liens de pied de page">
         <a href="#xp-fonctionnement">Fonctionnement</a>
         <a href="#fiche">Fiche technique</a>

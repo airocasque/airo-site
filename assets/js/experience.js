@@ -645,6 +645,13 @@ async function init() {
     if (performance.now() - lastT > 80) spin = 0; // geste arrêté avant de lâcher : pas d'élan
   };
   canvas.addEventListener("pointerup", endDrag);
+  // alternative clavier au glisser : flèches gauche / droite quand la borne a le focus
+  canvas.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    userRot += e.key === "ArrowLeft" ? -0.35 : 0.35;
+    lastDrag = performance.now(); spin = 0;
+  });
   canvas.addEventListener("pointercancel", endDrag);
 
   let mx = 0, my = 0, smx = 0, smy = 0;
@@ -702,7 +709,7 @@ async function init() {
     el.querySelector("strong").textContent = a.t;
     el.querySelector(".callout__text > span").textContent = a.s;
     if (calloutLayer) calloutLayer.appendChild(el);
-    return { el, p: new THREE.Vector3(...a.p), n: new THREE.Vector3(...a.n).normalize(), on: false, left: null };
+    return { el, p: new THREE.Vector3(...a.p), n: new THREE.Vector3(...a.n).normalize(), on: false, left: null, w: 0 };
   });
   const cw = new THREE.Vector3(), cn = new THREE.Vector3(), cc = new THREE.Vector3(), ctr = new THREE.Vector3();
   function updateCallouts(show) {
@@ -720,9 +727,10 @@ async function init() {
           cw.project(camera);
           const x = (cw.x * 0.5 + 0.5) * vw, y = (-cw.y * 0.5 + 0.5) * vh;
           const left = x < midX - 4;
-          if (left !== a.left) { a.el.classList.toggle("callout--left", left); a.left = left; }
+          if (left !== a.left) { a.el.classList.toggle("callout--left", left); a.left = left; a.w = 0; }
+          if (!a.w) a.w = a.el.offsetWidth; // mesuré une fois, pas à chaque image
           // l'ancre du repère est son point : on décale la boîte quand le texte part à gauche
-          a.el.style.transform = left ? `translate3d(${x - a.el.offsetWidth}px, ${y}px, 0)` : `translate3d(${x}px, ${y}px, 0)`;
+          a.el.style.transform = left ? `translate3d(${x - a.w}px, ${y}px, 0)` : `translate3d(${x}px, ${y}px, 0)`;
         }
       }
       if (visible !== a.on) { a.el.classList.toggle("is-on", visible); a.on = visible; }
