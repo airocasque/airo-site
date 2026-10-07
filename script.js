@@ -22,15 +22,6 @@
     setTimeout(close, 4000);
   }
 
-  /* Halo lumineux qui suit la souris sur les cartes */
-  document.addEventListener("pointermove", function (e) {
-    var card = e.target.closest && e.target.closest(".threat, .benefit, .sector, .features li");
-    if (!card) return;
-    var r = card.getBoundingClientRect();
-    card.style.setProperty("--mx", (e.clientX - r.left) + "px");
-    card.style.setProperty("--my", (e.clientY - r.top) + "px");
-  }, { passive: true });
-
   /* Navigation */
   var nav = document.getElementById("nav");
   var toggle = document.getElementById("navToggle");
@@ -50,26 +41,27 @@
   links.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu(false); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") setMenu(false); });
 
-  /* Reveal on scroll */
-  var items = document.querySelectorAll(".reveal");
-  if ("IntersectionObserver" in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          var el = entry.target;
-          el.classList.add("is-in");
-          io.unobserve(el);
-          // le décalage en cascade ne sert qu'à l'apparition : on le retire pour que les survols restent immédiats
-          setTimeout(function () { el.style.transitionDelay = ""; }, 900);
-        }
-      });
-    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
-    items.forEach(function (el, i) {
-      el.style.transitionDelay = (i % 4) * 60 + "ms";
-      io.observe(el);
+  /* Secteurs : aperçu photo qui suit le pointeur (souris uniquement) */
+  var preview = document.getElementById("sectorPreview");
+  var index = document.getElementById("sectorIndex");
+  if (preview && index && window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    var tx = 0, ty = 0, px = 0, py = 0, raf = 0, on = false;
+    var tick = function () {
+      px += (tx - px) * 0.18; py += (ty - py) * 0.18; // suivi amorti, pas collé au curseur
+      preview.style.transform = "translate3d(" + (px + 24) + "px," + (py - 120) + "px,0)";
+      raf = on || Math.abs(tx - px) > 0.5 ? requestAnimationFrame(tick) : 0;
+    };
+    index.addEventListener("pointermove", function (e) {
+      var li = e.target.closest("li");
+      if (!li) return;
+      if (!on) { px = e.clientX; py = e.clientY; }
+      tx = e.clientX; ty = e.clientY;
+      if (preview.getAttribute("src") !== li.dataset.img) preview.setAttribute("src", li.dataset.img);
+      on = true; preview.classList.add("is-on");
+      if (!raf) raf = requestAnimationFrame(tick);
     });
-  } else {
-    items.forEach(function (el) { el.classList.add("is-in"); });
+    index.addEventListener("pointerleave", function () { on = false; preview.classList.remove("is-on"); });
   }
 
   /* Quote form */
@@ -121,9 +113,8 @@
     form.classList.add("is-sent");
     form.innerHTML =
       '<div class="form__success" role="status">' +
-      '<svg class="ico"><use href="#i-check"/></svg>' +
-      "<h3>Merci" + (name ? " " + name.replace(/[<>&"]/g, "") : "") + " !</h3>" +
-      "<p>Votre demande a bien été envoyée. L'équipe AIRO vous recontacte très rapidement.</p>" +
+      "<h3>Demande envoyée" + (name ? ", merci " + name.replace(/[<>&"]/g, "") : "") + ".</h3>" +
+      "<p>Nous l'avons bien reçue et vous répondons par e-mail ou par téléphone.</p>" +
       '<a class="btn btn--ghost" href="#xp">Retour en haut</a></div>';
   }
 
@@ -155,10 +146,10 @@
       })
       .catch(function () {
         submit.disabled = false;
-        submit.querySelector(".btn__label").textContent = "Envoyer ma demande";
+        submit.querySelector(".btn__label").textContent = "Envoyer la demande";
         status.className = "form__status is-error";
-        status.innerHTML = "L'envoi n'a pas abouti. Réessayez ou <a href=\"" + mailtoFallback(data) +
-          "\">envoyez-nous votre demande par e-mail</a>.";
+        status.innerHTML = "La demande n'est pas partie : la connexion au service d'envoi a échoué. Réessayez, ou <a href=\"" + mailtoFallback(data) +
+          "\">envoyez-la par e-mail</a>.";
       });
   });
 })();

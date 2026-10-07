@@ -3,77 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AIRO — Nettoyage et désinfection de casques par vapeur sèche</title>
-<meta name="description" content="AIRO nettoie, désinfecte et sèche les casques en quelques minutes par vapeur sèche. Machine automatique en libre-service pour concessions, karting, circuits, centres équestres, écoles et plus encore. Demandez votre devis.">
-<meta name="theme-color" content="#05070d">
+<title>AIRO — Borne de nettoyage de casques à la vapeur sèche</title>
+<meta name="description" content="AIRO nettoie, désinfecte et sèche les casques en libre-service, en 3 à 10 minutes. Une borne à deux casiers pour concessions, kartings, circuits, centres équestres, écoles et stations. Demandez un devis.">
+<meta name="theme-color" content="#000000">
 <meta property="og:type" content="website">
-<meta property="og:title" content="AIRO — L'entretien des casques entre dans une nouvelle ère">
-<meta property="og:description" content="Vapeur sèche, désinfection prouvée, compatible tous casques. Demandez votre devis.">
+<meta property="og:title" content="AIRO — Borne de nettoyage de casques">
+<meta property="og:description" content="Vapeur sèche, désinfection, séchage. Deux casiers, aucune manipulation. Demandez un devis.">
 <meta property="og:image" content="assets/img/og.jpg">
 <script>document.documentElement.classList.add("js")</script>
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <symbol id="i-steam" viewBox="0 0 24 24"><path d="M7 20c2-2 2-4 0-6s-2-4 0-6M12 20c2-2 2-4 0-6s-2-4 0-6M17 20c2-2 2-4 0-6s-2-4 0-6"/></symbol>
-    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
-    <symbol id="i-helmet" viewBox="0 0 24 24"><path d="M3 15a9 9 0 0 1 18 0v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11h9M8 19v-3a4 4 0 0 1 4-4"/></symbol>
-    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></symbol>
-    <symbol id="i-virus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5M5 5l3.5 3.5M15.5 15.5L19 19M19 5l-3.5 3.5M8.5 15.5L5 19"/></symbol>
-    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 1 0-3-3M3 16h15a3 3 0 1 1-3 3M3 12h8"/></symbol>
-    <symbol id="i-dust" viewBox="0 0 24 24"><circle cx="7" cy="8" r="1.5"/><circle cx="15" cy="6" r="1"/><circle cx="17" cy="13" r="2"/><circle cx="9" cy="15" r="2.5"/><circle cx="14" cy="19" r="1"/></symbol>
-    <symbol id="i-fan" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M12 10c0-4 1-7 4-7s3 4 0 6M14 12c4 0 7 1 7 4s-4 3-6 0M12 14c0 4-1 7-4 7s-3-4 0-6M10 12c-4 0-7-1-7-4s4-3 6 0"/></symbol>
-    <symbol id="i-touch" viewBox="0 0 24 24"><path d="M9 11V5a2 2 0 0 1 4 0v6M13 10a2 2 0 0 1 4 0v1M17 11a2 2 0 0 1 4 0v4a7 7 0 0 1-7 7h-1a7 7 0 0 1-5.6-2.8L4 16a2 2 0 0 1 3-2.6L9 15"/></symbol>
-    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
-    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></symbol>
-    <symbol id="i-euro" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5a4 4 0 1 0 0 7M7.5 11h6M7.5 13.5h6"/></symbol>
-    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></symbol>
-    <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9M3 9h18v1a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0zM5 13v8h14v-8M10 21v-5h4v5"/></symbol>
-    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M2 12l4-4 5 2 3-2 5 4-6 6-3-1-4 3-4-4"/><path d="M11 10l3 3"/></symbol>
-    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
-    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
-    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8" r="1.5"/></symbol>
-    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
-    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
-    <symbol id="i-insta" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8"/></symbol>
-    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
-    <symbol id="i-drag" viewBox="0 0 24 24"><path d="M8 7l-4 5 4 5M16 7l4 5-4 5M4 12h16"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
-    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-drag" viewBox="0 0 24 24"><path d="M8 7l-4 5 4 5M16 7l4 5-4 5M4 12h16"/></symbol>
   </defs>
 </svg>
 
 <div class="intro" id="intro" aria-hidden="true">
-  <div class="intro__steam"><span></span><span></span><span></span></div>
-  <img class="intro__logo" src="assets/img/logo.png" alt="" width="180" height="172">
   <p class="intro__word">AIRO</p>
-  <div class="intro__bar"><span></span></div>
+  <span class="intro__led"></span>
 </div>
-
-<div class="smoke-bg" aria-hidden="true"><span></span><span></span><span></span></div>
 
 <a class="skip" href="#contenu">Aller au contenu</a>
 
 <header class="nav" id="nav">
-  <div class="container nav__inner">
-    <a class="nav__brand" href="#xp" aria-label="AIRO, retour en haut">
-      <img src="assets/img/logo-sm.png" alt="" width="44" height="42">
-      <span>AIRO</span>
-    </a>
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="#xp" aria-label="AIRO, retour en haut">AIRO</a>
     <nav class="nav__links" id="navLinks" aria-label="Navigation principale">
-      <a href="#solution">La solution</a>
       <a href="#xp-fonctionnement">Fonctionnement</a>
       <a href="#technologie">Technologie</a>
-      <a href="#professionnels">Professionnels</a>
+      <a href="#fiche">Fiche technique</a>
       <a href="#secteurs">Secteurs</a>
-      <a class="btn btn--primary btn--sm nav__cta-mobile" href="#devis">Demander un devis</a>
+      <a class="btn btn--primary nav__cta-mobile" href="#devis">Demander un devis</a>
     </nav>
     <a class="btn btn--primary btn--sm nav__cta" href="#devis">Demander un devis</a>
     <button class="nav__toggle" id="navToggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="navLinks">
@@ -84,228 +51,191 @@
 
 <main id="contenu">
 
-  <!-- EXPÉRIENCE 3D -->
+  <!-- La borne en 3D, pilotée par le défilement -->
   <section class="xp" id="xp" aria-label="Découvrir la borne AIRO">
     <div class="xp__stage" id="xpStage">
       <canvas id="xpCanvas" aria-label="Modèle 3D de la borne AIRO. Faites glisser pour la faire tourner." role="img"></canvas>
       <img class="xp__fallback" src="assets/img/machine.jpg" alt="La borne AIRO avec ses deux casiers A et B et son écran tactile">
+      <div class="xp-callouts" id="xpCallouts" aria-hidden="true"></div>
       <nav class="xp-dots" aria-label="Étapes de la présentation">
-        <button type="button" aria-label="Accueil"></button>
-        <button type="button" aria-label="La borne à 360°"></button>
+        <button type="button" aria-label="Début"></button>
+        <button type="button" aria-label="La borne"></button>
         <button type="button" aria-label="Étape 1 : choisir le programme"></button>
         <button type="button" aria-label="Étape 2 : déposer le casque"></button>
         <button type="button" aria-label="Étape 3 : le cycle"></button>
         <button type="button" aria-label="Étape 4 : récupérer le casque"></button>
-        <button type="button" aria-label="Conclusion"></button>
+        <button type="button" aria-label="Fin"></button>
       </nav>
-      <p class="xp__hint" aria-hidden="true"><svg class="ico"><use href="#i-drag"/></svg>Glissez pour faire tourner</p>
+      <p class="xp__hint" aria-hidden="true"><svg class="ico"><use href="#i-drag"/></svg>Glissez pour faire tourner la borne</p>
     </div>
 
-    <div class="xp__steps container">
-      <div class="xp-step xp-step--hero is-active" id="top">
+    <div class="xp__steps wrap">
+      <div class="xp-step xp-step--hero is-active">
         <div class="xp-step__inner">
-          <p class="eyebrow">Nettoyage de casques par vapeur sèche</p>
-          <h1>L'entretien des casques <span class="accent">entre dans une nouvelle ère.</span></h1>
-          <p class="lead">AIRO nettoie, désinfecte et sèche les casques en quelques minutes, automatiquement. Pour les particuliers comme pour les professionnels.</p>
-          <div class="hero__actions">
-            <a class="btn btn--primary" href="#devis">Demander un devis <svg class="ico"><use href="#i-arrow"/></svg></a>
-            <a class="btn btn--ghost" href="#probleme">En savoir plus</a>
+          <h1>Un casque propre, désinfecté et sec en quelques minutes.</h1>
+          <p class="lead">AIRO est une borne en libre-service qui nettoie les casques à la vapeur sèche. Vous l'installez, vos clients s'en servent.</p>
+          <div class="actions">
+            <a class="btn btn--primary" href="#devis">Demander un devis</a>
+            <a class="btn btn--ghost" href="#xp-borne">Voir la borne</a>
           </div>
-          <ul class="hero__badges">
-            <li><svg class="ico"><use href="#i-steam"/></svg>Vapeur sèche haute performance</li>
-            <li><svg class="ico"><use href="#i-shield"/></svg>Désinfection prouvée</li>
-            <li><svg class="ico"><use href="#i-helmet"/></svg>Compatible tous casques</li>
-          </ul>
-          <p class="xp__scroll" aria-hidden="true"><span></span>Faites défiler pour découvrir la machine</p>
         </div>
       </div>
 
-      <div class="xp-step">
+      <div class="xp-step" id="xp-borne">
         <div class="xp-step__inner">
-          <p class="eyebrow">360°</p>
-          <h2>Une borne pensée <span class="accent">dans les moindres détails.</span></h2>
-          <p>Écran tactile, deux casiers vitrés indépendants, signature lumineuse AIRO : un design premium qui valorise votre point de vente.</p>
+          <h2>Deux casiers, un écran, rien à manipuler.</h2>
+          <p>La borne tient dans un coin de magasin. Chaque casier fonctionne seul : deux clients peuvent l'utiliser en même temps.</p>
         </div>
       </div>
 
       <div class="xp-step" id="xp-fonctionnement">
         <div class="xp-step__inner">
-          <p class="eyebrow">Étape 1</p>
-          <h2>Choisissez <span class="accent">votre programme.</span></h2>
-          <ul class="xp-programs">
-            <li><span>Express</span><strong>≈ 3 min</strong></li>
-            <li><span>Standard</span><strong>≈ 5 min</strong></li>
-            <li><span>Intensif</span><strong>≈ 9-10 min</strong></li>
-          </ul>
-          <p>Programmes, durées et tarifs entièrement personnalisables selon votre activité.</p>
+          <p class="step-no" aria-hidden="true">1</p>
+          <h2>Le client choisit son programme.</h2>
+          <dl class="programs">
+            <div><dt>Express</dt><dd>3 min</dd></div>
+            <div><dt>Standard</dt><dd>5 min</dd></div>
+            <div><dt>Intensif</dt><dd>9 à 10 min</dd></div>
+          </dl>
+          <p>Vous réglez les programmes, leur durée et leur prix selon votre activité.</p>
         </div>
       </div>
 
       <div class="xp-step">
         <div class="xp-step__inner">
-          <p class="eyebrow">Étape 2</p>
-          <h2>Déposez <span class="accent">votre casque.</span></h2>
-          <p>Le casier s'ouvre, vous posez votre casque sur son support et refermez la porte. C'est tout.</p>
+          <p class="step-no" aria-hidden="true">2</p>
+          <h2>Il pose son casque et ferme la porte.</h2>
+          <p>Le casier s'ouvre après le paiement. Le casque se pose sur le support, la porte se referme.</p>
         </div>
       </div>
 
       <div class="xp-step">
         <div class="xp-step__inner">
-          <p class="eyebrow">Étape 3</p>
-          <h2>AIRO lance <span class="accent">le cycle.</span></h2>
-          <ul class="xp-chips">
-            <li><svg class="ico"><use href="#i-steam"/></svg>Vapeur sèche</li>
-            <li><svg class="ico"><use href="#i-shield"/></svg>Désinfection 99,9 %</li>
-            <li><svg class="ico"><use href="#i-fan"/></svg>Séchage intégré</li>
-          </ul>
-          <p>La vapeur sèche pénètre les mousses en profondeur, élimine 99,9 % des bactéries et neutralise les odeurs, puis le casque est séché.</p>
+          <p class="step-no" aria-hidden="true">3</p>
+          <h2>AIRO lance le cycle.</h2>
+          <p>La vapeur sèche traverse les mousses, élimine 99,9 % des bactéries et neutralise les odeurs. Le casque est ensuite séché dans le casier.</p>
         </div>
       </div>
 
       <div class="xp-step">
         <div class="xp-step__inner">
-          <p class="eyebrow">Étape 4</p>
-          <h2>Récupérez un casque <span class="accent">propre, désinfecté et sec.</span></h2>
-          <p>Prêt à être reporté immédiatement. Deux casiers : deux clients servis en même temps.</p>
+          <p class="step-no" aria-hidden="true">4</p>
+          <h2>Il récupère un casque prêt à porter.</h2>
+          <p>Propre, désinfecté et sec. Pendant ce temps, le casier B a servi un autre client.</p>
         </div>
       </div>
 
       <div class="xp-step xp-step--end">
         <div class="xp-step__inner">
-          <h2>Déposez votre casque. <span class="accent">AIRO s'occupe du reste.</span></h2>
-          <div class="hero__actions">
-            <a class="btn btn--primary" href="#devis">Demander un devis <svg class="ico"><use href="#i-arrow"/></svg></a>
-            <a class="btn btn--ghost" href="#secteurs">Voir les secteurs</a>
+          <h2>Déposez votre casque. AIRO s'occupe du reste.</h2>
+          <div class="actions">
+            <a class="btn btn--primary" href="#devis">Demander un devis</a>
+            <a class="btn btn--ghost" href="#fiche">Lire la fiche technique</a>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- PROBLÈME -->
-  <section class="section problem" id="probleme">
-    <div class="container">
-      <header class="section__head center reveal">
-        <h2>Un casque protège votre tête.<br><span class="accent">Mais qui protège votre casque ?</span></h2>
-        <p>Moto, karting, sport auto, équitation, ski… Peu importe son usage, un casque subit les mêmes contraintes.</p>
-      </header>
-      <div class="threats">
-        <div class="threat reveal"><span class="threat__ico"><svg class="ico"><use href="#i-drop"/></svg></span><h3>Humidité</h3><p>La transpiration s'accumule dans les mousses à chaque utilisation.</p></div>
-        <div class="threat reveal"><span class="threat__ico"><svg class="ico"><use href="#i-virus"/></svg></span><h3>Bactéries</h3><p>Un milieu chaud et humide où les germes prolifèrent.</p></div>
-        <div class="threat reveal"><span class="threat__ico"><svg class="ico"><use href="#i-wind"/></svg></span><h3>Odeurs</h3><p>Des mauvaises odeurs qui s'installent durablement.</p></div>
-        <div class="threat reveal"><span class="threat__ico"><svg class="ico"><use href="#i-dust"/></svg></span><h3>Saletés</h3><p>Poussière, sébum et résidus difficiles à atteindre.</p></div>
+  <!-- Le problème -->
+  <section class="block problem" id="probleme">
+    <div class="wrap">
+      <h2 class="block__title">Un casque protège votre tête. Rien ne protège l'intérieur du casque.</h2>
+      <ul class="threats">
+        <li><strong>Humidité</strong><span>La transpiration reste dans les mousses après chaque sortie.</span></li>
+        <li><strong>Bactéries</strong><span>Un intérieur chaud et humide où les germes se multiplient.</span></li>
+        <li><strong>Odeurs</strong><span>Elles s'installent et ne partent plus à l'air libre.</span></li>
+        <li><strong>Saletés</strong><span>Poussière et sébum là où le chiffon ne passe pas.</span></li>
+      </ul>
+      <p class="problem__note">Moto, karting, circuit, équitation, ski : l'usage change, le problème reste le même. Et quand un casque est partagé entre plusieurs personnes, il devient un vrai sujet d'hygiène.</p>
+    </div>
+  </section>
+
+  <!-- Technologie -->
+  <section class="block tech" id="technologie">
+    <div class="wrap tech__grid">
+      <figure class="tech__media">
+        <img src="assets/img/cutaway.jpg" alt="Vue en coupe d'un casque traversé par la vapeur sèche" loading="lazy">
+        <figcaption>Vue en coupe : la vapeur atteint les mousses sans mouiller le casque.</figcaption>
+      </figure>
+      <div class="tech__body">
+        <h2 class="block__title">Nettoyer en profondeur, sans abîmer.</h2>
+        <dl class="specs-list">
+          <div><dt>Vapeur sèche</dt><dd>Elle pénètre les mousses en profondeur avec très peu d'eau.</dd></div>
+          <div><dt>Désinfection</dt><dd>Réduit les bactéries responsables des mauvaises odeurs.</dd></div>
+          <div><dt>Matériaux</dt><dd>Mousses, textiles et finitions sont préservés.</dd></div>
+          <div><dt>Électronique</dt><dd>Compatible avec les casques équipés d'intercom.</dd></div>
+          <div><dt>Séchage</dt><dd>Intégré au cycle : le casque ressort prêt à être porté.</dd></div>
+        </dl>
       </div>
     </div>
   </section>
 
-  <!-- SOLUTION -->
-  <section class="section solution" id="solution">
-    <div class="container split">
-      <div class="split__media reveal">
-        <img src="assets/img/store.jpg" alt="Borne AIRO installée dans une boutique moto" loading="lazy" width="651" height="1024">
-      </div>
-      <div class="split__body">
-        <header class="section__head reveal">
-          <p class="eyebrow">La solution AIRO</p>
-          <h2>L'hygiène des casques, <span class="accent">enfin automatisée.</span></h2>
-        </header>
-        <ul class="features">
-          <li class="reveal"><span class="feat__ico"><svg class="ico"><use href="#i-steam"/></svg></span><div><h3>Vapeur sèche</h3><p>Nettoie en profondeur sans abîmer votre casque.</p></div></li>
-          <li class="reveal"><span class="feat__ico"><svg class="ico"><use href="#i-shield"/></svg></span><div><h3>Désinfection prouvée</h3><p>Élimine 99,9 % des bactéries et neutralise les odeurs.</p></div></li>
-          <li class="reveal"><span class="feat__ico"><svg class="ico"><use href="#i-fan"/></svg></span><div><h3>Séchage rapide intégré</h3><p>Casque sec et prêt à l'emploi en quelques minutes.</p></div></li>
-          <li class="reveal"><span class="feat__ico"><svg class="ico"><use href="#i-helmet"/></svg></span><div><h3>Compatible tous casques</h3><p>Moto, karting, sport automobile, équitation, ski, VTT et plus encore.</p></div></li>
-          <li class="reveal"><span class="feat__ico"><svg class="ico"><use href="#i-touch"/></svg></span><div><h3>Simple &amp; automatique</h3><p>Aucune manipulation complexe. AIRO s'occupe de tout.</p></div></li>
-        </ul>
-        <p class="tagline reveal">Déposez votre casque. <span class="accent">AIRO s'occupe du reste.</span></p>
-      </div>
+  <!-- Professionnels -->
+  <section class="block pros" id="professionnels">
+    <figure class="pros__photo">
+      <img src="assets/img/client.jpg" alt="Un vendeur remet un casque propre à un client" loading="lazy">
+    </figure>
+    <div class="wrap pros__body">
+      <h2 class="block__title">Pour vous, c'est un service en plus. Pour vos clients, une raison de revenir.</h2>
+      <dl class="specs-list specs-list--two">
+        <div><dt>Un nouveau revenu</dt><dd>Chaque nettoyage est une prestation payée sur la borne, sans personnel.</dd></div>
+        <div><dt>Un meilleur accueil</dt><dd>Vos clients repartent avec un casque propre et une bonne impression.</dd></div>
+        <div><dt>Un point de vente qui se distingue</dt><dd>Un service que vos concurrents ne proposent pas.</dd></div>
+        <div><dt>Des clients fidèles</dt><dd>Ils reviennent pour le nettoyage, et en profitent pour le reste.</dd></div>
+      </dl>
     </div>
   </section>
 
-  <!-- TECHNOLOGIE -->
-  <section class="section tech" id="technologie">
-    <div class="container">
-      <header class="section__head center reveal">
-        <p class="eyebrow">Technologie</p>
-        <h2>Une technologie conçue pour <span class="accent">respecter</span> votre casque.</h2>
-        <p>Nettoyer en profondeur, sans compromis sur les matériaux ni les équipements.</p>
-      </header>
-      <div class="tech__grid">
-        <ul class="tech__col">
-          <li class="reveal"><svg class="ico"><use href="#i-steam"/></svg><div><h3>Vapeur sèche</h3><p>Nettoie les mousses en profondeur.</p></div></li>
-          <li class="reveal"><svg class="ico"><use href="#i-virus"/></svg><div><h3>Désinfection</h3><p>Réduit les bactéries responsables des mauvaises odeurs.</p></div></li>
-          <li class="reveal"><svg class="ico"><use href="#i-wind"/></svg><div><h3>Neutralisation des odeurs</h3><p>Une sensation de fraîcheur durable.</p></div></li>
-        </ul>
-        <figure class="tech__media reveal"><img src="assets/img/cutaway.jpg" alt="Vue en coupe d'un casque traversé par la vapeur sèche" loading="lazy"></figure>
-        <ul class="tech__col">
-          <li class="reveal"><svg class="ico"><use href="#i-shield"/></svg><div><h3>Respecte les matériaux</h3><p>Mousses, textiles et finitions préservés.</p></div></li>
-          <li class="reveal"><svg class="ico"><use href="#i-headset"/></svg><div><h3>Compatible intercoms</h3><p>Casques équipés d'intercoms et d'accessoires électroniques.</p></div></li>
-          <li class="reveal"><svg class="ico"><use href="#i-helmet"/></svg><div><h3>Tous types de casques</h3><p>Intégral, modulable, jet, karting, automobile, équitation, ski et plus encore.</p></div></li>
-        </ul>
-      </div>
+  <!-- Fiche technique -->
+  <section class="block fiche" id="fiche">
+    <div class="wrap">
+      <h2 class="block__title">Fiche technique</h2>
+      <table class="spec">
+        <tbody>
+          <tr><th scope="row">Casiers</th><td>2, indépendants (A et B)</td></tr>
+          <tr><th scope="row">Programmes</th><td>Express ≈ 3 min, Standard ≈ 5 min, Intensif ≈ 9 à 10 min. Nombre et durée réglables.</td></tr>
+          <tr><th scope="row">Cycle</th><td>Vapeur sèche, désinfection, séchage intégré</td></tr>
+          <tr><th scope="row">Désinfection</th><td>Élimine 99,9 % des bactéries et neutralise les odeurs</td></tr>
+          <tr><th scope="row">Casques acceptés</th><td>Intégral, modulable, jet, karting, automobile, équitation, ski, vélo et plus</td></tr>
+          <tr><th scope="row">Électronique</th><td>Compatible casques avec intercom</td></tr>
+          <tr><th scope="row">Utilisation</th><td>Libre-service sur écran tactile, paiement sécurisé sur la borne</td></tr>
+          <tr><th scope="row">Tarifs</th><td>Fixés par l'exploitant</td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
-  <!-- PROFESSIONNELS -->
-  <section class="section pros" id="professionnels">
-    <div class="container">
-      <header class="section__head center reveal">
-        <p class="eyebrow">Pour les professionnels</p>
-        <h2>Plus qu'une machine. <span class="accent">Un service qui valorise votre activité.</span></h2>
-      </header>
-      <div class="pros__media">
-        <figure class="reveal"><img src="assets/img/boutique.jpg" alt="Showroom moto avec comptoir d'accueil AIRO" loading="lazy"></figure>
-        <figure class="reveal"><img src="assets/img/client.jpg" alt="Un vendeur remet un casque propre à un client souriant" loading="lazy"></figure>
-      </div>
-      <div class="benefits">
-        <div class="benefit reveal"><svg class="ico"><use href="#i-euro"/></svg><h3>Un nouveau revenu</h3><p>Chaque nettoyage devient une prestation rentable.</p></div>
-        <div class="benefit reveal"><svg class="ico"><use href="#i-star"/></svg><h3>Une meilleure expérience client</h3><p>Un service innovant, pratique et apprécié de vos clients.</p></div>
-        <div class="benefit reveal"><svg class="ico"><use href="#i-store"/></svg><h3>Valorise votre point de vente</h3><p>Démarquez-vous de la concurrence et renforcez votre image de marque.</p></div>
-        <div class="benefit reveal"><svg class="ico"><use href="#i-hand"/></svg><h3>Fidélise vos clients</h3><p>Ils reviennent naturellement pour utiliser le service… et pour tout le reste.</p></div>
-      </div>
-      <p class="banner reveal"><strong>AIRO</strong> transforme un simple passage en magasin en une <span class="accent">véritable expérience.</span></p>
+  <!-- Secteurs -->
+  <section class="block sectors" id="secteurs">
+    <div class="wrap">
+      <h2 class="block__title">Là où un casque est porté, AIRO a sa place.</h2>
+      <ul class="sector-index" id="sectorIndex">
+        <li data-img="assets/img/sec-l0.jpg"><img src="assets/img/sec-l0.jpg" alt="" loading="lazy"><strong>Moto</strong><span>Concessions, magasins, ateliers, garages, loueurs, contrôles techniques</span></li>
+        <li data-img="assets/img/sec-l1.jpg"><img src="assets/img/sec-l1.jpg" alt="" loading="lazy"><strong>Loisirs</strong><span>Kartings, bases de loisirs, parcs d'attractions, activités indoor</span></li>
+        <li data-img="assets/img/sec-l2.jpg"><img src="assets/img/sec-l2.jpg" alt="" loading="lazy"><strong>Sport auto</strong><span>Circuits, écuries, écoles de pilotage, compétitions</span></li>
+        <li data-img="assets/img/sec-r0.jpg"><img src="assets/img/sec-r0.jpg" alt="" loading="lazy"><strong>Sports</strong><span>Ski, snowboard, hockey, VTT, BMX, paintball, airsoft, escalade</span></li>
+        <li data-img="assets/img/sec-r1.jpg"><img src="assets/img/sec-r1.jpg" alt="" loading="lazy"><strong>Équitation</strong><span>Clubs, écuries, centres de formation, promenades</span></li>
+        <li data-img="assets/img/sec-r2.jpg"><img src="assets/img/sec-r2.jpg" alt="" loading="lazy"><strong>Formation</strong><span>Auto-écoles, centres de formation, casernes, collectivités</span></li>
+      </ul>
+      <img class="sector-preview" id="sectorPreview" src="assets/img/sec-l0.jpg" alt="" aria-hidden="true">
     </div>
   </section>
 
-  <!-- SECTEURS -->
-  <section class="section sectors" id="secteurs">
-    <div class="container">
-      <header class="section__head center reveal">
-        <p class="eyebrow">Secteurs</p>
-        <h2>Une solution. <span class="accent">Des dizaines d'applications.</span></h2>
-        <p>Là où un casque est porté, AIRO a sa place.</p>
-      </header>
-      <div class="sector-grid">
-        <article class="sector reveal"><img src="assets/img/sec-l0.jpg" alt="" loading="lazy"><div><h3>Professionnels de la moto</h3><p>Concessions, magasins, contrôles techniques, ateliers, garages, loueurs.</p></div></article>
-        <article class="sector reveal"><img src="assets/img/sec-l1.jpg" alt="" loading="lazy"><div><h3>Centres de loisirs</h3><p>Kartings, bases de loisirs, parcs d'attractions, activités indoor.</p></div></article>
-        <article class="sector reveal"><img src="assets/img/sec-l2.jpg" alt="" loading="lazy"><div><h3>Sports mécaniques</h3><p>Circuits automobiles, écuries, écoles de pilotage, compétitions.</p></div></article>
-        <article class="sector reveal"><img src="assets/img/sec-r0.jpg" alt="" loading="lazy"><div><h3>Sports &amp; loisirs</h3><p>Ski, snowboard, hockey, BMX, VTT, paintball, airsoft, escalade, spéléologie, escrime.</p></div></article>
-        <article class="sector reveal"><img src="assets/img/sec-r1.jpg" alt="" loading="lazy"><div><h3>Centres équestres</h3><p>Clubs, écuries, centres de formation, promenades à cheval.</p></div></article>
-        <article class="sector reveal"><img src="assets/img/sec-r2.jpg" alt="" loading="lazy"><div><h3>Formation &amp; collectivités</h3><p>Écoles de conduite, centres de formation, casernes, collectivités.</p></div></article>
-      </div>
-    </div>
-  </section>
-
-  <!-- DEVIS -->
-  <section class="section quote" id="devis">
-    <div class="container quote__inner">
-      <div class="quote__intro reveal">
-        <p class="eyebrow">Devis &amp; contact</p>
-        <h2>Prêt à faire entrer votre établissement <span class="accent">dans une nouvelle ère ?</span></h2>
-        <p>Décrivez-nous votre activité : nous revenons vers vous rapidement avec une proposition adaptée.</p>
-        <ul class="contact-list">
-          <li><svg class="ico"><use href="#i-phone"/></svg><div><span>Téléphone</span><a href="tel:+33668731207">06 68 73 12 07</a></div></li>
-          <li><svg class="ico"><use href="#i-mail"/></svg><div><span>E-mail</span><a href="mailto:airo.casque@gmail.com">airo.casque@gmail.com</a></div></li>
-          <li><svg class="ico"><use href="#i-insta"/></svg><div><span>Instagram</span><a href="https://www.instagram.com/airo.officiel/" target="_blank" rel="noopener">@airo.officiel</a></div></li>
-        </ul>
-        <ul class="trust">
-          <li><svg class="ico"><use href="#i-check"/></svg>Hygiène irréprochable</li>
-          <li><svg class="ico"><use href="#i-check"/></svg>Expérience premium</li>
-          <li><svg class="ico"><use href="#i-check"/></svg>Rendement maximisé</li>
-          <li><svg class="ico"><use href="#i-check"/></svg>Partenaire de confiance</li>
-        </ul>
+  <!-- Devis -->
+  <section class="block quote" id="devis">
+    <div class="wrap quote__grid">
+      <div class="quote__intro">
+        <h2 class="block__title">Demander un devis</h2>
+        <p>Dites-nous où vous voulez installer la borne. Nous vous répondons avec une proposition adaptée à votre activité.</p>
+        <dl class="contact">
+          <div><dt>Téléphone</dt><dd><a href="tel:+33668731207">06 68 73 12 07</a></dd></div>
+          <div><dt>E-mail</dt><dd><a href="mailto:airo.casque@gmail.com">airo.casque@gmail.com</a></dd></div>
+          <div><dt>Instagram</dt><dd><a href="https://www.instagram.com/airo.officiel/" target="_blank" rel="noopener">@airo.officiel</a></dd></div>
+        </dl>
       </div>
 
-      <form class="form reveal" id="quoteForm" action="https://formsubmit.co/airo.casque@gmail.com" method="POST" novalidate>
+      <form class="form" id="quoteForm" action="https://formsubmit.co/airo.casque@gmail.com" method="POST" novalidate>
         <fieldset class="form__type">
           <legend>Votre demande</legend>
           <label class="chip"><input type="radio" name="Type de demande" value="Demande de devis" checked><span>Devis</span></label>
@@ -321,63 +251,63 @@
 
         <div class="form__grid">
           <div class="field">
-            <label for="f-name">Nom et prénom <span aria-hidden="true">*</span></label>
+            <label for="f-name">Nom et prénom</label>
             <input id="f-name" name="Nom" type="text" autocomplete="name" required>
             <p class="field__err" id="f-name-err">Indiquez votre nom.</p>
           </div>
           <div class="field" data-pro>
-            <label for="f-company">Entreprise / établissement</label>
+            <label for="f-company">Entreprise ou établissement <span class="opt">facultatif</span></label>
             <input id="f-company" name="Entreprise" type="text" autocomplete="organization">
           </div>
           <div class="field">
-            <label for="f-email">E-mail <span aria-hidden="true">*</span></label>
+            <label for="f-email">E-mail</label>
             <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required>
-            <p class="field__err" id="f-email-err">Indiquez un e-mail valide.</p>
+            <p class="field__err" id="f-email-err">Indiquez une adresse e-mail valide, par exemple nom@domaine.fr.</p>
           </div>
           <div class="field">
-            <label for="f-phone">Téléphone</label>
+            <label for="f-phone">Téléphone <span class="opt">facultatif</span></label>
             <input id="f-phone" name="Téléphone" type="tel" autocomplete="tel" inputmode="tel">
           </div>
           <div class="field" data-pro>
-            <label for="f-sector">Secteur d'activité</label>
+            <label for="f-sector">Activité</label>
             <select id="f-sector" name="Secteur">
-              <option value="">Sélectionnez…</option>
-              <option>Concession / magasin moto</option>
-              <option>Atelier / garage / loueur</option>
-              <option>Karting / centre de loisirs</option>
-              <option>Circuit / sport automobile</option>
+              <option value="">Choisir</option>
+              <option>Concession ou magasin moto</option>
+              <option>Atelier, garage ou loueur</option>
+              <option>Karting ou centre de loisirs</option>
+              <option>Circuit ou sport automobile</option>
               <option>Centre équestre</option>
-              <option>Station de ski / sports &amp; loisirs</option>
-              <option>École de conduite / formation</option>
-              <option>Collectivité / caserne</option>
+              <option>Station de ski ou club sportif</option>
+              <option>Auto-école ou centre de formation</option>
+              <option>Collectivité ou caserne</option>
               <option>Autre</option>
             </select>
           </div>
           <div class="field">
-            <label for="f-city">Ville / code postal</label>
+            <label for="f-city">Ville ou code postal <span class="opt">facultatif</span></label>
             <input id="f-city" name="Ville" type="text" autocomplete="address-level2">
           </div>
           <div class="field field--full" data-pro>
-            <label for="f-volume">Casques à nettoyer (estimation)</label>
+            <label for="f-volume">Casques à nettoyer par semaine</label>
             <select id="f-volume" name="Volume estimé">
               <option value="">Je ne sais pas encore</option>
-              <option>Moins de 20 par semaine</option>
-              <option>20 à 100 par semaine</option>
-              <option>Plus de 100 par semaine</option>
+              <option>Moins de 20</option>
+              <option>De 20 à 100</option>
+              <option>Plus de 100</option>
             </select>
           </div>
           <div class="field field--full">
-            <label for="f-msg">Votre message <span aria-hidden="true">*</span></label>
-            <textarea id="f-msg" name="Message" rows="5" required placeholder="Parlez-nous de votre projet, de votre activité, de vos questions…"></textarea>
-            <p class="field__err" id="f-msg-err">Écrivez quelques mots sur votre demande.</p>
+            <label for="f-msg">Votre message</label>
+            <textarea id="f-msg" name="Message" rows="5" required placeholder="Votre activité, l'emplacement prévu, vos questions"></textarea>
+            <p class="field__err" id="f-msg-err">Écrivez quelques mots sur votre projet.</p>
           </div>
         </div>
 
         <label class="consent">
           <input type="checkbox" id="f-consent" required>
-          <span>J'accepte que mes informations soient utilisées pour être recontacté au sujet de ma demande.</span>
+          <span>J'accepte que mes informations servent à me recontacter au sujet de cette demande.</span>
         </label>
-        <p class="field__err" id="f-consent-err">Merci de cocher cette case.</p>
+        <p class="field__err" id="f-consent-err">Cochez la case pour envoyer la demande.</p>
 
         <input type="hidden" name="_subject" value="Nouvelle demande depuis le site AIRO">
         <input type="hidden" name="_template" value="table">
@@ -385,8 +315,7 @@
         <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
 
         <button class="btn btn--primary btn--block" type="submit" id="quoteSubmit">
-          <span class="btn__label">Envoyer ma demande</span>
-          <svg class="ico"><use href="#i-arrow"/></svg>
+          <span class="btn__label">Envoyer la demande</span>
         </button>
         <p class="form__status" id="formStatus" role="status" aria-live="polite"></p>
       </form>
@@ -396,18 +325,18 @@
 </main>
 
 <footer class="footer">
-  <div class="container footer__inner">
-    <div class="footer__brand">
-      <img src="assets/img/logo-sm.png" alt="AIRO, nettoyage casque" width="56" height="54" loading="lazy">
-      <p>Là où un casque est porté, <span class="accent">AIRO a sa place.</span></p>
+  <div class="wrap">
+    <p class="footer__mark" aria-hidden="true">AIRO</p>
+    <div class="footer__row">
+      <img src="assets/img/logo-sm.png" alt="Logo AIRO nettoyage casque" width="56" height="54" loading="lazy">
+      <nav class="footer__links" aria-label="Liens de pied de page">
+        <a href="#xp-fonctionnement">Fonctionnement</a>
+        <a href="#fiche">Fiche technique</a>
+        <a href="#secteurs">Secteurs</a>
+        <a href="#devis">Demander un devis</a>
+      </nav>
+      <p class="footer__copy">© <span id="year">2026</span> AIRO</p>
     </div>
-    <nav class="footer__links" aria-label="Liens de pied de page">
-      <a href="#solution">La solution</a>
-      <a href="#xp-fonctionnement">Fonctionnement</a>
-      <a href="#secteurs">Secteurs</a>
-      <a href="#devis">Demander un devis</a>
-    </nav>
-    <p class="footer__copy">© <span id="year">2026</span> AIRO — Nettoyage casque</p>
   </div>
 </footer>
 

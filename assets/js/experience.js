@@ -21,13 +21,15 @@ const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 const lerp = (a, b, t) => a + (b - a) * t;
 const BLUE = "#2f7bff";
-const FONT = '"Barlow Condensed", "Arial Narrow", sans-serif';
-const BODY = 'Inter, system-ui, sans-serif';
+const FONT = '"Archivo", "Arial Narrow", sans-serif';
+const BODY = '"Archivo", system-ui, sans-serif';
 
 function makeCanvas(w, h) {
   const c = document.createElement("canvas");
   c.width = w; c.height = h;
-  return [c, c.getContext("2d")];
+  const g = c.getContext("2d");
+  if ("fontStretch" in g) g.fontStretch = "ultra-condensed"; // Archivo étroit, comme sur le site
+  return [c, g];
 }
 function texFrom(c, aniso = 8) {
   const t = new THREE.CanvasTexture(c);
@@ -467,8 +469,8 @@ async function init() {
   const logo = await loadImage("assets/img/logo.png");
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x04060c);
-  scene.fog = new THREE.Fog(0x04060c, 9, 18);
+  scene.background = new THREE.Color(0x000000);
+  scene.fog = new THREE.Fog(0x000000, 9, 18);
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environmentIntensity = 0.22;
@@ -477,7 +479,7 @@ async function init() {
 
   // matériaux
   const screen = makeScreen();
-  const ledColor = new THREE.Color(0x2f7bff).multiplyScalar(5);
+  const ledColor = new THREE.Color(0x2f6bff).multiplyScalar(5);
   const std = (o) => new THREE.MeshStandardMaterial(o);
   const basic = (o) => new THREE.MeshBasicMaterial(o);
   const mats = {
@@ -522,15 +524,15 @@ async function init() {
   machine.add(helmetA);
 
   // sol, halo et fond
-  const floor = new THREE.Mesh(new THREE.CircleGeometry(9, 64), std({ color: 0x05070d, metalness: 0.75, roughness: 0.3 }));
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(9, 64), std({ color: 0x050505, metalness: 0.55, roughness: 0.45 }));
   floor.rotation.x = -Math.PI / 2; scene.add(floor);
-  const halo = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 3.2), basic({ map: radialTex("rgba(47,123,255,0.4)"), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  const halo = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 3.2), basic({ map: radialTex("rgba(47,107,255,0.28)"), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
   halo.rotation.x = -Math.PI / 2; halo.position.y = 0.002; scene.add(halo);
-  const backdrop = new THREE.Mesh(new THREE.PlaneGeometry(16, 9), basic({ map: radialTex("rgba(30,80,200,0.2)", "rgba(4,6,12,0)", 512), transparent: true, depthWrite: false, fog: false }));
+  const backdrop = new THREE.Mesh(new THREE.PlaneGeometry(16, 9), basic({ map: radialTex("rgba(40,70,140,0.12)", "rgba(0,0,0,0)", 512), transparent: true, depthWrite: false, fog: false }));
   backdrop.position.set(0, 2.4, -5); scene.add(backdrop);
 
   // lumières
-  scene.add(new THREE.HemisphereLight(0x9cb8ff, 0x05070c, 0.25));
+  scene.add(new THREE.HemisphereLight(0xc8d2e6, 0x000000, 0.22));
   const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(2.5, 3.5, 4); scene.add(key);
   const rimR = new THREE.DirectionalLight(0x2f7bff, 2.6); rimR.position.set(-3, 2.5, -3); scene.add(rimR);
   const rimL = new THREE.DirectionalLight(0x5aa2ff, 1.6); rimL.position.set(3.5, 1.5, -2.5); scene.add(rimL);
@@ -540,7 +542,7 @@ async function init() {
   const smokes = [];
   const nSmoke = mobile ? 12 : 22;
   for (let i = 0; i < nSmoke; i++) {
-    const m = new THREE.SpriteMaterial({ map: smokeMap, color: new THREE.Color().setHSL(0.61, 0.7, 0.22 + Math.random() * 0.14), transparent: true, opacity: 0.0, depthWrite: false });
+    const m = new THREE.SpriteMaterial({ map: smokeMap, color: new THREE.Color().setHSL(0.6, 0.25, 0.2 + Math.random() * 0.12), transparent: true, opacity: 0.0, depthWrite: false });
     const s = new THREE.Sprite(m);
     // surtout derrière et sur les côtés ; quelques nappes basses devant
     const low = i % 4 === 0;
@@ -568,7 +570,7 @@ async function init() {
   const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: mobile ? 0 : 4 });
   const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.6, 0.45, 0.95);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.4, 0.95);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 
@@ -647,6 +649,50 @@ async function init() {
     const target = window.scrollY + r.top + total * ((B[k] + B[k + 1]) / 2);
     window.scrollTo({ top: target, behavior: reduceMotion ? "auto" : "smooth" });
   }));
+
+  /* ---------- repères techniques (pendant la rotation à 360°) ---------- */
+  const calloutLayer = document.getElementById("xpCallouts");
+  const ANCHORS = [
+    { p: [0, 1.635, ZF], n: [0, 0, 1], t: "Écran tactile", s: "Choix du programme" },
+    { p: [0, 1.3, ZF], n: [0, 0, 1], t: "Paiement sécurisé", s: "Directement sur la borne" },
+    { p: [-0.12, 0.95, ZF + 0.02], n: [0, 0, 1], t: "Casier A", s: "Porte vitrée, support vapeur" },
+    { p: [-0.12, 0.48, ZF + 0.02], n: [0, 0, 1], t: "Casier B", s: "Fonctionne indépendamment" },
+    { p: [W / 2, 1.25, -0.05], n: [1, 0, 0], t: "Flanc droit", s: "Identique au flanc gauche" },
+    { p: [-W / 2, 1.25, -0.05], n: [-1, 0, 0], t: "Flanc gauche", s: "Identique au flanc droit" },
+    { p: [W / 2 - 0.004, 1.75, ZF], n: [0.7, 0, 0.7], t: "Bandeaux LED", s: "Signature lumineuse AIRO" },
+  ].map((a) => {
+    const el = document.createElement("div");
+    el.className = "callout";
+    el.innerHTML = '<span class="callout__dot"></span><span class="callout__line"></span><span class="callout__text"><strong></strong><span></span></span>';
+    el.querySelector("strong").textContent = a.t;
+    el.querySelector(".callout__text > span").textContent = a.s;
+    if (calloutLayer) calloutLayer.appendChild(el);
+    return { el, p: new THREE.Vector3(...a.p), n: new THREE.Vector3(...a.n).normalize(), on: false, left: null };
+  });
+  const cw = new THREE.Vector3(), cn = new THREE.Vector3(), cc = new THREE.Vector3(), ctr = new THREE.Vector3();
+  function updateCallouts(show) {
+    if (!calloutLayer) return;
+    ctr.set(0, 1, 0).applyMatrix4(machine.matrixWorld).project(camera);
+    const midX = (ctr.x * 0.5 + 0.5) * vw;
+    for (const a of ANCHORS) {
+      let visible = false;
+      if (show) {
+        cw.copy(a.p).applyMatrix4(machine.matrixWorld);
+        cn.copy(a.n).applyQuaternion(machine.quaternion);
+        cc.copy(camera.position).sub(cw).normalize();
+        visible = cn.dot(cc) > 0.35;
+        if (visible) {
+          cw.project(camera);
+          const x = (cw.x * 0.5 + 0.5) * vw, y = (-cw.y * 0.5 + 0.5) * vh;
+          const left = x < midX - 4;
+          if (left !== a.left) { a.el.classList.toggle("callout--left", left); a.left = left; }
+          // l'ancre du repère est son point : on décale la boîte quand le texte part à gauche
+          a.el.style.transform = left ? `translate3d(${x - a.el.offsetWidth}px, ${y}px, 0)` : `translate3d(${x}px, ${y}px, 0)`;
+        }
+      }
+      if (visible !== a.on) { a.el.classList.toggle("is-on", visible); a.on = visible; }
+    }
+  }
 
   /* ---------- boucle ---------- */
   const v3 = new THREE.Vector3(), look = new THREE.Vector3();
@@ -769,6 +815,7 @@ async function init() {
     const breathe = reduceMotion ? 1 : 0.85 + 0.15 * Math.sin(t * 1.6);
     mats.led.color.copy(ledColor).multiplyScalar(breathe);
 
+    updateCallouts(sideLayout && step === 1 && !dragging);
     composer.render();
     if (firstFrame) { firstFrame = false; stage.classList.add("is-live"); ready(); }
   }
