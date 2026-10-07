@@ -186,22 +186,6 @@ function controlTex() {
   return texFrom(c);
 }
 
-function labelTex() {
-  const [c, g] = makeCanvas(1024, 90);
-  g.fillStyle = "#0a0e18"; g.fillRect(0, 0, 1024, 90);
-  g.font = `500 34px ${BODY}`; g.fillStyle = "#e6ecf8"; g.textBaseline = "middle";
-  g.fillText("Veuillez fermer la porte après avoir retiré votre casque.", 34, 47);
-  return texFrom(c);
-}
-
-function badgeTex(letter) {
-  const [c, g] = makeCanvas(128, 128);
-  g.fillStyle = "#2f7bff"; rr(g, 4, 4, 120, 120, 14); g.fill();
-  g.font = `700 92px ${FONT}`; g.fillStyle = "#fff"; g.textAlign = "center"; g.textBaseline = "middle";
-  g.fillText(letter, 64, 70);
-  return texFrom(c, 2);
-}
-
 function fanTex() {
   const [c, g] = makeCanvas(256, 256);
   g.fillStyle = "#151a24"; rr(g, 0, 0, 256, 256, 20); g.fill();
@@ -212,40 +196,12 @@ function fanTex() {
   return texFrom(c, 2);
 }
 
-function baseTex(logo) {
-  const [c, g] = makeCanvas(1024, 380);
-  const bg = g.createLinearGradient(0, 0, 0, 380);
-  bg.addColorStop(0, "#0b0f1b"); bg.addColorStop(1, "#05070c");
-  g.fillStyle = bg; g.fillRect(0, 0, 1024, 380);
-  const glow = g.createRadialGradient(512, 160, 0, 512, 160, 300);
-  glow.addColorStop(0, "rgba(47,123,255,0.35)"); glow.addColorStop(1, "rgba(47,123,255,0)");
-  g.fillStyle = glow; g.fillRect(0, 0, 1024, 380);
-  if (logo) {
-    const h = 240, w = h * (logo.width / logo.height);
-    g.drawImage(logo, 512 - w / 2, 22, w, h);
-  } else {
-    g.font = `italic 800 160px ${FONT}`; g.fillStyle = "#fff"; g.textAlign = "center"; g.fillText("AIRO", 512, 200);
-  }
-  g.textAlign = "center"; g.font = `500 30px ${BODY}`; g.fillStyle = "#c9d6f0";
-  g.fillText("@airo.officiel", 512, 330);
-  return texFrom(c);
-}
-
-function bezelTex() {
-  const [c, g] = makeCanvas(1024, 736);
-  g.fillStyle = "#06080e"; g.fillRect(0, 0, 1024, 736);
-  const sh = g.createLinearGradient(0, 0, 1024, 736);
-  sh.addColorStop(0, "rgba(255,255,255,0.05)"); sh.addColorStop(0.5, "rgba(255,255,255,0)");
-  g.fillStyle = sh; g.fillRect(0, 0, 1024, 736);
-  return texFrom(c);
-}
-
 /* Écran tactile : redessiné uniquement quand son état change. */
 function makeScreen() {
-  const [c, g] = makeCanvas(1024, 590);
+  const [c, g] = makeCanvas(1024, 674);
   const tex = texFrom(c);
   let key = "";
-  const W = 1024, H = 590;
+  const W = 1024, H = 674;
 
   function landscape() {
     const sky = g.createLinearGradient(0, 0, 0, H * 0.55);
@@ -329,124 +285,189 @@ function makeScreen() {
   return { tex, draw };
 }
 
-/* ---------- construction de la borne ---------- */
-const W = 0.68, D = 0.6, H = 1.9, CD = 0.42; // largeur, profondeur, hauteur, profondeur des casiers
-const ZF = D / 2;                              // plan de façade
-const LOCKERS = { B: 0.27, A: 0.74 };          // bas de chaque module casier
-const LH = 0.46;                               // hauteur d'un module casier
-const DOOR_H = 0.385, DOOR_W = W - 0.06;
+/* ---------- construction de la borne ----------
+   Proportions et textures relevées sur la photo de la borne (façade et flanc redressés). */
+const W = 0.68, D = 0.6, H = 1.9, CD = 0.40;   // largeur, profondeur, hauteur, profondeur des casiers
+const Y0 = 0.03, BH = H - Y0;                    // bas de la caisse (au-dessus des pieds), hauteur texturée
+const ZF = D / 2;                                // plan de façade
+const LOCKERS = { B: 0.30, A: 0.76 };            // bas de chaque module casier
+const LH = 0.46;                                 // hauteur d'un module casier
+const DOOR = { x0: -0.30, x1: 0.30, y0: 0.006, y1: 0.381 };   // porte (repère du module), charnière à droite
+const WIN = { x0: -0.199, x1: 0.267, y0: 0.02, y1: 0.37 };    // vitre, mesurée sur la photo
+const CAV = { x0: -0.212, x1: 0.28, y0: 0.012, y1: 0.376 };   // intérieur du casier
+const SCREEN = { x0: -0.227, x1: 0.227, y0: 1.515, y1: 1.814 };
+
+const frontV = (y) => (y - Y0) / BH;
+const frontU = (x) => (x + W / 2) / W;
+function photoPlane(x0, x1, y0, y1) {
+  const g = new THREE.PlaneGeometry(x1 - x0, y1 - y0);
+  const uv = g.attributes.uv, u0 = frontU(x0), u1 = frontU(x1), v0 = frontV(y0), v1 = frontV(y1);
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, u0 + uv.getX(i) * (u1 - u0), v0 + uv.getY(i) * (v1 - v0));
+  g.translate((x0 + x1) / 2, (y0 + y1) / 2, 0);
+  return g;
+}
 
 function buildMachine(mats) {
   const machine = new THREE.Group();
   const add = (geo, mat, x, y, z, parent = machine) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); parent.add(m); return m; };
+  const zoneD = CD + 0.02, zoneZ = ZF - zoneD / 2;
 
-  // bloc arrière arrondi
-  const rearDepth = D - CD - 0.02;
+  // bloc arrière, coins arrondis côté dos
+  const rearDepth = D - zoneD, r = 0.035, hw = W / 2, hd = rearDepth / 2;
   const shape = new THREE.Shape();
-  const r = 0.035, hw = W / 2, hd = rearDepth / 2;
-  // coins arrondis côté dos (+y du profil devient -z après rotation)
   shape.moveTo(-hw, -hd); shape.lineTo(hw, -hd); shape.lineTo(hw, hd - r); shape.quadraticCurveTo(hw, hd, hw - r, hd);
   shape.lineTo(-hw + r, hd); shape.quadraticCurveTo(-hw, hd, -hw, hd - r); shape.lineTo(-hw, -hd);
-  const rear = new THREE.ExtrudeGeometry(shape, { depth: H - 0.03, bevelEnabled: false, curveSegments: 8 });
+  const rear = new THREE.ExtrudeGeometry(shape, { depth: BH, bevelEnabled: false, curveSegments: 10 });
   rear.rotateX(-Math.PI / 2);
-  add(rear, mats.body, 0, 0.03, -D / 2 + hd);
+  add(rear, mats.body, 0, Y0, -D / 2 + hd);
 
-  const zoneZ = ZF - (CD + 0.02) / 2, zoneD = CD + 0.02;
-  // blocs pleins de la façade
-  const block = (y0, h, frontMat) => {
-    const geo = new THREE.BoxGeometry(W, h, zoneD);
-    const m = add(geo, [mats.body, mats.body, mats.body, mats.body, frontMat || mats.body, mats.body], 0, y0 + h / 2, zoneZ);
-    return m;
+  // blocs pleins de façade + leur face photo
+  const block = (y0, y1) => {
+    add(new THREE.BoxGeometry(W, y1 - y0, zoneD), mats.body, 0, (y0 + y1) / 2, zoneZ);
+    add(photoPlane(-W / 2, W / 2, y0, y1), mats.front, 0, 0, ZF + 0.0006);
   };
-  block(0.03, LOCKERS.B - 0.03, mats.base);              // socle
-  block(1.20, 0.20, mats.control);                       // panneau de commande
-  block(1.40, 0.46, mats.bezel);                         // bloc écran
-  block(1.86, 0.04);                                     // capot
+  block(Y0, LOCKERS.B);          // socle « AIRO »
+  block(1.22, 1.49);             // panneau de commande
+  block(1.49, H);                // bloc écran
 
-  // écran
-  const screen = add(new THREE.PlaneGeometry(0.56, 0.32), mats.screen, 0, 1.635, ZF + 0.002);
-  screen.renderOrder = 1;
+  // écran tactile animé, posé sur la dalle de la photo
+  const scr = new THREE.PlaneGeometry(SCREEN.x1 - SCREEN.x0, SCREEN.y1 - SCREEN.y0);
+  const screenMesh = add(scr, mats.screen, (SCREEN.x0 + SCREEN.x1) / 2, (SCREEN.y0 + SCREEN.y1) / 2, ZF + 0.0015);
 
   // pieds
-  const foot = new THREE.CylinderGeometry(0.025, 0.03, 0.03, 20);
-  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => add(foot, mats.metal, sx * (W / 2 - 0.06), 0.015, sz * (D / 2 - 0.06)));
+  const foot = new THREE.CylinderGeometry(0.022, 0.028, Y0, 20);
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => add(foot, mats.metal, sx * (W / 2 - 0.06), Y0 / 2, sz * (D / 2 - 0.07)));
 
-  // flancs identiques
-  const sideGeo = new THREE.PlaneGeometry(D - 0.02, H - 0.03);
-  const right = add(sideGeo, mats.side, W / 2 + 0.002, 0.03 + (H - 0.03) / 2, 0); right.rotation.y = Math.PI / 2;
-  const left = add(sideGeo, mats.side, -W / 2 - 0.002, 0.03 + (H - 0.03) / 2, 0); left.rotation.y = -Math.PI / 2;
-  const back = add(new THREE.PlaneGeometry(W - 0.07, H - 0.03), mats.back, 0, 0.03 + (H - 0.03) / 2, -D / 2 - 0.002); back.rotation.y = Math.PI;
+  // flancs identiques (photo du flanc redressée) et dos
+  const sideGeo = new THREE.PlaneGeometry(D - 0.012, BH);
+  const right = add(sideGeo, mats.side, W / 2 + 0.0015, Y0 + BH / 2, 0); right.rotation.y = Math.PI / 2;
+  const left = add(sideGeo, mats.side, -W / 2 - 0.0015, Y0 + BH / 2, 0); left.rotation.y = -Math.PI / 2;
+  const back = add(new THREE.PlaneGeometry(W - 0.07, BH), mats.back, 0, Y0 + BH / 2, -D / 2 - 0.0015); back.rotation.y = Math.PI;
 
-  // bandes LED de façade
-  const ledV = new THREE.BoxGeometry(0.012, H - 0.05, 0.012);
-  add(ledV, mats.led, W / 2 - 0.004, 0.03 + (H - 0.05) / 2 + 0.01, ZF + 0.001);
-  add(ledV, mats.led, -W / 2 + 0.004, 0.03 + (H - 0.05) / 2 + 0.01, ZF + 0.001);
-  add(new THREE.BoxGeometry(W, 0.012, 0.012), mats.led, 0, H - 0.004, ZF + 0.001);
-  add(new THREE.BoxGeometry(W - 0.12, 0.006, 0.006), mats.ledSoft, 0, 1.40, ZF + 0.003);
+  // bandeaux LED : arêtes avant et haut (animés à l'allumage)
+  const leds = [];
+  const ledV = new THREE.BoxGeometry(0.011, BH - 0.02, 0.011); ledV.translate(0, (BH - 0.02) / 2, 0);
+  leds.push(add(ledV, mats.led, W / 2 - 0.004, Y0 + 0.01, ZF + 0.002));
+  leds.push(add(ledV, mats.led, -W / 2 + 0.004, Y0 + 0.01, ZF + 0.002));
+  const ledH = new THREE.BoxGeometry(W, 0.011, 0.011);
+  leds.push(add(ledH, mats.led, 0, H - 0.004, ZF + 0.002));
+  const ledBack = new THREE.BoxGeometry(0.011, BH - 0.06, 0.011); ledBack.translate(0, (BH - 0.06) / 2, 0);
+  leds.push(add(ledBack, mats.ledSoft, W / 2 - 0.004, Y0 + 0.03, -D / 2 + 0.03));
+  leds.push(add(ledBack, mats.ledSoft, -W / 2 + 0.004, Y0 + 0.03, -D / 2 + 0.03));
 
   // modules casiers
   const lockers = {};
   for (const [id, y0] of Object.entries(LOCKERS)) {
     const grp = new THREE.Group(); grp.position.y = y0; machine.add(grp);
-    const wallT = 0.035, cw = W - 2 * wallT, ch = LH - 0.075, cd = CD;
-    const cz = ZF - cd / 2 - 0.02;
-    // parois latérales et bandeau supérieur
-    add(new THREE.BoxGeometry(wallT, LH, zoneD), mats.body, -W / 2 + wallT / 2, LH / 2, zoneZ, grp);
-    add(new THREE.BoxGeometry(wallT, LH, zoneD), mats.body, W / 2 - wallT / 2, LH / 2, zoneZ, grp);
-    add(new THREE.BoxGeometry(W, 0.012, zoneD), mats.body, 0, 0.006, zoneZ, grp);
-    add(new THREE.BoxGeometry(W - 2 * wallT, 0.062, zoneD), [mats.body, mats.body, mats.body, mats.body, mats.label, mats.body], 0, LH - 0.031, zoneZ, grp);
-    // intérieur du casier
-    const cavity = add(new THREE.BoxGeometry(cw, ch, cd), mats.interior, 0, 0.012 + ch / 2, cz, grp);
-    cavity.material = mats.interior;
-    add(new THREE.PlaneGeometry(cw - 0.04, 0.012), mats.ledWhite, 0, 0.012 + ch - 0.002, cz + cd / 2 - 0.05, grp).rotation.x = Math.PI / 2;
-    add(new THREE.PlaneGeometry(0.12, 0.12), mats.fan, 0.12, 0.012 + ch * 0.62, cz - cd / 2 + 0.002, grp);
-    // support / station vapeur
-    const dock = new THREE.Group(); dock.position.set(0, 0.012, cz + 0.02); grp.add(dock);
-    add(new THREE.CylinderGeometry(0.12, 0.135, 0.045, 48), mats.dock, 0, 0.0225, 0, dock);
-    add(new THREE.CylinderGeometry(0.1, 0.12, 0.012, 48), mats.metal, 0, 0.051, 0, dock);
-    add(new THREE.PlaneGeometry(0.07, 0.018), mats.dockLabel, 0, 0.024, 0.132, dock);
-    // lumière intérieure
-    const light = new THREE.PointLight(0x9cc3ff, 0.35, 0.9, 2);
-    light.position.set(0, ch - 0.04, cz + 0.05); grp.add(light);
+    const cw = CAV.x1 - CAV.x0, ch = CAV.y1 - CAV.y0, cx = (CAV.x0 + CAV.x1) / 2;
+    const cz = ZF - CD / 2 - 0.02;
+    // cadre fixe autour de l'ouverture
+    add(new THREE.BoxGeometry(CAV.x0 + W / 2, LH, zoneD), mats.body, (-W / 2 + CAV.x0) / 2, LH / 2, zoneZ, grp);
+    add(new THREE.BoxGeometry(W / 2 - CAV.x1, LH, zoneD), mats.body, (CAV.x1 + W / 2) / 2, LH / 2, zoneZ, grp);
+    add(new THREE.BoxGeometry(cw, CAV.y0, zoneD), mats.body, cx, CAV.y0 / 2, zoneZ, grp);
+    add(new THREE.BoxGeometry(cw, LH - CAV.y1, zoneD), mats.body, cx, (CAV.y1 + LH) / 2, zoneZ, grp);
+    // bandeau « Veuillez fermer la porte… » (photo)
+    add(photoPlane(-W / 2, W / 2, y0 + DOOR.y1, y0 + LH), mats.front, 0, -y0, ZF + 0.0006, grp);
+    add(photoPlane(-W / 2, W / 2, y0, y0 + DOOR.y0), mats.front, 0, -y0, ZF + 0.0006, grp);
 
-    // porte vitrée, charnière à droite
-    const pivot = new THREE.Group(); pivot.position.set(W / 2 - 0.03, 0.012 + 0.0055 + DOOR_H / 2, ZF + 0.001); grp.add(pivot);
+    // intérieur éclairé
+    add(new THREE.BoxGeometry(cw, ch, CD), mats.interior, cx, CAV.y0 + ch / 2, cz, grp);
+    const bar = add(new THREE.PlaneGeometry(cw * 0.5, 0.01), mats.ledWhite, cx - cw * 0.18, CAV.y1 - 0.003, cz + CD / 2 - 0.06, grp);
+    bar.rotation.x = Math.PI / 2;
+    add(new THREE.PlaneGeometry(0.11, 0.11), mats.fan, cx + 0.11, CAV.y0 + ch * 0.66, cz - CD / 2 + 0.002, grp);
+    const dock = buildDock(mats); dock.position.set(cx, CAV.y0, cz + 0.03); grp.add(dock);
+    const light = new THREE.PointLight(0xdfe8ff, 0.4, 0.9, 2);
+    light.position.set(cx, CAV.y1 - 0.05, cz + 0.08); grp.add(light);
+
+    // porte vitrée, texturée avec la photo, charnière à droite
+    const dw = DOOR.x1 - DOOR.x0, dh = DOOR.y1 - DOOR.y0, dcy = (DOOR.y0 + DOOR.y1) / 2;
+    const pivot = new THREE.Group(); pivot.position.set(DOOR.x1, dcy, ZF + 0.001); grp.add(pivot);
     const fs = new THREE.Shape();
-    fs.moveTo(-DOOR_W, -DOOR_H / 2); fs.lineTo(0, -DOOR_H / 2); fs.lineTo(0, DOOR_H / 2); fs.lineTo(-DOOR_W, DOOR_H / 2); fs.closePath();
+    fs.moveTo(-dw, -dh / 2); fs.lineTo(0, -dh / 2); fs.lineTo(0, dh / 2); fs.lineTo(-dw, dh / 2); fs.closePath();
+    const hx0 = WIN.x0 - DOOR.x1, hx1 = WIN.x1 - DOOR.x1, hy0 = WIN.y0 - dcy, hy1 = WIN.y1 - dcy;
     const hole = new THREE.Path();
-    const hx0 = -DOOR_W + 0.105, hx1 = -0.025, hy = DOOR_H / 2 - 0.025;
-    hole.moveTo(hx0, -hy); hole.lineTo(hx1, -hy); hole.lineTo(hx1, hy); hole.lineTo(hx0, hy); hole.closePath();
+    hole.moveTo(hx0, hy0); hole.lineTo(hx1, hy0); hole.lineTo(hx1, hy1); hole.lineTo(hx0, hy1); hole.closePath();
     fs.holes.push(hole);
-    const frameGeo = new THREE.ExtrudeGeometry(fs, { depth: 0.016, bevelEnabled: true, bevelThickness: 0.002, bevelSize: 0.002, bevelSegments: 1 });
-    add(frameGeo, mats.door, 0, 0, 0, pivot);
-    add(new THREE.PlaneGeometry(hx1 - hx0, hy * 2), mats.glass, (hx0 + hx1) / 2, 0, 0.009, pivot);
-    add(new THREE.PlaneGeometry(0.05, 0.05), id === "A" ? mats.badgeA : mats.badgeB, -DOOR_W + 0.052, DOOR_H / 2 - 0.055, 0.0185, pivot);
-    add(new THREE.BoxGeometry(0.026, 0.12, 0.006), mats.handleRecess, -DOOR_W + 0.052, -0.04, 0.016, pivot);
-    add(new THREE.BoxGeometry(0.012, 0.1, 0.012), mats.metal, -DOOR_W + 0.052, -0.04, 0.02, pivot);
+    const doorTex = mats.front.map.clone();
+    doorTex.repeat.set(1 / W, 1 / BH);
+    doorTex.offset.set(frontU(DOOR.x1), frontV(y0 + dcy));
+    doorTex.needsUpdate = true;
+    const doorMat = mats.front.clone(); doorMat.map = doorTex; doorMat.emissiveMap = doorTex;
+    add(new THREE.ExtrudeGeometry(fs, { depth: 0.014, bevelEnabled: false }), [doorMat, mats.door], 0, 0, 0, pivot);
+    const glassMat = mats.glass.clone();
+    add(new THREE.PlaneGeometry(hx1 - hx0, hy1 - hy0), glassMat, (hx0 + hx1) / 2, (hy0 + hy1) / 2, 0.008, pivot);
 
-    lockers[id] = { grp, pivot, light, dockTop: 0.012 + 0.057, cz };
+    lockers[id] = { grp, pivot, light, glassMat, dockTop: CAV.y0 + 0.095, cx, cz };
   }
-  return { machine, screen, lockers };
+  return { machine, screenMesh, lockers, leds };
 }
 
+/* Support vapeur AIRO (dôme visible dans chaque casier sur la photo). */
+function buildDock(mats) {
+  const g = new THREE.Group();
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 20, 0, Math.PI * 2, 0, Math.PI / 2), mats.dock);
+  dome.scale.set(0.112, 0.07, 0.082); dome.position.y = 0.03; g.add(dome);
+  const skirt = new THREE.Mesh(new THREE.CylinderGeometry(1, 1.06, 1, 48), mats.dockDark);
+  skirt.scale.set(0.112, 0.03, 0.082); skirt.position.y = 0.015; g.add(skirt);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1, 0.012, 8, 64), mats.metal);
+  ring.rotation.x = Math.PI / 2; ring.scale.set(0.113, 0.083, 1); ring.position.y = 0.03; g.add(ring);
+  const top = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.014, 0.03), mats.dockDark);
+  top.position.y = 0.1; g.add(top);
+  const topPlate = new THREE.Mesh(new THREE.PlaneGeometry(0.05, 0.014), mats.dockLabel);
+  topPlate.rotation.x = -Math.PI / 2; topPlate.position.set(0, 0.1072, 0); g.add(topPlate);
+  const plate = new THREE.Mesh(new THREE.PlaneGeometry(0.058, 0.016), mats.dockLabel);
+  plate.position.set(0, 0.016, 0.0875); g.add(plate);
+  return g;
+}
+
+/* Casque AIRO : coque intégrale noire brillante, visière bleue iridescente, logo sur les flancs. */
+function deformHelmet(geo) {
+  const p = geo.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i);
+    let { x, y, z } = v;
+    // ouverture du cou inclinée : plus basse devant (mentonnière) que derrière
+    const cut = -0.42 - 0.24 * z;
+    if (y < cut) { y = cut + (y - cut) * 0.12; x *= 0.9; z *= 0.94; }
+    // mentonnière avancée et arrondie
+    if (z > 0.2 && y < 0.0) z += 0.17 * smooth(0.0, -0.6, y) * smooth(0.2, 0.9, z);
+    // zone des yeux légèrement en retrait, pour que la visière s'y pose
+    if (z > 0.55 && y > -0.2 && y < 0.36 && Math.abs(x) < 0.68) z -= 0.04;
+    // arrière du crâne plus allongé et plus bas
+    if (z < 0) { z *= 1.08; if (y < -0.1) y -= 0.05 * smooth(-0.1, -0.45, y); }
+    p.setXYZ(i, x * 0.82, y * 0.9, z * 1.1);
+  }
+  geo.computeVertexNormals();
+  return geo;
+}
 function buildHelmet(mats) {
   const h = new THREE.Group();
-  const R = 0.105;
-  const shell = new THREE.Mesh(new THREE.SphereGeometry(R, 48, 32, 0, Math.PI * 2, 0, Math.PI * 0.66), mats.helmet);
-  shell.scale.set(0.9, 0.96, 1.18);
-  h.add(shell);
-  const chin = new THREE.Mesh(new THREE.SphereGeometry(R, 48, 12, Math.PI / 2 - 0.95, 1.9, Math.PI * 0.6, Math.PI * 0.16), mats.helmet);
-  chin.scale.set(0.92, 1, 1.12);
-  h.add(chin);
-  const visor = new THREE.Mesh(new THREE.SphereGeometry(R * 1.015, 48, 16, Math.PI / 2 - 0.95, 1.9, Math.PI * 0.33, Math.PI * 0.27), mats.visor);
-  visor.scale.set(0.92, 1, 1.12);
-  h.add(visor);
-  const trim = new THREE.Mesh(new THREE.TorusGeometry(R * 0.86, 0.006, 8, 64), mats.metal);
-  trim.rotation.x = Math.PI / 2; trim.position.y = -R * 0.47; trim.scale.set(1.07, 1.3, 1);
-  h.add(trim);
-  h.rotation.x = 0.12;
-  h.position.y = R * 0.45;
-  const wrap = new THREE.Group(); wrap.add(h);
+  h.add(new THREE.Mesh(deformHelmet(new THREE.SphereGeometry(1, 128, 80)), mats.helmet));
+  // visière fumée iridescente, posée en avant de la zone des yeux, avec son joint noir
+  const visorGeo = () => deformHelmet(new THREE.SphereGeometry(1, 72, 28, Math.PI / 2 - 0.92, 1.84, Math.PI * 0.35, Math.PI * 0.21));
+  const visor = new THREE.Mesh(visorGeo(), mats.visor); visor.scale.setScalar(1.035); h.add(visor);
+  const gasket = new THREE.Mesh(visorGeo(), mats.helmetTrim); gasket.scale.setScalar(1.02); gasket.scale.y = 1.06; h.add(gasket);
+  // pivots de visière
+  for (const sx of [1, -1]) {
+    const pv = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.04, 28), mats.helmetTrim);
+    pv.rotation.z = Math.PI / 2; pv.position.set(sx * 0.83, 0.06, 0.32); h.add(pv);
+  }
+  // logos AIRO sur les deux flancs
+  for (const side of [1, -1]) {
+    const phi = side > 0 ? Math.PI : 0;
+    const decal = new THREE.Mesh(deformHelmet(new THREE.SphereGeometry(1, 32, 12, phi - 0.6, 1.2, Math.PI * 0.27, Math.PI * 0.18)), side > 0 ? mats.decalR : mats.decalL);
+    decal.scale.setScalar(1.006); h.add(decal);
+  }
+  // aileron arrière, aérations et bandeau de mentonnière
+  const spoiler = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.07, 0.2), mats.helmet);
+  spoiler.position.set(0, 0.5, -0.9); spoiler.rotation.x = -0.55; h.add(spoiler);
+  const vent = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.05, 0.2), mats.helmetTrim);
+  vent.position.set(0, 0.85, 0.36); vent.rotation.x = 0.42; h.add(vent);
+  const chinVent = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.09, 0.06), mats.helmetTrim);
+  chinVent.position.set(0, -0.4, 1.12); chinVent.rotation.x = -0.3; h.add(chinVent);
+  const wrap = new THREE.Group();
+  h.scale.setScalar(0.115); h.position.y = 0.115 * 0.5;
+  wrap.add(h);
   return wrap;
 }
 
@@ -466,7 +487,6 @@ async function init() {
   renderer.toneMappingExposure = 0.95;
 
   try { await Promise.race([document.fonts.load(`800 100px ${FONT}`), new Promise((r) => setTimeout(r, 1500))]); } catch (e) { /* police de secours */ }
-  const logo = await loadImage("assets/img/logo.png");
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
@@ -482,49 +502,56 @@ async function init() {
   const ledColor = new THREE.Color(0x2f6bff).multiplyScalar(5);
   const std = (o) => new THREE.MeshStandardMaterial(o);
   const basic = (o) => new THREE.MeshBasicMaterial(o);
-  const mats = {
-    body: std({ color: 0x0b0e16, metalness: 0.55, roughness: 0.38 }),
-    metal: std({ color: 0x8a94a8, metalness: 1, roughness: 0.28 }),
-    side: std({ map: sideTex(), metalness: 0.3, roughness: 0.45 }),
-    back: std({ map: backTex(), metalness: 0.4, roughness: 0.5 }),
-    control: std({ map: controlTex(), metalness: 0.2, roughness: 0.4, emissive: 0xffffff, emissiveMap: null }),
-    label: std({ map: labelTex(), roughness: 0.5 }),
-    base: std({ map: baseTex(logo), metalness: 0.2, roughness: 0.4 }),
-    bezel: std({ map: bezelTex(), metalness: 0.4, roughness: 0.2 }),
-    screen: basic({ map: screen.tex, toneMapped: false, color: new THREE.Color(0.95, 0.95, 0.95) }),
-    led: basic({ color: ledColor, toneMapped: false }),
-    ledSoft: basic({ color: new THREE.Color(0x2f7bff).multiplyScalar(2.2), toneMapped: false }),
-    ledWhite: basic({ color: new THREE.Color(0xcfe0ff).multiplyScalar(3), toneMapped: false, side: THREE.DoubleSide }),
-    interior: std({ color: 0x1a2030, metalness: 0.2, roughness: 0.7, side: THREE.BackSide }),
-    fan: std({ map: fanTex(), roughness: 0.6 }),
-    dock: std({ color: 0x2a3140, metalness: 0.8, roughness: 0.3 }),
-    dockLabel: basic({ map: (() => { const [c, g] = makeCanvas(256, 64); g.fillStyle = "#0b0f1a"; g.fillRect(0, 0, 256, 64); g.font = `italic 800 52px ${FONT}`; g.fillStyle = "#fff"; g.textAlign = "center"; g.fillText("AIRO", 128, 52); return texFrom(c, 2); })() }),
-    door: std({ color: 0x0c1019, metalness: 0.6, roughness: 0.32 }),
-    glass: new THREE.MeshPhysicalMaterial({ color: 0x9fbfff, metalness: 0, roughness: 0.04, transparent: true, opacity: 0.12, envMapIntensity: 1.2, side: THREE.DoubleSide, depthWrite: false }),
-    badgeA: basic({ map: badgeTex("A") }),
-    badgeB: basic({ map: badgeTex("B") }),
-    handleRecess: std({ color: 0x030408, roughness: 0.9 }),
-    helmet: new THREE.MeshPhysicalMaterial({ color: 0x15181f, metalness: 0.35, roughness: 0.3, clearcoat: 0.6, clearcoatRoughness: 0.2, side: THREE.DoubleSide }),
-    visor: new THREE.MeshPhysicalMaterial({ color: 0x163c9c, metalness: 0.9, roughness: 0.06, clearcoat: 1, emissive: 0x0a2a80, emissiveIntensity: 0.18, side: THREE.DoubleSide }),
+  const loader = new THREE.TextureLoader();
+  const loadTex = (src) => new Promise((res) => loader.load(src, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); res(t); }, undefined, () => res(null)));
+  const [frontTex, sideTexPhoto] = await Promise.all([loadTex("assets/img/tex-front.webp"), loadTex("assets/img/tex-side.webp")]);
+  // la photo est déjà éclairée : une part émissive garde son rendu, le reste réagit à la lumière de la scène
+  const photoMat = (map, fallback) => map
+    ? std({ map, emissive: 0xffffff, emissiveMap: map, emissiveIntensity: 0.55, metalness: 0.25, roughness: 0.42 })
+    : std({ map: fallback, metalness: 0.3, roughness: 0.45 });
+  const decal = (flip) => {
+    const [c, g] = makeCanvas(512, 160);
+    g.font = `italic 900 120px ${FONT}`; g.fillStyle = "#f1f3f6"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillText("AIRO", 256, 76);
+    g.fillStyle = "#2f6bff"; g.fillRect(96, 132, 320, 6);
+    const t = texFrom(c, 4);
+    if (flip) { t.wrapS = THREE.RepeatWrapping; t.repeat.x = -1; }
+    return std({ map: t, transparent: true, metalness: 0.2, roughness: 0.3, polygonOffset: true, polygonOffsetFactor: -2 });
   };
-  mats.control.emissiveMap = mats.control.map; mats.control.emissiveIntensity = 0.35;
-  mats.base.emissive = new THREE.Color(0xffffff); mats.base.emissiveMap = mats.base.map; mats.base.emissiveIntensity = 0.3;
-  mats.label.emissive = new THREE.Color(0xffffff); mats.label.emissiveMap = mats.label.map; mats.label.emissiveIntensity = 0.25;
-  mats.side.emissive = new THREE.Color(0xffffff); mats.side.emissiveMap = mats.side.map; mats.side.emissiveIntensity = 0.2;
+  const mats = {
+    body: std({ color: 0x0c0d10, metalness: 0.6, roughness: 0.36 }),
+    metal: std({ color: 0xb8bfca, metalness: 1, roughness: 0.22 }),
+    front: photoMat(frontTex, controlTex()),
+    side: photoMat(sideTexPhoto, sideTex()),
+    back: std({ map: backTex(), metalness: 0.4, roughness: 0.5 }),
+    screen: basic({ map: screen.tex, toneMapped: false, color: new THREE.Color(0.92, 0.92, 0.92) }),
+    led: basic({ color: ledColor, toneMapped: false }),
+    ledSoft: basic({ color: new THREE.Color(0x2f6bff).multiplyScalar(2), toneMapped: false }),
+    ledWhite: basic({ color: new THREE.Color(0xeaf0ff).multiplyScalar(3), toneMapped: false, side: THREE.DoubleSide }),
+    interior: std({ color: 0x2b3038, metalness: 0.15, roughness: 0.62, side: THREE.BackSide }),
+    fan: std({ map: fanTex(), roughness: 0.6 }),
+    dock: new THREE.MeshPhysicalMaterial({ color: 0x23262d, metalness: 0.55, roughness: 0.25, clearcoat: 0.8, clearcoatRoughness: 0.15 }),
+    dockDark: std({ color: 0x101216, metalness: 0.5, roughness: 0.4 }),
+    dockLabel: basic({ map: (() => { const [c, g] = makeCanvas(256, 72); g.fillStyle = "#e9ecf1"; rr(g, 2, 2, 252, 68, 10); g.fill(); g.fillStyle = "#14161b"; rr(g, 8, 8, 240, 56, 8); g.fill(); g.font = `italic 800 46px ${FONT}`; g.fillStyle = "#fff"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("AIRO", 128, 38); return texFrom(c, 4); })() }),
+    door: std({ color: 0x0c0d10, metalness: 0.6, roughness: 0.32 }),
+    glass: new THREE.MeshPhysicalMaterial({ color: 0xbcd0ff, metalness: 0, roughness: 0.05, transparent: true, opacity: 0.1, envMapIntensity: 1.3, side: THREE.DoubleSide, depthWrite: false }),
+    helmet: new THREE.MeshPhysicalMaterial({ color: 0x0b0c0f, metalness: 0.2, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.14, envMapIntensity: 0.55 }),
+    helmetTrim: std({ color: 0x1b1e24, metalness: 0.4, roughness: 0.55 }),
+    visor: new THREE.MeshPhysicalMaterial({ color: 0x0e2a8a, metalness: 0.95, roughness: 0.06, clearcoat: 1, iridescence: 1, iridescenceIOR: 1.8, iridescenceThicknessRange: [280, 780], envMapIntensity: 0.8, side: THREE.DoubleSide }),
+    decalR: decal(false),
+    decalL: decal(false),
+  };
 
-  const { machine, lockers } = buildMachine(mats);
+  const { machine, lockers, leds } = buildMachine(mats);
   scene.add(machine);
 
-  // casques : un qui suit le cycle (A), un déjà en place (B)
+  // casques AIRO : A suit le parcours du client, B est servi en parallèle dans l'autre casier
   const helmetA = buildHelmet(mats);
   const helmetB = buildHelmet(mats);
-  lockers.B.grp.add(helmetB);
-  helmetB.position.set(0, lockers.B.dockTop, lockers.B.cz + 0.02);
-  helmetB.rotation.y = 0.5;
-  machine.add(helmetA);
+  machine.add(helmetA, helmetB);
 
   // sol, halo et fond
-  const floor = new THREE.Mesh(new THREE.CircleGeometry(9, 64), std({ color: 0x050505, metalness: 0.55, roughness: 0.45 }));
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(9, 64), std({ color: 0x040405, metalness: 0.2, roughness: 0.8 }));
   floor.rotation.x = -Math.PI / 2; scene.add(floor);
   const halo = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 3.2), basic({ map: radialTex("rgba(47,107,255,0.28)"), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
   halo.rotation.x = -Math.PI / 2; halo.position.y = 0.002; scene.add(halo);
@@ -534,7 +561,7 @@ async function init() {
   // lumières
   scene.add(new THREE.HemisphereLight(0xc8d2e6, 0x000000, 0.22));
   const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(2.5, 3.5, 4); scene.add(key);
-  const rimR = new THREE.DirectionalLight(0x2f7bff, 2.6); rimR.position.set(-3, 2.5, -3); scene.add(rimR);
+  const rimR = new THREE.DirectionalLight(0x2f6bff, 1.8); rimR.position.set(-3, 2.5, -3); scene.add(rimR);
   const rimL = new THREE.DirectionalLight(0x5aa2ff, 1.6); rimL.position.set(3.5, 1.5, -2.5); scene.add(rimL);
 
   // fumée d'ambiance
@@ -560,7 +587,15 @@ async function init() {
   steamGeo.setAttribute("position", new THREE.BufferAttribute(steamPos, 3));
   const steamMat = new THREE.PointsMaterial({ map: radialTex("rgba(255,255,255,0.9)"), size: 0.13, color: 0xd6e6ff, transparent: true, opacity: 0, depthWrite: false, sizeAttenuation: true });
   const steam = new THREE.Points(steamGeo, steamMat);
-  lockers.A.grp.add(steam);
+  machine.add(steam);
+  // nappes plus grosses et plus douces, pour donner du volume à la vapeur
+  const puffCount = mobile ? 24 : 48;
+  const puffPos = new Float32Array(puffCount * 3);
+  const puffSeed = Array.from({ length: puffCount }, () => [Math.random(), Math.random(), Math.random(), 0.3 + Math.random()]);
+  const puffGeo = new THREE.BufferGeometry();
+  puffGeo.setAttribute("position", new THREE.BufferAttribute(puffPos, 3));
+  const puffMat = new THREE.PointsMaterial({ map: smokeTex(), size: 0.34, color: 0xe6eeff, transparent: true, opacity: 0, depthWrite: false, sizeAttenuation: true });
+  machine.add(new THREE.Points(puffGeo, puffMat));
 
   // étincelles de propreté
   const sparkMat = new THREE.SpriteMaterial({ map: radialTex("rgba(255,255,255,1)", "rgba(90,162,255,0)", 64), color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
@@ -570,7 +605,7 @@ async function init() {
   const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: mobile ? 0 : 4 });
   const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.4, 0.95);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.4, 1.05);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 
@@ -653,10 +688,10 @@ async function init() {
   /* ---------- repères techniques (pendant la rotation à 360°) ---------- */
   const calloutLayer = document.getElementById("xpCallouts");
   const ANCHORS = [
-    { p: [0, 1.635, ZF], n: [0, 0, 1], t: "Écran tactile", s: "Choix du programme" },
-    { p: [0, 1.3, ZF], n: [0, 0, 1], t: "Paiement sécurisé", s: "Directement sur la borne" },
-    { p: [-0.12, 0.95, ZF + 0.02], n: [0, 0, 1], t: "Casier A", s: "Porte vitrée, support vapeur" },
-    { p: [-0.12, 0.48, ZF + 0.02], n: [0, 0, 1], t: "Casier B", s: "Fonctionne indépendamment" },
+    { p: [0, 1.665, ZF], n: [0, 0, 1], t: "Écran tactile", s: "Choix du programme" },
+    { p: [0, 1.33, ZF], n: [0, 0, 1], t: "Paiement sécurisé", s: "Directement sur la borne" },
+    { p: [0.03, 0.88, ZF], n: [0, 0, 1], t: "Casier A", s: "Support vapeur AIRO" },
+    { p: [0.03, 0.42, ZF], n: [0, 0, 1], t: "Casier B", s: "Fonctionne indépendamment" },
     { p: [W / 2, 1.25, -0.05], n: [1, 0, 0], t: "Flanc droit", s: "Identique au flanc gauche" },
     { p: [-W / 2, 1.25, -0.05], n: [-1, 0, 0], t: "Flanc gauche", s: "Identique au flanc droit" },
     { p: [W / 2 - 0.004, 1.75, ZF], n: [0.7, 0, 0.7], t: "Bandeaux LED", s: "Signature lumineuse AIRO" },
@@ -697,17 +732,25 @@ async function init() {
   /* ---------- boucle ---------- */
   const v3 = new THREE.Vector3(), look = new THREE.Vector3();
   const camFar = { pos: new THREE.Vector3(0, 1.08, 5.2), look: new THREE.Vector3(0, 0.98, 0) };
-  const camScreen = { pos: new THREE.Vector3(0.05, 1.55, 2.4), look: new THREE.Vector3(0, 1.42, 0) };
-  const camLocker = { pos: new THREE.Vector3(0.6, 1.12, 3.4), look: new THREE.Vector3(0, 0.98, 0) };
+  const camScreen = { pos: new THREE.Vector3(0.25, 1.55, 2.4), look: new THREE.Vector3(0.22, 1.42, 0) };
+  const camLocker = { pos: new THREE.Vector3(0.75, 1.1, 3.4), look: new THREE.Vector3(0.28, 0.95, 0) };
   const camEnd = { pos: new THREE.Vector3(0, 1.15, 5.6), look: new THREE.Vector3(0, 0.98, 0) };
   const mixCam = (a, b, t) => { v3.lerpVectors(a.pos, b.pos, t); look.lerpVectors(a.look, b.look, t); };
 
-  let running = true, looping = false, t0 = performance.now(), firstFrame = true;
+  let running = true, looping = false, t0 = performance.now(), firstFrame = true, bootStart = null;
   const vis = new IntersectionObserver((e) => { running = e[0].isIntersecting; if (running && !looping) loop(); });
   vis.observe(xp);
 
   function frame(now) {
     const t = (now - t0) / 1000;
+    // mise sous tension à l'apparition : LED qui se tracent, écran qui s'allume, casiers éclairés
+    if (bootStart === null) bootStart = now;
+    const bt = reduceMotion ? 9 : (now - bootStart) / 1000;
+    const boot = smooth(0.9, 1.6, bt);
+    leds[0].scale.y = leds[1].scale.y = Math.max(0.001, smooth(0.0, 0.9, bt));
+    leds[2].scale.x = Math.max(0.001, smooth(0.7, 1.1, bt));
+    leds[3].scale.y = leds[4].scale.y = Math.max(0.001, smooth(0.4, 1.3, bt));
+    mats.screen.color.setScalar(0.92 * smooth(1.0, 1.5, bt) * (bt < 1.12 && bt > 1.02 ? 0.3 : 1));
     shown += (progress - shown) * (reduceMotion ? 1 : 0.09);
     const p = shown;
     const seg = (i) => clamp((p - B[i]) / (B[i + 1] - B[i]));
@@ -728,7 +771,10 @@ async function init() {
     // caméra
     if (p < B[2]) mixCam(camFar, camFar, 0);
     else if (p < B[3]) mixCam(camFar, camScreen, smooth(B[2], B[2] + 0.06, p));
-    else if (p < B[6]) mixCam(camScreen, camLocker, smooth(B[3], B[3] + 0.06, p));
+    else if (p < B[6]) {
+      mixCam(camScreen, camLocker, smooth(B[3], B[3] + 0.06, p));
+      v3.sub(look).multiplyScalar(1 - 0.1 * Math.sin(seg(4) * Math.PI)).add(look); // poussée lente pendant le cycle
+    }
     else mixCam(camLocker, camEnd, smooth(B[6], B[7] - 0.02, p));
     if (!sideLayout) {
       const k = Math.max(1, 0.85 / camera.aspect);
@@ -742,47 +788,64 @@ async function init() {
     camera.position.copy(v3);
     camera.lookAt(look);
 
-    // porte A, casque A, vapeur
+    // portes : ouverture avec un léger rebond (ressort), charnière à droite
     const sDep = seg(3), sCyc = seg(4), sRet = seg(5), sEnd = seg(6);
-    let doorA = 0;
-    doorA = Math.max(doorA, smooth(0.0, 0.3, sDep) * (1 - smooth(0.78, 1, sDep)));
-    doorA = Math.max(doorA, smooth(0.25, 0.5, sRet) * (1 - smooth(0.1, 0.6, sEnd)));
+    const springOpen = (x) => { const c = 1.15; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+    let doorA = Math.max(smooth(0.0, 0.3, sDep) * (1 - smooth(0.78, 1, sDep)), smooth(0.2, 0.45, sRet) * (1 - smooth(0.1, 0.6, sEnd)));
     if (p < B[3]) doorA = 0;
-    lockers.A.pivot.rotation.y = doorA * 1.75;
-    const doorB = reduceMotion ? 0 : smooth(0.45, 0.75, sRet) * (1 - smooth(0.1, 0.6, sEnd)) * 0.9;
-    lockers.B.pivot.rotation.y = doorB * 1.75;
+    lockers.A.pivot.rotation.y = springOpen(doorA) * 1.7 * (doorA > 0 ? 1 : 0);
+    const doorB = reduceMotion ? 0 : smooth(0.4, 0.62, sRet) * (1 - smooth(0.1, 0.6, sEnd));
+    lockers.B.pivot.rotation.y = springOpen(doorB) * 1.7 * (doorB > 0 ? 1 : 0);
 
-    // trajectoire du casque A (repère machine)
-    const A = lockers.A;
-    const inside = new THREE.Vector3(0, A.grp.position.y + A.dockTop, A.cz + 0.02);
-    const outside = new THREE.Vector3(0.05, A.grp.position.y + 0.12, ZF + 0.45);
-    let hIn = 0;
-    if (p < B[3]) hIn = 0;
-    else if (p < B[5]) hIn = smooth(0.32, 0.75, sDep);
-    else hIn = 1 - smooth(0.5, 0.85, sRet);
-    helmetA.position.lerpVectors(outside, inside, hIn);
-    helmetA.position.y += Math.sin(hIn * Math.PI) * 0.06;
-    helmetA.rotation.y = lerp(-0.6, 0.35, hIn);
-    helmetA.visible = p >= B[3] - 0.01 && p < B[6] + 0.06;
-    helmetA.scale.setScalar(helmetA.visible ? 1 : 0.001);
+    // trajectoires des casques (repère machine) : arc d'entrée/sortie, légère rotation
+    const placeHelmet = (h, L, k, side) => {
+      const inside = new THREE.Vector3(L.cx, L.grp.position.y + L.dockTop, L.cz + 0.03);
+      const outside = new THREE.Vector3(L.cx + 0.08 * side, L.grp.position.y + 0.16, ZF + 0.5);
+      h.position.lerpVectors(outside, inside, k);
+      h.position.y += Math.sin(k * Math.PI) * 0.07;
+      h.rotation.set(Math.sin(k * Math.PI) * 0.12, lerp(-0.9 * side, 0.2, k), 0);
+    };
+    const A = lockers.A, Bk = lockers.B;
+    let hA = 0;
+    if (p < B[3]) hA = 0; else if (p < B[5]) hA = smooth(0.3, 0.72, sDep); else hA = 1 - smooth(0.45, 0.8, sRet);
+    placeHelmet(helmetA, A, hA, 1);
+    helmetA.visible = p >= B[3] - 0.01 && p < B[6] + 0.05;
+    let hB = 0;
+    if (p >= B[3] && p < B[5]) hB = 1; else if (p >= B[5]) hB = 1 - smooth(0.62, 0.9, sRet);
+    placeHelmet(helmetB, Bk, hB, -1);
+    helmetB.visible = hB > 0.001;
 
-    const steamAmt = smooth(0.05, 0.25, sCyc) * (1 - smooth(0.85, 1, sCyc)) + (p >= B[5] ? (1 - smooth(0, 0.25, sRet)) * 0.0 : 0);
-    steamMat.opacity = steamAmt * 0.55;
-    if (steamAmt > 0.001) {
-      const ch = LH - 0.075, cw = W - 0.07;
-      for (let i = 0; i < steamCount; i++) {
-        const [a, b, c, sp] = steamSeed[i];
-        const yy = ((c + t * 0.18 * sp) % 1);
-        steamPos[i * 3] = (a - 0.5) * cw * 0.85 + Math.sin(t * 1.3 + i) * 0.02;
-        steamPos[i * 3 + 1] = 0.03 + yy * ch * 0.92;
-        steamPos[i * 3 + 2] = A.cz + (b - 0.5) * CD * 0.8;
-      }
+    // vapeur : monte pendant le cycle, s'échappe quand la porte se rouvre
+    const steamAmt = smooth(0.04, 0.22, sCyc) * (1 - smooth(0.88, 1, sCyc));
+    const escape = p >= B[5] ? smooth(0.15, 0.35, sRet) * (1 - smooth(0.35, 0.7, sRet)) : 0;
+    const vap = Math.max(steamAmt, escape);
+    steamMat.opacity = vap * 0.5;
+    puffMat.opacity = vap * 0.22;
+    if (vap > 0.001) {
+      const ch = CAV.y1 - CAV.y0, cw = CAV.x1 - CAV.x0;
+      const fill = (pos, seed, n, spread, rise) => {
+        for (let i = 0; i < n; i++) {
+          const [a, b, c, sp] = seed[i];
+          const yy = (c + t * rise * sp) % 1;
+          const out = escape * yy * 0.5;
+          pos[i * 3] = A.cx + (a - 0.5) * cw * spread + Math.sin(t * 1.3 + i) * 0.02;
+          pos[i * 3 + 1] = A.grp.position.y + CAV.y0 + 0.02 + yy * ch * (0.92 + escape * 0.6);
+          pos[i * 3 + 2] = A.cz + (b - 0.5) * CD * 0.8 + out;
+        }
+      };
+      fill(steamPos, steamSeed, steamCount, 0.85, 0.18);
+      fill(puffPos, puffSeed, puffCount, 0.7, 0.08);
       steamGeo.attributes.position.needsUpdate = true;
+      puffGeo.attributes.position.needsUpdate = true;
     }
+    // vitre embuée et lumière bleue pulsée pendant le cycle
     const pulse = 0.5 + 0.5 * Math.sin(t * 6);
-    A.light.intensity = 0.35 + steamAmt * (1.6 + pulse * 1.2);
-    A.light.color.setHSL(0.6, 1, 0.65 + steamAmt * 0.1);
-    mats.glass.opacity = 0.12 + steamAmt * 0.12;
+    A.light.intensity = boot * (0.4 + steamAmt * (1.4 + pulse * 1.1));
+    A.light.color.setHSL(0.6, 0.3 + steamAmt * 0.7, 0.75 - steamAmt * 0.1);
+    Bk.light.intensity = boot * 0.4;
+    A.glassMat.opacity = 0.1 + steamAmt * 0.38;
+    A.glassMat.roughness = 0.05 + steamAmt * 0.5;
+    A.glassMat.color.setHSL(0.6, 0.4, 0.8 + steamAmt * 0.12);
 
     // étincelles quand le casque sort propre
     const sparkAmt = smooth(0.55, 0.75, sRet) * (1 - smooth(0.0, 0.5, sEnd));
@@ -820,10 +883,29 @@ async function init() {
     if (firstFrame) { firstFrame = false; stage.classList.add("is-live"); ready(); }
   }
 
+  // Qualité adaptative : on mesure le temps d'image et on allège le rendu sur les appareils modestes.
+  let perfFrames = 0, perfStart = 0, quality = 0;
+  const maxDpr = Math.min(window.devicePixelRatio, mobile ? 1.5 : 1.75);
+  function adapt(now) {
+    if (perfFrames === 0) perfStart = now;
+    if (++perfFrames < 90) return;
+    const ms = (now - perfStart) / perfFrames;
+    perfFrames = 0;
+    if (ms > 26 && quality < 3) {
+      quality++;
+      if (quality === 1) renderer.setPixelRatio(Math.max(1, maxDpr * 0.75));
+      if (quality === 2) renderer.setPixelRatio(1);
+      if (quality === 3) bloom.enabled = false;
+      resize();
+    }
+  }
+
   function loop() {
     if (!running) { looping = false; return; }
     looping = true;
-    frame(performance.now());
+    const now = performance.now();
+    frame(now);
+    if (!document.hidden) adapt(now);
     requestAnimationFrame(loop);
   }
   loop();
