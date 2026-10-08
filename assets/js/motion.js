@@ -126,6 +126,35 @@
     });
   }
 
+  /* Menu : souligne la section en cours de lecture. */
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll("#navLinks a[href^='#']"));
+  navLinks.forEach(function (link) {
+    var sec = document.querySelector(link.getAttribute("href"));
+    if (!sec) return;
+    if (sec.classList.contains("xp-step")) sec = sec.closest(".xp-step");
+    ScrollTrigger.create({
+      trigger: sec, start: "top 55%", end: "bottom 55%",
+      onToggle: function (self) {
+        link.classList.toggle("is-current", self.isActive);
+        if (self.isActive) link.setAttribute("aria-current", "true"); else link.removeAttribute("aria-current");
+      }
+    });
+  });
+
+  /* Photos : dévoilement par le bas, une seule fois. */
+  if (!reduce) {
+    gsap.utils.toArray(".tech__media img, .pros__photo img, .fiche__visual img").forEach(function (img) {
+      gsap.fromTo(img, { clipPath: "inset(100% 0% 0% 0%)", scale: 1.06 }, {
+        clipPath: "inset(0% 0% 0% 0%)", scale: 1, duration: 1.1, ease: "power3.out",
+        scrollTrigger: { trigger: img, start: "top 82%", once: true }
+      });
+    });
+    gsap.utils.toArray(".prog li").forEach(function (li, i) {
+      gsap.from(li, { y: 40, autoAlpha: 0, duration: 0.8, delay: i * 0.08, ease: "power3.out",
+        scrollTrigger: { trigger: ".prog", start: "top 80%", once: true } });
+    });
+  }
+
   // Les polices et la scène 3D modifient les hauteurs : on recalcule les déclencheurs une fois prêts.
   window.addEventListener("load", function () { ScrollTrigger.refresh(); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
