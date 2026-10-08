@@ -177,7 +177,7 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .programs dd { color: var(--steel); font-variant-numeric: tabular-nums; }
 
 /* Blocs de contenu */
-.block { position: relative; padding: clamp(96px, 12vw, 160px) 0; border-top: 1px solid var(--rule); background: var(--black); }
+.block { position: relative; padding: clamp(96px, 12vw, 160px) 0; border-top: 1px solid var(--rule); background: radial-gradient(90% 55% at 50% 0%, rgba(58, 86, 160, .16), transparent 70%), linear-gradient(180deg, #0b0d12 0%, #050608 60%, #030405 100%); }
 .block__title { max-width: 14em; margin-bottom: clamp(48px, 6vw, 80px); }
 
 .threats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px 32px; }
@@ -273,7 +273,7 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .form__success p { color: var(--steel); margin-bottom: 28px; }
 
 /* Pied de page */
-.footer { border-top: 1px solid var(--rule); padding: 40px 0 32px; overflow: hidden; }
+.footer { border-top: 1px solid var(--rule); padding: 40px 0 32px; overflow: hidden; background: #030405; }
 .footer__mark { font-size: 30vw; font-stretch: 100%; font-weight: 900; line-height: .78; color: var(--graphite); letter-spacing: -0.02em; margin: 0 0 32px -0.04em; user-select: none; }
 .footer__row { display: flex; flex-wrap: wrap; align-items: center; gap: 24px 40px; }
 .footer__links { display: flex; flex-wrap: wrap; gap: 24px; }
@@ -288,6 +288,12 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .legal__body p { color: var(--steel); }
 .legal__body a { color: var(--bone); }
 .legal__back { margin-left: auto; }
+.fiche__docs { margin-top: 24px; }
+.fiche__docs a { display: inline-flex; align-items: center; min-height: 44px; color: var(--bone); }
+
+/* Grain photo sur toute la page : matière, comme un tirage */
+body::after { content: ""; position: fixed; inset: 0; z-index: 90; pointer-events: none; opacity: .045; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 
 /* Mouvement (GSAP + Lenis) */
 html.lenis, html.lenis body { height: auto; }

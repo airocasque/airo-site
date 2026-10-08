@@ -241,7 +241,7 @@ function makeScreen() {
       g.font = `italic 800 64px ${FONT}`; g.fillText("AIRO", W / 2, 90);
     } else if (state === "select") {
       panel(); title("SÉLECTIONNEZ VOTRE PROGRAMME");
-      [["EXPRESS", "≈ 3 MIN"], ["STANDARD", "≈ 5 MIN"], ["INTENSIF", "≈ 9-10 MIN"]].forEach(([n, d], i) => {
+      [["NETTOYAGE AVANCÉ", "10 MIN"], ["NETTOYAGE RAPIDE", "7 MIN"], ["SÉCHAGE SEUL", "3 MIN"]].forEach(([n, d], i) => {
         const y = 130 + i * 128, on = i === a;
         g.fillStyle = on ? "#2f7bff" : "rgba(255,255,255,0.06)";
         if (on) { g.shadowColor = "#5aa2ff"; g.shadowBlur = 30; }
@@ -403,6 +403,26 @@ function buildMachine(mats) {
   return { machine, screenMesh, lockers, leds };
 }
 
+/* Fond de studio : sol qui remonte en courbe douce vers un mur, sans arête ni horizon. */
+function buildCyclorama() {
+  const prof = [];
+  const R0 = 3.2, zWall = -6;
+  for (let i = 0; i <= 12; i++) prof.push([9 - i * (9 - (zWall + R0)) / 12, 0]);                 // sol
+  for (let i = 1; i <= 24; i++) { const a = (i / 24) * Math.PI / 2; prof.push([zWall + R0 - Math.sin(a) * R0, R0 - Math.cos(a) * R0]); } // courbe
+  for (let i = 1; i <= 8; i++) prof.push([zWall, R0 + i * 1.2]);                                    // mur
+  const xs = [-16, -8, 0, 8, 16];
+  const pos = [], idx = [];
+  prof.forEach(([z, y]) => xs.forEach((x) => pos.push(x, y, z)));
+  for (let i = 0; i < prof.length - 1; i++) for (let j = 0; j < xs.length - 1; j++) {
+    const a = i * xs.length + j, b = a + 1, c = a + xs.length, d = c + 1;
+    idx.push(a, c, b, b, c, d);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx); g.computeVertexNormals();
+  return new THREE.Mesh(g);
+}
+
 /* Support vapeur AIRO (dôme visible dans chaque casier sur la photo). */
 function buildDock(mats) {
   const g = new THREE.Group();
@@ -421,53 +441,68 @@ function buildDock(mats) {
   return g;
 }
 
-/* Casque AIRO : coque intégrale noire brillante, visière bleue iridescente, logo sur les flancs. */
+/* Casque AIRO, silhouette inspirée des intégraux Arai : coque très ronde et lisse (sans arêtes vives),
+   grande visière avec platines latérales, prises d'air de front, diffuseur arrière, mentonnière à grille.
+   Aucun logo de marque tierce : seul le logo AIRO figure sur les flancs. */
 function deformHelmet(geo) {
   const p = geo.attributes.position, v = new THREE.Vector3();
   for (let i = 0; i < p.count; i++) {
     v.fromBufferAttribute(p, i);
     let { x, y, z } = v;
-    // ouverture du cou inclinée : plus basse devant (mentonnière) que derrière
-    const cut = -0.42 - 0.24 * z;
-    if (y < cut) { y = cut + (y - cut) * 0.12; x *= 0.9; z *= 0.94; }
-    // mentonnière avancée et arrondie
-    if (z > 0.2 && y < 0.0) z += 0.17 * smooth(0.0, -0.6, y) * smooth(0.2, 0.9, z);
-    // zone des yeux légèrement en retrait, pour que la visière s'y pose
-    if (z > 0.55 && y > -0.2 && y < 0.36 && Math.abs(x) < 0.68) z -= 0.04;
-    // arrière du crâne plus allongé et plus bas
-    if (z < 0) { z *= 1.08; if (y < -0.1) y -= 0.05 * smooth(-0.1, -0.45, y); }
-    p.setXYZ(i, x * 0.82, y * 0.9, z * 1.1);
+    const cut = -0.46 - 0.2 * z;                                          // ouverture inclinée, plus basse devant
+    const k = smooth(cut + 0.08, cut - 0.3, y);                          // raccord progressif, sans crénelage
+    if (k > 0) { y = lerp(y, cut + (y - cut) * 0.1, k); x *= 1 - 0.08 * k; z *= 1 - 0.05 * k; }
+    if (z > 0.15 && y < 0.02) z += 0.13 * smooth(0.02, -0.62, y) * smooth(0.15, 0.85, z);   // mentonnière ronde
+    if (z > 0.6 && y > -0.18 && y < 0.34 && Math.abs(x) < 0.66) z -= 0.035;                  // cadre de visière
+    if (z < -0.2 && y < -0.05) y -= 0.035 * smooth(-0.05, -0.45, y);                          // nuque
+    p.setXYZ(i, x * 0.86, y * 0.94, z * 1.03);
   }
   geo.computeVertexNormals();
   return geo;
 }
 function buildHelmet(mats) {
   const h = new THREE.Group();
-  h.add(new THREE.Mesh(deformHelmet(new THREE.SphereGeometry(1, 128, 80)), mats.helmet));
-  // visière fumée iridescente, posée en avant de la zone des yeux, avec son joint noir
-  const visorGeo = () => deformHelmet(new THREE.SphereGeometry(1, 72, 28, Math.PI / 2 - 0.92, 1.84, Math.PI * 0.35, Math.PI * 0.21));
-  const visor = new THREE.Mesh(visorGeo(), mats.visor); visor.scale.setScalar(1.035); h.add(visor);
-  const gasket = new THREE.Mesh(visorGeo(), mats.helmetTrim); gasket.scale.setScalar(1.02); gasket.scale.y = 1.06; h.add(gasket);
-  // pivots de visière
+  const shellGeo = (seg = 128) => deformHelmet(new THREE.SphereGeometry(1, seg, Math.round(seg * 0.62)));
+  h.add(new THREE.Mesh(shellGeo(), mats.helmet));
+  // visière fumée iridescente, cadre noir
+  const visorGeo = () => deformHelmet(new THREE.SphereGeometry(1, 80, 30, Math.PI / 2 - 0.95, 1.9, Math.PI * 0.34, Math.PI * 0.22));
+  const gasket = new THREE.Mesh(visorGeo(), mats.helmetTrim); gasket.scale.set(1.02, 1.07, 1.02); h.add(gasket);
+  const visor = new THREE.Mesh(visorGeo(), mats.visor); visor.scale.setScalar(1.034); h.add(visor);
+  // platines de visière (rondes, typiques des systèmes de visière Arai)
   for (const sx of [1, -1]) {
-    const pv = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.04, 28), mats.helmetTrim);
-    pv.rotation.z = Math.PI / 2; pv.position.set(sx * 0.83, 0.06, 0.32); h.add(pv);
+    const pod = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.17, 0.05, 40), mats.helmetTrim);
+    pod.rotation.z = Math.PI / 2; pod.position.set(sx * 0.83, 0.02, 0.34); pod.scale.set(1, 1, 1.25); h.add(pod);
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.02, 32), mats.metal);
+    cap.rotation.z = Math.PI / 2; cap.position.set(sx * 0.865, 0.02, 0.34); h.add(cap);
   }
-  // logos AIRO sur les deux flancs
+  // prises d'air de front, au-dessus de la visière, et prises supérieures
+  for (const sx of [0.22, -0.22]) {
+    const brow = new THREE.Mesh(new THREE.CapsuleGeometry(0.035, 0.12, 6, 12), mats.helmetTrim);
+    brow.rotation.z = Math.PI / 2; brow.position.set(sx, 0.44, 0.84); brow.rotation.x = -0.5; h.add(brow);
+    const top = new THREE.Mesh(new THREE.CapsuleGeometry(0.045, 0.1, 6, 12), mats.helmetTrim);
+    top.position.set(sx * 0.9, 0.86, 0.32); top.rotation.x = 1.1; h.add(top);
+  }
+  // becquet arrière discret
+  const spoiler = new THREE.Mesh(new THREE.CapsuleGeometry(0.05, 0.36, 6, 16), mats.helmetTrim);
+  spoiler.rotation.z = Math.PI / 2; spoiler.position.set(0, 0.42, -0.86); spoiler.rotation.y = 0; h.add(spoiler);
+  // mentonnière : grille d'aération
+  const chin = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.12, 0.05), mats.helmetTrim);
+  chin.position.set(0, -0.36, 1.06); chin.rotation.x = -0.32; h.add(chin);
+  for (let k = -2; k <= 2; k++) {
+    const slot = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.08, 0.02), mats.metal);
+    slot.position.set(k * 0.055, -0.36, 1.085); slot.rotation.x = -0.32; h.add(slot);
+  }
+  // logos AIRO sur les flancs
   for (const side of [1, -1]) {
-    const phi = side > 0 ? Math.PI : 0;
-    const decal = new THREE.Mesh(deformHelmet(new THREE.SphereGeometry(1, 32, 12, phi - 0.6, 1.2, Math.PI * 0.27, Math.PI * 0.18)), side > 0 ? mats.decalR : mats.decalL);
+    const phi = side > 0 ? Math.PI + 0.42 : -0.42;                    // décalé vers l'arrière, libre des platines
+    const decal = new THREE.Mesh(deformHelmet(new THREE.SphereGeometry(1, 32, 12, phi - 0.55, 1.1, Math.PI * 0.43, Math.PI * 0.15)), side > 0 ? mats.decalR : mats.decalL);
     decal.scale.setScalar(1.006); h.add(decal);
   }
-  // aileron arrière, aérations et bandeau de mentonnière
-  const spoiler = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.07, 0.2), mats.helmet);
-  spoiler.position.set(0, 0.5, -0.9); spoiler.rotation.x = -0.55; h.add(spoiler);
-  const vent = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.05, 0.2), mats.helmetTrim);
-  vent.position.set(0, 0.85, 0.36); vent.rotation.x = 0.42; h.add(vent);
-  const chinVent = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.09, 0.06), mats.helmetTrim);
-  chinVent.position.set(0, -0.4, 1.12); chinVent.rotation.x = -0.3; h.add(chinVent);
+  // liseré bleu AIRO sous la visière
+  const stripe = new THREE.Mesh(deformHelmet(new THREE.SphereGeometry(1, 64, 4, Math.PI / 2 - 1.5, 3.0, Math.PI * 0.585, Math.PI * 0.012)), mats.helmetStripe);
+  stripe.scale.setScalar(1.004); h.add(stripe);
   const wrap = new THREE.Group();
-  h.scale.setScalar(0.115); h.position.y = 0.115 * 0.5;
+  h.scale.setScalar(0.112); h.position.y = 0.112 * 0.5;
   wrap.add(h);
   return wrap;
 }
@@ -491,7 +526,7 @@ async function init() {
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
-  scene.fog = new THREE.Fog(0x000000, 9, 18);
+  scene.fog = new THREE.Fog(0x000000, 12, 24);
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environmentIntensity = 0.22;
@@ -512,7 +547,7 @@ async function init() {
     : std({ map: fallback, metalness: 0.3, roughness: 0.45 });
   const decal = (flip) => {
     const [c, g] = makeCanvas(512, 160);
-    g.font = `italic 900 120px ${FONT}`; g.fillStyle = "#f1f3f6"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.font = `italic 900 120px ${FONT}`; g.fillStyle = "#0d0f13"; g.textAlign = "center"; g.textBaseline = "middle";
     g.fillText("AIRO", 256, 76);
     g.fillStyle = "#2f6bff"; g.fillRect(96, 132, 320, 6);
     const t = texFrom(c, 4);
@@ -536,8 +571,9 @@ async function init() {
     dockLabel: basic({ map: (() => { const [c, g] = makeCanvas(256, 72); g.fillStyle = "#e9ecf1"; rr(g, 2, 2, 252, 68, 10); g.fill(); g.fillStyle = "#14161b"; rr(g, 8, 8, 240, 56, 8); g.fill(); g.font = `italic 800 46px ${FONT}`; g.fillStyle = "#fff"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("AIRO", 128, 38); return texFrom(c, 4); })() }),
     door: std({ color: 0x0c0d10, metalness: 0.6, roughness: 0.32 }),
     glass: new THREE.MeshPhysicalMaterial({ color: 0xbcd0ff, metalness: 0, roughness: 0.05, transparent: true, opacity: 0.1, envMapIntensity: 1.3, side: THREE.DoubleSide, depthWrite: false }),
-    helmet: new THREE.MeshPhysicalMaterial({ color: 0x0b0c0f, metalness: 0.2, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.14, envMapIntensity: 0.55 }),
-    helmetTrim: std({ color: 0x1b1e24, metalness: 0.4, roughness: 0.55 }),
+    helmet: new THREE.MeshPhysicalMaterial({ color: 0xe4e6ea, metalness: 0.05, roughness: 0.36, clearcoat: 1, clearcoatRoughness: 0.12, sheen: 0.3, sheenColor: new THREE.Color(0xdfe8ff), envMapIntensity: 0.5 }),
+    helmetStripe: std({ color: 0x2f6bff, emissive: 0x2f6bff, emissiveIntensity: 0.35, roughness: 0.4 }),
+    helmetTrim: std({ color: 0x15171c, metalness: 0.35, roughness: 0.5 }),
     visor: new THREE.MeshPhysicalMaterial({ color: 0x0e2a8a, metalness: 0.95, roughness: 0.06, clearcoat: 1, iridescence: 1, iridescenceIOR: 1.8, iridescenceThicknessRange: [280, 780], envMapIntensity: 0.8, side: THREE.DoubleSide }),
     decalR: decal(false),
     decalL: decal(false),
@@ -551,37 +587,32 @@ async function init() {
   const helmetB = buildHelmet(mats);
   machine.add(helmetA, helmetB);
 
-  // sol, halo et fond
-  const floor = new THREE.Mesh(new THREE.CircleGeometry(9, 64), std({ color: 0x040405, metalness: 0.2, roughness: 0.8 }));
-  floor.rotation.x = -Math.PI / 2; scene.add(floor);
-  const halo = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 3.2), basic({ map: radialTex("rgba(47,107,255,0.28)"), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
-  halo.rotation.x = -Math.PI / 2; halo.position.y = 0.002; scene.add(halo);
+  // Studio photo : fond courbe continu (pas de ligne d'horizon), éclairé par une douche de lumière
+  const cyclo = buildCyclorama();
+  cyclo.material = std({ color: 0x1c1e23, metalness: 0.0, roughness: 0.9, side: THREE.DoubleSide });
+  scene.add(cyclo);
   // ombre de contact : ancre la borne au sol (suit sa rotation)
-  const contact = new THREE.Mesh(new THREE.PlaneGeometry(W * 1.9, D * 1.9), basic({ map: radialTex("rgba(0,0,0,0.92)", "rgba(0,0,0,0)"), transparent: true, depthWrite: false }));
+  const contact = new THREE.Mesh(new THREE.PlaneGeometry(W * 2.1, D * 2.1), basic({ map: radialTex("rgba(0,0,0,0.95)", "rgba(0,0,0,0)"), transparent: true, depthWrite: false }));
   contact.rotation.x = -Math.PI / 2; contact.position.y = 0.003; contact.renderOrder = 1; machine.add(contact);
-  const backdrop = new THREE.Mesh(new THREE.PlaneGeometry(16, 9), basic({ map: radialTex("rgba(40,70,140,0.12)", "rgba(0,0,0,0)", 512), transparent: true, depthWrite: false, fog: false }));
-  backdrop.position.set(0, 2.4, -5); scene.add(backdrop);
 
-  // lumières
-  scene.add(new THREE.HemisphereLight(0xc8d2e6, 0x000000, 0.22));
-  const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(2.5, 3.5, 4); scene.add(key);
-  const rimR = new THREE.DirectionalLight(0x2f6bff, 1.8); rimR.position.set(-3, 2.5, -3); scene.add(rimR);
-  const rimL = new THREE.DirectionalLight(0x5aa2ff, 1.6); rimL.position.set(3.5, 1.5, -2.5); scene.add(rimL);
+  // éclairage de studio
+  scene.add(new THREE.HemisphereLight(0xdfe6f2, 0x000000, 0.18));
+  const key = new THREE.DirectionalLight(0xffffff, 1.4); key.position.set(2.2, 3.4, 4.2); scene.add(key);
+  const pool = new THREE.SpotLight(0xf3f5fa, 170, 24, 0.36, 1, 1.5);          // douche de lumière sur le sol, derrière la borne
+  pool.position.set(0, 7.5, -0.4); pool.target.position.set(0, 0, -2.4); scene.add(pool, pool.target);
+  const wall = new THREE.SpotLight(0x4f7dff, 140, 14, 0.62, 1, 1.4);           // halo bleu AIRO sur le fond, caché derrière la borne
+  wall.position.set(0, 0.5, -1.0); wall.target.position.set(0, 2.6, -6); scene.add(wall, wall.target);
+  const rimR = new THREE.DirectionalLight(0x2f6bff, 1.4); rimR.position.set(-3, 2.5, -3); scene.add(rimR);
+  const rimL = new THREE.DirectionalLight(0xbfd0ff, 0.9); rimL.position.set(3.5, 1.8, -2.5); scene.add(rimL);
 
-  // fumée d'ambiance
-  const smokeMap = smokeTex();
-  const smokes = [];
-  const nSmoke = mobile ? 12 : 22;
-  for (let i = 0; i < nSmoke; i++) {
-    const m = new THREE.SpriteMaterial({ map: smokeMap, color: new THREE.Color().setHSL(0.6, 0.25, 0.2 + Math.random() * 0.12), transparent: true, opacity: 0.0, depthWrite: false });
-    const s = new THREE.Sprite(m);
-    // surtout derrière et sur les côtés ; quelques nappes basses devant
-    const low = i % 4 === 0;
-    const a = low ? Math.random() * Math.PI * 2 : Math.PI + Math.random() * Math.PI, d = 0.7 + Math.random() * 2.2;
-    s.userData = { a, d, y: low ? 0.08 + Math.random() * 0.2 : 0.2 + Math.random() * 1.6, sc: 1.4 + Math.random() * 2.4, sp: (Math.random() - 0.5) * 0.12, base: 0.08 + Math.random() * 0.12, ph: Math.random() * 10 };
-    s.scale.setScalar(s.userData.sc);
-    scene.add(s); smokes.push(s);
-  }
+  // poussières en suspension dans la lumière : donnent de la profondeur, très discrètes
+  const dustCount = mobile ? 120 : 260;
+  const dustPos = new Float32Array(dustCount * 3);
+  const dustSeed = Array.from({ length: dustCount }, () => [Math.random(), Math.random(), Math.random(), 0.4 + Math.random()]);
+  const dustGeo = new THREE.BufferGeometry();
+  dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
+  const dustMat = new THREE.PointsMaterial({ map: radialTex("rgba(255,255,255,1)", "rgba(255,255,255,0)", 64), size: 0.018, color: 0xdfe8ff, transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true });
+  scene.add(new THREE.Points(dustGeo, dustMat));
 
   // vapeur dans le casier A
   const steamCount = mobile ? 140 : 260;
@@ -896,15 +927,16 @@ async function init() {
     else if (p < B[6]) screen.draw("done");
     else screen.draw("home");
 
-    // fumée
-    smokes.forEach((s) => {
-      const u = s.userData;
-      const a = u.a + t * u.sp * (reduceMotion ? 0 : 1);
-      s.position.set(Math.cos(a) * u.d, u.y + Math.sin(t * 0.3 + u.ph) * 0.08, Math.sin(a) * u.d - 0.4);
-      s.material.rotation = u.ph + t * u.sp;
-      const target = u.base * (1 + steamAmt * 0.6);
-      s.material.opacity += (target - s.material.opacity) * damp(0.02, dt);
-    });
+    // poussières : dérive lente vers le haut, en boucle
+    for (let i = 0; i < dustCount; i++) {
+      const [a, b, c, sp] = dustSeed[i];
+      const yy = (c + t * 0.012 * sp * (reduceMotion ? 0 : 1)) % 1;
+      dustPos[i * 3] = (a - 0.5) * 4.2 + Math.sin(t * 0.2 * sp + i) * 0.08;
+      dustPos[i * 3 + 1] = 0.1 + yy * 3.2;
+      dustPos[i * 3 + 2] = (b - 0.5) * 3.2 - 0.4;
+    }
+    dustGeo.attributes.position.needsUpdate = true;
+    dustMat.opacity = 0.35 + steamAmt * 0.25;
 
     // pulsation des LED
     const breathe = reduceMotion ? 1 : 0.85 + 0.15 * Math.sin(t * 1.6);

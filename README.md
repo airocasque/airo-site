@@ -13,6 +13,8 @@ Site de présentation de la machine AIRO (nettoyage, désinfection et séchage d
 - `assets/js/motion.js` — défilement fluide (Lenis) et animations GSAP : titre révélé mot à mot, titres de sections, aperçu des secteurs, profondeur du pied de page.
 - `assets/vendor/gsap/` (GSAP 3.12.5, licence « Standard no charge ») et `assets/vendor/lenis/` (Lenis 1.1.0, MIT).
 - `confidentialite.html` — informations sur les données du formulaire (RGPD).
+- `mentions-legales.html` — mentions légales (éditeur, hébergeur, propriété intellectuelle).
+- `assets/docs/AIRO-CGV.pdf` — conditions générales de vente (clients professionnels).
 - `assets/img/` — photos extraites de la présentation AIRO, logo et favicon.
 
 Si le navigateur ne gère pas la 3D (WebGL), la photo de la borne s'affiche à la place. Les animations sont réduites quand le visiteur a activé « réduire les animations » sur son appareil.
