@@ -163,7 +163,7 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .xp-step:nth-child(7) { min-height: 110vh; }
 .xp-step__inner { position: sticky; top: calc(50vh + var(--nav-h) / 2); transform: translateY(-50%); max-width: 520px; pointer-events: auto; opacity: 0; transition: opacity 200ms ease; }
 .xp-step.is-active .xp-step__inner { opacity: 1; transition-duration: 450ms; transition-timing-function: var(--ease-out); }
-.xp-step--hero .xp-step__inner { top: calc(var(--nav-h) + 9vh); transform: none; max-width: 640px; }
+.xp-step--hero .xp-step__inner { top: calc(var(--nav-h) + 9vh); transform: none; max-width: 780px; }
 .xp-step h1 { margin-bottom: 28px; }
 .xp-step h2 { margin-bottom: 20px; }
 .xp-step__inner > p:not(.step-no) { color: var(--text-on-scene); font-size: 1.1rem; max-width: 34em; text-shadow: 0 1px 12px rgba(0, 0, 0, .9); }
