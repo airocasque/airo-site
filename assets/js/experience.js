@@ -6,6 +6,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { buildAdventureHelmet, helmetMaterials } from "./helmet.js";
 
 const stage = document.getElementById("xpStage");
 const canvas = document.getElementById("xpCanvas");
@@ -441,69 +442,15 @@ function buildDock(mats) {
   return g;
 }
 
-/* Casque AIRO, silhouette inspirée des intégraux Arai : coque très ronde et lisse (sans arêtes vives),
-   grande visière avec platines latérales, prises d'air de front, diffuseur arrière, mentonnière à grille.
-   Aucun logo de marque tierce : seul le logo AIRO figure sur les flancs. */
-function deformHelmet(geo) {
-  const p = geo.attributes.position, v = new THREE.Vector3();
-  for (let i = 0; i < p.count; i++) {
-    v.fromBufferAttribute(p, i);
-    let { x, y, z } = v;
-    const cut = -0.46 - 0.2 * z;                                          // ouverture inclinée, plus basse devant
-    const k = smooth(cut + 0.08, cut - 0.3, y);                          // raccord progressif, sans crénelage
-    if (k > 0) { y = lerp(y, cut + (y - cut) * 0.1, k); x *= 1 - 0.08 * k; z *= 1 - 0.05 * k; }
-    if (z > 0.15 && y < 0.02) z += 0.13 * smooth(0.02, -0.62, y) * smooth(0.15, 0.85, z);   // mentonnière ronde
-    if (z > 0.6 && y > -0.18 && y < 0.34 && Math.abs(x) < 0.66) z -= 0.035;                  // cadre de visière
-    if (z < -0.2 && y < -0.05) y -= 0.035 * smooth(-0.05, -0.45, y);                          // nuque
-    p.setXYZ(i, x * 0.86, y * 0.94, z * 1.03);
-  }
-  geo.computeVertexNormals();
-  return geo;
-}
-function buildHelmet(mats) {
-  const h = new THREE.Group();
-  const shellGeo = (seg = 128) => deformHelmet(new THREE.SphereGeometry(1, seg, Math.round(seg * 0.62)));
-  h.add(new THREE.Mesh(shellGeo(), mats.helmet));
-  // visière fumée iridescente, cadre noir
-  const visorGeo = () => deformHelmet(new THREE.SphereGeometry(1, 80, 30, Math.PI / 2 - 0.95, 1.9, Math.PI * 0.34, Math.PI * 0.22));
-  const gasket = new THREE.Mesh(visorGeo(), mats.helmetTrim); gasket.scale.set(1.02, 1.07, 1.02); h.add(gasket);
-  const visor = new THREE.Mesh(visorGeo(), mats.visor); visor.scale.setScalar(1.034); h.add(visor);
-  // platines de visière (rondes, typiques des systèmes de visière Arai)
-  for (const sx of [1, -1]) {
-    const pod = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.17, 0.05, 40), mats.helmetTrim);
-    pod.rotation.z = Math.PI / 2; pod.position.set(sx * 0.83, 0.02, 0.34); pod.scale.set(1, 1, 1.25); h.add(pod);
-    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.02, 32), mats.metal);
-    cap.rotation.z = Math.PI / 2; cap.position.set(sx * 0.865, 0.02, 0.34); h.add(cap);
-  }
-  // prises d'air de front, au-dessus de la visière, et prises supérieures
-  for (const sx of [0.22, -0.22]) {
-    const brow = new THREE.Mesh(new THREE.CapsuleGeometry(0.035, 0.12, 6, 12), mats.helmetTrim);
-    brow.rotation.z = Math.PI / 2; brow.position.set(sx, 0.44, 0.84); brow.rotation.x = -0.5; h.add(brow);
-    const top = new THREE.Mesh(new THREE.CapsuleGeometry(0.045, 0.1, 6, 12), mats.helmetTrim);
-    top.position.set(sx * 0.9, 0.86, 0.32); top.rotation.x = 1.1; h.add(top);
-  }
-  // becquet arrière discret
-  const spoiler = new THREE.Mesh(new THREE.CapsuleGeometry(0.05, 0.36, 6, 16), mats.helmetTrim);
-  spoiler.rotation.z = Math.PI / 2; spoiler.position.set(0, 0.42, -0.86); spoiler.rotation.y = 0; h.add(spoiler);
-  // mentonnière : grille d'aération
-  const chin = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.12, 0.05), mats.helmetTrim);
-  chin.position.set(0, -0.36, 1.06); chin.rotation.x = -0.32; h.add(chin);
-  for (let k = -2; k <= 2; k++) {
-    const slot = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.08, 0.02), mats.metal);
-    slot.position.set(k * 0.055, -0.36, 1.085); slot.rotation.x = -0.32; h.add(slot);
-  }
-  // logos AIRO sur les flancs
-  for (const side of [1, -1]) {
-    const phi = side > 0 ? Math.PI + 0.42 : -0.42;                    // décalé vers l'arrière, libre des platines
-    const decal = new THREE.Mesh(deformHelmet(new THREE.SphereGeometry(1, 32, 12, phi - 0.55, 1.1, Math.PI * 0.43, Math.PI * 0.15)), side > 0 ? mats.decalR : mats.decalL);
-    decal.scale.setScalar(1.006); h.add(decal);
-  }
-  // liseré bleu AIRO sous la visière
-  const stripe = new THREE.Mesh(deformHelmet(new THREE.SphereGeometry(1, 64, 4, Math.PI / 2 - 1.5, 3.0, Math.PI * 0.585, Math.PI * 0.012)), mats.helmetStripe);
-  stripe.scale.setScalar(1.004); h.add(stripe);
-  const wrap = new THREE.Group();
-  h.scale.setScalar(0.112); h.position.y = 0.112 * 0.5;
-  wrap.add(h);
+/* Casque AIRO « aventure » (modèle fourni par AIRO, remodélisé dans helmet.js), mis à l'échelle du casier. */
+let helmetMats = null;
+function buildHelmet() {
+  if (!helmetMats) helmetMats = helmetMaterials(FONT);
+  const inner = buildAdventureHelmet(helmetMats, 96);
+  inner.scale.setScalar(0.098);
+  inner.position.y = 0.098 * 0.6;          // la base du casque repose sur le support
+  inner.rotation.y = 0;
+  const wrap = new THREE.Group(); wrap.add(inner);
   return wrap;
 }
 
@@ -545,15 +492,6 @@ async function init() {
   const photoMat = (map, fallback) => map
     ? std({ map, emissive: 0xffffff, emissiveMap: map, emissiveIntensity: 0.55, metalness: 0.25, roughness: 0.42 })
     : std({ map: fallback, metalness: 0.3, roughness: 0.45 });
-  const decal = (flip) => {
-    const [c, g] = makeCanvas(512, 160);
-    g.font = `italic 900 120px ${FONT}`; g.fillStyle = "#0d0f13"; g.textAlign = "center"; g.textBaseline = "middle";
-    g.fillText("AIRO", 256, 76);
-    g.fillStyle = "#2f6bff"; g.fillRect(96, 132, 320, 6);
-    const t = texFrom(c, 4);
-    if (flip) { t.wrapS = THREE.RepeatWrapping; t.repeat.x = -1; }
-    return std({ map: t, transparent: true, metalness: 0.2, roughness: 0.3, polygonOffset: true, polygonOffsetFactor: -2 });
-  };
   const mats = {
     body: std({ color: 0x0c0d10, metalness: 0.6, roughness: 0.36 }),
     metal: std({ color: 0xb8bfca, metalness: 1, roughness: 0.22 }),
@@ -571,20 +509,14 @@ async function init() {
     dockLabel: basic({ map: (() => { const [c, g] = makeCanvas(256, 72); g.fillStyle = "#e9ecf1"; rr(g, 2, 2, 252, 68, 10); g.fill(); g.fillStyle = "#14161b"; rr(g, 8, 8, 240, 56, 8); g.fill(); g.font = `italic 800 46px ${FONT}`; g.fillStyle = "#fff"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("AIRO", 128, 38); return texFrom(c, 4); })() }),
     door: std({ color: 0x0c0d10, metalness: 0.6, roughness: 0.32 }),
     glass: new THREE.MeshPhysicalMaterial({ color: 0xbcd0ff, metalness: 0, roughness: 0.05, transparent: true, opacity: 0.1, envMapIntensity: 1.3, side: THREE.DoubleSide, depthWrite: false }),
-    helmet: new THREE.MeshPhysicalMaterial({ color: 0xe4e6ea, metalness: 0.05, roughness: 0.36, clearcoat: 1, clearcoatRoughness: 0.12, sheen: 0.3, sheenColor: new THREE.Color(0xdfe8ff), envMapIntensity: 0.5 }),
-    helmetStripe: std({ color: 0x2f6bff, emissive: 0x2f6bff, emissiveIntensity: 0.35, roughness: 0.4 }),
-    helmetTrim: std({ color: 0x15171c, metalness: 0.35, roughness: 0.5 }),
-    visor: new THREE.MeshPhysicalMaterial({ color: 0x0e2a8a, metalness: 0.95, roughness: 0.06, clearcoat: 1, iridescence: 1, iridescenceIOR: 1.8, iridescenceThicknessRange: [280, 780], envMapIntensity: 0.8, side: THREE.DoubleSide }),
-    decalR: decal(false),
-    decalL: decal(false),
   };
 
   const { machine, lockers, leds } = buildMachine(mats);
   scene.add(machine);
 
   // casques AIRO : A suit le parcours du client, B est servi en parallèle dans l'autre casier
-  const helmetA = buildHelmet(mats);
-  const helmetB = buildHelmet(mats);
+  const helmetA = buildHelmet();
+  const helmetB = buildHelmet();
   machine.add(helmetA, helmetB);
 
   // Studio photo : fond courbe continu (pas de ligne d'horizon), éclairé par une douche de lumière
