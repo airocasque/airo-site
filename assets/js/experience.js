@@ -6,7 +6,9 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { BokehPass } from "three/addons/postprocessing/BokehPass.js";
 import { buildAdventureHelmet, helmetMaterials } from "./helmet.js";
+import { buildShowroom } from "./showroom.js";
 
 const stage = document.getElementById("xpStage");
 const canvas = document.getElementById("xpCanvas");
@@ -404,26 +406,6 @@ function buildMachine(mats) {
   return { machine, screenMesh, lockers, leds };
 }
 
-/* Fond de studio : sol qui remonte en courbe douce vers un mur, sans arête ni horizon. */
-function buildCyclorama() {
-  const prof = [];
-  const R0 = 3.2, zWall = -6;
-  for (let i = 0; i <= 12; i++) prof.push([9 - i * (9 - (zWall + R0)) / 12, 0]);                 // sol
-  for (let i = 1; i <= 24; i++) { const a = (i / 24) * Math.PI / 2; prof.push([zWall + R0 - Math.sin(a) * R0, R0 - Math.cos(a) * R0]); } // courbe
-  for (let i = 1; i <= 8; i++) prof.push([zWall, R0 + i * 1.2]);                                    // mur
-  const xs = [-16, -8, 0, 8, 16];
-  const pos = [], idx = [];
-  prof.forEach(([z, y]) => xs.forEach((x) => pos.push(x, y, z)));
-  for (let i = 0; i < prof.length - 1; i++) for (let j = 0; j < xs.length - 1; j++) {
-    const a = i * xs.length + j, b = a + 1, c = a + xs.length, d = c + 1;
-    idx.push(a, c, b, b, c, d);
-  }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  g.setIndex(idx); g.computeVertexNormals();
-  return new THREE.Mesh(g);
-}
-
 /* Support vapeur AIRO (dôme visible dans chaque casier sur la photo). */
 function buildDock(mats) {
   const g = new THREE.Group();
@@ -472,8 +454,8 @@ async function init() {
   try { await Promise.race([document.fonts.load(`800 100px ${FONT}`), new Promise((r) => setTimeout(r, 1500))]); } catch (e) { /* police de secours */ }
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000000);
-  scene.fog = new THREE.Fog(0x000000, 12, 24);
+  scene.background = new THREE.Color(0x050608);
+  scene.fog = new THREE.Fog(0x050608, 10, 30);
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environmentIntensity = 0.22;
@@ -519,10 +501,9 @@ async function init() {
   const helmetB = buildHelmet();
   machine.add(helmetA, helmetB);
 
-  // Studio photo : fond courbe continu (pas de ligne d'horizon), éclairé par une douche de lumière
-  const cyclo = buildCyclorama();
-  cyclo.material = std({ color: 0x1c1e23, metalness: 0.0, roughness: 0.9, side: THREE.DoubleSide });
-  scene.add(cyclo);
+  // Décor : la borne est installée dans une concession moto (mur de casques, motos exposées, vitrine)
+  const { room } = buildShowroom({ font: FONT, mobile });
+  scene.add(room);
   // ombre de contact : ancre la borne au sol (suit sa rotation)
   const contact = new THREE.Mesh(new THREE.PlaneGeometry(W * 2.1, D * 2.1), basic({ map: radialTex("rgba(0,0,0,0.95)", "rgba(0,0,0,0)"), transparent: true, depthWrite: false }));
   contact.rotation.x = -Math.PI / 2; contact.position.y = 0.003; contact.renderOrder = 1; machine.add(contact);
@@ -530,9 +511,9 @@ async function init() {
   // éclairage de studio
   scene.add(new THREE.HemisphereLight(0xdfe6f2, 0x000000, 0.18));
   const key = new THREE.DirectionalLight(0xffffff, 1.4); key.position.set(2.2, 3.4, 4.2); scene.add(key);
-  const pool = new THREE.SpotLight(0xf3f5fa, 170, 24, 0.36, 1, 1.5);          // douche de lumière sur le sol, derrière la borne
-  pool.position.set(0, 7.5, -0.4); pool.target.position.set(0, 0, -2.4); scene.add(pool, pool.target);
-  const wall = new THREE.SpotLight(0x4f7dff, 140, 14, 0.62, 1, 1.4);           // halo bleu AIRO sur le fond, caché derrière la borne
+  const pool = new THREE.SpotLight(0xf3f5fa, 60, 12, 0.32, 0.9, 1.5);          // spot du plafond sur la borne
+  pool.position.set(0.6, 4.5, 1.6); pool.target.position.set(0, 0.6, 0); scene.add(pool, pool.target);
+  const wall = new THREE.SpotLight(0x4f7dff, 40, 9, 0.62, 1, 1.4);             // léger halo bleu AIRO sur le mur, caché derrière la borne
   wall.position.set(0, 0.5, -1.0); wall.target.position.set(0, 2.6, -6); scene.add(wall, wall.target);
   const rimR = new THREE.DirectionalLight(0x2f6bff, 1.4); rimR.position.set(-3, 2.5, -3); scene.add(rimR);
   const rimL = new THREE.DirectionalLight(0xbfd0ff, 0.9); rimL.position.set(3.5, 1.8, -2.5); scene.add(rimL);
@@ -572,6 +553,10 @@ async function init() {
   const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: mobile ? 0 : 4 });
   const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
+  // profondeur de champ : la borne reste nette, la concession derrière se fond comme sur une photo
+  const bokeh = new BokehPass(scene, camera, { focus: 5, aperture: 0.0008, maxblur: 0.0045 });
+  bokeh.enabled = !mobile;
+  composer.addPass(bokeh);
   const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.4, 1.05);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
@@ -604,6 +589,7 @@ async function init() {
     if (sideLayout) camera.setViewOffset(vw * 1.5, vh, 0, 0, vw, vh); // machine à droite, texte à gauche
     else camera.clearViewOffset();
     camera.updateProjectionMatrix();
+    bokeh.uniforms.aspect.value = vw / vh;
   }
   resize();
   window.addEventListener("resize", resize);
@@ -782,6 +768,7 @@ async function init() {
     if (!reduceMotion) { v3.x += smx * 0.25; v3.y -= smy * 0.12; }
     camera.position.copy(v3);
     camera.lookAt(look);
+    bokeh.uniforms.focus.value = v3.distanceTo(look);
 
     // portes : ouverture avec un léger rebond (ressort), charnière à droite
     const sDep = seg(3), sCyc = seg(4), sRet = seg(5), sEnd = seg(6);
@@ -891,7 +878,7 @@ async function init() {
     if (ms > 26 && quality < 3) {
       quality++;
       if (quality === 1) renderer.setPixelRatio(Math.max(1, maxDpr * 0.75));
-      if (quality === 2) renderer.setPixelRatio(1);
+      if (quality === 2) { renderer.setPixelRatio(1); bokeh.enabled = false; }
       if (quality === 3) { bloom.enabled = false; finish.enabled = false; }
       resize();
     }

@@ -141,3 +141,16 @@ export function buildAdventureHelmet(mats, seg = 128) {
 
   return h;
 }
+
+/* Version allégée pour les présentoirs : coque « aventure », coque intégrale et visière, en géométries seules. */
+export function helmetLiteGeometries(seg = 28) {
+  const sphere = (w, hh, ps, pl, ts, tl) => new THREE.SphereGeometry(1, w, hh, ps, pl, ts, tl);
+  const rows = Math.round(seg * 0.62);
+  const visor = shellShape(sphere(seg, Math.max(8, Math.round(seg * 0.4)), Math.PI / 2 - 0.92, 1.84, Math.PI * 0.34, Math.PI * 0.22), { beak: false });
+  visor.scale(1.035, 1.035, 1.035);
+  return {
+    adventure: shellShape(sphere(seg, rows)),
+    full: shellShape(sphere(seg, rows), { beak: false }),
+    visor,
+  };
+}

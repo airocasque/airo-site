@@ -128,10 +128,14 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .xp__stage canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: pan-y; opacity: 0; transition: opacity 900ms var(--ease-out); }
 .xp__stage.is-live canvas { opacity: 1; }
 .xp__stage.is-grabbing canvas { cursor: grabbing; }
+/* voile sombre derrière le texte : la concession reste visible sans gêner la lecture */
+.xp__stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: linear-gradient(90deg, rgba(3, 4, 6, .86) 0%, rgba(3, 4, 6, .62) 34%, rgba(3, 4, 6, 0) 60%), linear-gradient(0deg, rgba(3, 4, 6, .55) 0%, rgba(3, 4, 6, 0) 30%); }
+@media (max-width: 900px) { .xp__stage::after { background: linear-gradient(0deg, rgba(3, 4, 6, .8) 0%, rgba(3, 4, 6, 0) 45%); } }
 .xp__fallback { display: none; position: absolute; right: 8vw; top: 50%; transform: translateY(-50%); max-height: 76vh; width: auto; }
 .xp__stage.no-webgl canvas, .xp__stage.no-webgl .xp__hint { display: none; }
 .xp__stage.no-webgl .xp__fallback { display: block; }
-.xp__hint { position: absolute; right: var(--gutter); bottom: 28px; display: flex; align-items: center; gap: 8px; color: var(--steel); font-size: .85rem; white-space: nowrap; opacity: 0; transition: opacity 400ms ease 600ms; }
+.xp__hint { position: absolute; right: var(--gutter); bottom: 28px; display: flex; align-items: center; gap: 8px; color: var(--steel); font-size: .85rem; white-space: nowrap; z-index: 2; opacity: 0; transition: opacity 400ms ease 600ms; }
 .xp__hint .ico { width: 18px; height: 18px; }
 .xp__stage.is-live .xp__hint { opacity: 1; }
 .xp__stage.is-live.hint-off .xp__hint { opacity: 0; transition-delay: 0s; }
