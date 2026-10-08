@@ -291,6 +291,9 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .legal__body h2 { font-stretch: 75%; font-size: 1.5rem; line-height: 1.2; margin: 40px 0 10px; }
 .legal__body p { color: var(--steel); }
 .legal__body a { color: var(--bone); }
+.legal__body ul { margin: 10px 0; padding-left: 1.2em; list-style: disc; color: var(--steel); }
+.legal__body li { margin: 4px 0; }
+.legal__body p + p { margin-top: 10px; }
 .legal__back { margin-left: auto; }
 .fiche__docs { margin-top: 24px; }
 .fiche__docs a { display: inline-flex; align-items: center; min-height: 44px; color: var(--bone); }

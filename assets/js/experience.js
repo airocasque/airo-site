@@ -6,9 +6,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
-import { BokehPass } from "three/addons/postprocessing/BokehPass.js";
-import { buildAdventureHelmet, helmetMaterials } from "./helmet.js";
-import { buildShowroom } from "./showroom.js";
+import { buildShowroom, loadModel } from "./showroom.js";
 
 const stage = document.getElementById("xpStage");
 const canvas = document.getElementById("xpCanvas");
@@ -424,18 +422,6 @@ function buildDock(mats) {
   return g;
 }
 
-/* Casque AIRO « aventure » (modèle fourni par AIRO, remodélisé dans helmet.js), mis à l'échelle du casier. */
-let helmetMats = null;
-function buildHelmet() {
-  if (!helmetMats) helmetMats = helmetMaterials(FONT);
-  const inner = buildAdventureHelmet(helmetMats, 96);
-  inner.scale.setScalar(0.098);
-  inner.position.y = 0.098 * 0.6;          // la base du casque repose sur le support
-  inner.rotation.y = 0;
-  const wrap = new THREE.Group(); wrap.add(inner);
-  return wrap;
-}
-
 /* ---------- initialisation ---------- */
 async function init() {
   let renderer;
@@ -450,17 +436,20 @@ async function init() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.5 : 1.75));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.95;
+  renderer.shadowMap.enabled = !mobile;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   try { await Promise.race([document.fonts.load(`800 100px ${FONT}`), new Promise((r) => setTimeout(r, 1500))]); } catch (e) { /* police de secours */ }
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x050608);
-  scene.fog = new THREE.Fog(0x050608, 10, 30);
+  scene.fog = new THREE.Fog(0x050608, 16, 40);
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environmentIntensity = 0.22;
+  scene.environmentIntensity = 0.35;
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.05, 40);
+  camera.layers.enable(1);   // calque 1 : objets visibles mais exclus du reflet du sol
 
   // matériaux
   const screen = makeScreen();
@@ -469,7 +458,7 @@ async function init() {
   const basic = (o) => new THREE.MeshBasicMaterial(o);
   const loader = new THREE.TextureLoader();
   const loadTex = (src) => new Promise((res) => loader.load(src, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); res(t); }, undefined, () => res(null)));
-  const [frontTex, sideTexPhoto] = await Promise.all([loadTex("assets/img/tex-front.webp"), loadTex("assets/img/tex-side.webp")]);
+  const [frontTex, sideTexPhoto] = await Promise.all([loadTex("assets/img/tex-front-hd.webp"), loadTex("assets/img/tex-side-hd.webp")]);
   // la photo est déjà éclairée : une part émissive garde son rendu, le reste réagit à la lumière de la scène
   const photoMat = (map, fallback) => map
     ? std({ map, emissive: 0xffffff, emissiveMap: map, emissiveIntensity: 0.55, metalness: 0.25, roughness: 0.42 })
@@ -497,12 +486,16 @@ async function init() {
   scene.add(machine);
 
   // casques AIRO : A suit le parcours du client, B est servi en parallèle dans l'autre casier
-  const helmetA = buildHelmet();
-  const helmetB = buildHelmet();
+  // casques : vrais modèles 3D de casques intégraux (A suit le parcours du client, B est servi en parallèle)
+  const [helmetA, helmetB] = await Promise.all([
+    loadModel("helmet-a", { height: 0.24, yaw: Math.PI }),
+    loadModel("helmet-b", { height: 0.24 }),
+  ]);
   machine.add(helmetA, helmetB);
+  machine.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
 
   // Décor : la borne est installée dans une concession moto (mur de casques, motos exposées, vitrine)
-  const { room } = buildShowroom({ font: FONT, mobile });
+  const { room, populate, mirror, floor } = buildShowroom({ renderer, font: FONT, mobile });
   scene.add(room);
   // ombre de contact : ancre la borne au sol (suit sa rotation)
   const contact = new THREE.Mesh(new THREE.PlaneGeometry(W * 2.1, D * 2.1), basic({ map: radialTex("rgba(0,0,0,0.95)", "rgba(0,0,0,0)"), transparent: true, depthWrite: false }));
@@ -554,9 +547,6 @@ async function init() {
   const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
   // profondeur de champ : la borne reste nette, la concession derrière se fond comme sur une photo
-  const bokeh = new BokehPass(scene, camera, { focus: 5, aperture: 0.0008, maxblur: 0.0045 });
-  bokeh.enabled = !mobile;
-  composer.addPass(bokeh);
   const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.4, 1.05);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
@@ -589,7 +579,6 @@ async function init() {
     if (sideLayout) camera.setViewOffset(vw * 1.5, vh, 0, 0, vw, vh); // machine à droite, texte à gauche
     else camera.clearViewOffset();
     camera.updateProjectionMatrix();
-    bokeh.uniforms.aspect.value = vw / vh;
   }
   resize();
   window.addEventListener("resize", resize);
@@ -768,7 +757,6 @@ async function init() {
     if (!reduceMotion) { v3.x += smx * 0.25; v3.y -= smy * 0.12; }
     camera.position.copy(v3);
     camera.lookAt(look);
-    bokeh.uniforms.focus.value = v3.distanceTo(look);
 
     // portes : ouverture avec un léger rebond (ressort), charnière à droite
     const sDep = seg(3), sCyc = seg(4), sRet = seg(5), sEnd = seg(6);
@@ -864,7 +852,7 @@ async function init() {
     updateCallouts(sideLayout && step === 1 && !dragging);
     finish.uniforms.uTime.value = reduceMotion ? 0 : t;
     composer.render();
-    if (firstFrame) { firstFrame = false; stage.classList.add("is-live"); ready(); }
+    if (firstFrame) { firstFrame = false; stage.classList.add("is-live"); ready(); populate(scene).catch((e) => console.warn("décor", e)); }
   }
 
   // Qualité adaptative : on mesure le temps d'image et on allège le rendu sur les appareils modestes.
@@ -877,8 +865,8 @@ async function init() {
     perfFrames = 0;
     if (ms > 26 && quality < 3) {
       quality++;
-      if (quality === 1) renderer.setPixelRatio(Math.max(1, maxDpr * 0.75));
-      if (quality === 2) { renderer.setPixelRatio(1); bokeh.enabled = false; }
+      if (quality === 1 && mirror) { mirror.visible = false; floor.material.opacity = 1; floor.material.transparent = false; floor.material.needsUpdate = true; }
+      if (quality === 2) renderer.setPixelRatio(Math.max(1, maxDpr * 0.6));
       if (quality === 3) { bloom.enabled = false; finish.enabled = false; }
       resize();
     }
