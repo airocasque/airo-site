@@ -1,0 +1,106 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>@font-face{font-family:"Archivo";src:url("../assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2-variations");font-weight:100 900;font-stretch:62% 125%}</style></head>
+<body style="margin:0;background:#333">
+<script>
+// Régénère les textures de la borne en 2x : photo agrandie + textes et pictos redessinés nets.
+const K = 2;
+const BLUE = "#2f8bff";
+function load(src) { return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; }); }
+function base(img) {
+  const c = document.createElement("canvas"); c.width = img.width * K; c.height = img.height * K;
+  const g = c.getContext("2d"); g.imageSmoothingQuality = "high"; g.drawImage(img, 0, 0, c.width, c.height);
+  g.scale(K, K); return [c, g];
+}
+function panel(g, x, y, w, h) {
+  // couleur moyenne relevée sur le pourtour de la zone, bords fondus pour ne laisser aucune trace
+  const d = g.getImageData(x * K, y * K, w * K, h * K).data, W = w * K, H = h * K;
+  let r = 0, gg = 0, b = 0, n = 0;
+  const px = (i, j) => { const o = (j * W + i) * 4; r += d[o]; gg += d[o + 1]; b += d[o + 2]; n++; };
+  for (let i = 0; i < W; i += 7) { px(i, 2); px(i, H - 3); }
+  for (let j = 0; j < H; j += 7) { px(2, j); px(W - 3, j); }
+  const col = `rgb(${r / n | 0},${gg / n | 0},${b / n | 0})`;
+  g.save(); g.fillStyle = col; g.filter = "blur(5px)"; g.fillRect(x + 4, y + 4, w - 8, h - 8); g.filter = "none"; g.fillRect(x + 10, y + 10, w - 20, h - 20); g.restore();
+}
+function text(g, s, x, y, size, { weight = 600, color = "#e9edf4", align = "center", stretch = "100%", spacing = 0 } = {}) {
+  g.save(); g.font = `${weight} ${size}px "Archivo"`; if ("fontStretch" in g) g.fontStretch = stretch === "100%" ? "normal" : "semi-condensed";
+  if ("letterSpacing" in g) g.letterSpacing = spacing + "px";
+  g.fillStyle = color; g.textAlign = align; g.textBaseline = "middle"; g.fillText(s, x, y); g.restore();
+}
+function glowStroke(g, fn, w = 2.2) {
+  g.save(); g.strokeStyle = BLUE; g.lineWidth = w; g.lineCap = "round"; g.lineJoin = "round";
+  g.shadowColor = "rgba(47,139,255,.8)"; g.shadowBlur = 5; g.beginPath(); fn(); g.stroke();
+  g.shadowBlur = 0; g.strokeStyle = "#7fb6ff"; g.lineWidth = w * 0.45; g.beginPath(); fn(); g.stroke(); g.restore();
+}
+function whiteStroke(g, fn, w = 1.8) { g.save(); g.strokeStyle = "#e6eaf2"; g.lineWidth = w; g.lineCap = "round"; g.lineJoin = "round"; g.beginPath(); fn(); g.stroke(); g.restore(); }
+function rr(g, x, y, w, h, r) { g.roundRect(x, y, w, h, r); }
+
+async function front() {
+  const img = await load("../assets/img/tex-front.webp");
+  const [c, g] = base(img);
+  // panneau de commande
+  panel(g, 40, 470, 676, 306);
+  const num = (n, x, y) => text(g, n, x, y, 40, { weight: 500, color: BLUE });
+  const lbl = (a, b, x, y) => { text(g, a, x, y, 10.5, { weight: 600, spacing: 0.4 }); if (b) text(g, b, x, y + 15, 10.5, { weight: 600, spacing: 0.4 }); };
+  num("1", 125, 555); num("2", 125, 651); num("3", 501, 540); num("4", 500, 645);
+  // pictos blancs
+  whiteStroke(g, () => { rr(g, 194, 509, 32, 34, 5); rr(g, 201, 517, 18, 18, 2); });
+  whiteStroke(g, () => { g.moveTo(206, 640); g.lineTo(206, 619); g.quadraticCurveTo(210, 612, 214, 619); g.lineTo(214, 630); g.quadraticCurveTo(222, 630, 221, 640); g.quadraticCurveTo(218, 648, 210, 648); g.quadraticCurveTo(204, 647, 206, 640); });
+  whiteStroke(g, () => { rr(g, 557, 510, 38, 30, 5); g.moveTo(557, 520); g.lineTo(595, 520); g.moveTo(563, 531); g.lineTo(577, 531); });
+  whiteStroke(g, () => { g.arc(576, 612, 19, Math.PI * 0.9, Math.PI * 2.25); g.lineTo(588, 628); g.lineTo(568, 631); g.quadraticCurveTo(556, 626, 557, 612); g.moveTo(560, 610); g.quadraticCurveTo(572, 604, 588, 612); });
+  lbl("SÉLECTIONNEZ", "UN CASIER", 209, 566); lbl("CHOISISSEZ", "UN PROGRAMME", 209, 662);
+  lbl("PAYEZ", "", 576, 560); lbl("PLACEZ VOTRE", "CASQUE", 578, 653);
+  // terminal de paiement sans contact
+  g.save();
+  const tg = g.createLinearGradient(0, 512, 0, 668); tg.addColorStop(0, "#1a1d24"); tg.addColorStop(1, "#0d0f14");
+  g.fillStyle = tg; g.beginPath(); rr(g, 316, 512, 115, 156, 10); g.fill();
+  g.strokeStyle = "#3a3f4a"; g.lineWidth = 1.5; g.stroke();
+  g.fillStyle = "#050608"; g.beginPath(); rr(g, 336, 540, 75, 52, 4); g.fill();
+  g.strokeStyle = "#c9a34a"; g.lineWidth = 2; g.beginPath(); g.arc(373, 566, 13, 0, Math.PI * 2); g.stroke();
+  for (let i = -1; i <= 1; i++) { g.beginPath(); g.moveTo(373 + i * 5, 558); g.lineTo(373 + i * 5, 574); g.stroke(); }
+  g.fillStyle = "#cfd5df"; for (const [x, y] of [[332, 524], [373, 522], [415, 524], [332, 566], [415, 566], [345, 607], [373, 607], [400, 607]]) { g.beginPath(); g.arc(x, y, 2.4, 0, Math.PI * 2); g.fill(); }
+  g.strokeStyle = "#8a909c"; g.lineWidth = 1.2; g.beginPath(); g.moveTo(345, 624); g.lineTo(400, 624); g.stroke();
+  g.fillStyle = "#11141a"; g.beginPath(); rr(g, 318, 645, 111, 22, 6); g.fill();
+  g.shadowColor = BLUE; g.shadowBlur = 8; g.fillStyle = "#5aa2ff"; g.beginPath(); rr(g, 362, 652, 24, 7, 3); g.fill();
+  g.restore();
+  // paiement sécurisé
+  g.save(); g.fillStyle = "#1f5fe0"; g.beginPath(); g.moveTo(266, 726); g.lineTo(281, 731); g.lineTo(281, 744); g.quadraticCurveTo(278, 756, 266, 760); g.quadraticCurveTo(254, 756, 251, 744); g.lineTo(251, 731); g.closePath(); g.fill();
+  g.strokeStyle = "#9cc3ff"; g.lineWidth = 1.5; g.stroke(); g.strokeStyle = "#fff"; g.lineWidth = 2.4; g.beginPath(); g.moveTo(259, 743); g.lineTo(264, 748); g.lineTo(274, 737); g.stroke(); g.restore();
+  text(g, "PAIEMENT SÉCURISÉ", 293, 742, 15, { weight: 600, align: "left", spacing: 0.6 });
+  // bandeaux et repères des casiers
+  for (const [dy, L] of [[0, "A"], [530, "B"]]) {
+    panel(g, 44, 796 + dy, 668, 48);
+    text(g, "Veuillez fermer la porte après avoir retiré votre casque.", 373, 822 + dy, 19.5, { weight: 500, color: "#eef1f6" });
+    g.save(); g.fillStyle = "#1f5fe0"; g.beginPath(); rr(g, 56, 866 + dy, 60, 66, 4); g.fill(); g.restore();
+    text(g, L, 86, 900 + dy, 46, { weight: 500, color: "#fff" });
+  }
+  return c;
+}
+
+async function side() {
+  const img = await load("../assets/img/tex-side.webp");
+  const [c, g] = base(img);
+  panel(g, 92, 1216, 512, 634);
+  const rows = [
+    ["VAPEUR SÈCHE", "HAUTE PERFORMANCE", (x, y) => { g.moveTo(x - 12, y + 16); g.lineTo(x - 12, y - 4); g.arc(x, y - 4, 12, Math.PI, 0); g.lineTo(x + 12, y + 16); g.moveTo(x - 4, y + 16); g.lineTo(x - 4, y); g.moveTo(x + 4, y + 16); g.lineTo(x + 4, y); }],
+    ["DÉSINFECTION", "PROFONDE", (x, y) => { g.moveTo(x - 10, y - 14); g.lineTo(x + 10, y - 14); g.moveTo(x, y - 14); g.lineTo(x, y - 6); rr(g, x - 13, y - 6, 26, 24, 6); g.moveTo(x - 4, y + 8); g.lineTo(x + 4, y + 8); }],
+    ["ÉLIMINE 99,9 %", "DES BACTÉRIES", (x, y) => { g.arc(x, y, 8, 0, Math.PI * 2); for (let a = 0; a < 12; a++) { const t = a * Math.PI / 6; g.moveTo(x + Math.cos(t) * 10, y + Math.sin(t) * 10); g.lineTo(x + Math.cos(t) * 17, y + Math.sin(t) * 17); } }],
+    ["NEUTRALISE", "LES ODEURS", (x, y) => { for (const dx of [-8, 0, 8]) { g.moveTo(x + dx, y + 16); g.bezierCurveTo(x + dx - 6, y + 6, x + dx + 6, y - 4, x + dx, y - 16); } }],
+    ["SÉCHAGE RAPIDE", "ET DOUX", (x, y) => { for (let a = 0; a < 6; a++) { const t = a * Math.PI / 3; g.moveTo(x, y); g.lineTo(x + Math.cos(t) * 16, y + Math.sin(t) * 16); g.moveTo(x + Math.cos(t) * 10 + Math.cos(t + 1) * 4, y + Math.sin(t) * 10 + Math.sin(t + 1) * 4); g.lineTo(x + Math.cos(t) * 10, y + Math.sin(t) * 10); } }],
+    ["COMPATIBLE TOUS", "CASQUES", (x, y) => { g.arc(x, y + 2, 15, Math.PI * 0.95, Math.PI * 2.2); g.lineTo(x + 6, y + 16); g.lineTo(x - 10, y + 16); g.quadraticCurveTo(x - 16, y + 12, x - 15, y + 2); g.moveTo(x - 12, y - 1); g.quadraticCurveTo(x, y - 6, x + 15, y + 1); }],
+  ];
+  rows.forEach(([a, b, icon], i) => {
+    const y = 1271 + i * 105.2;
+    glowStroke(g, () => icon(160, y));
+    text(g, a, 222, y - 12, 20, { weight: 600, align: "left", spacing: 0.6 });
+    text(g, b, 222, y + 13, 20, { weight: 600, align: "left", spacing: 0.6 });
+  });
+  return c;
+}
+
+(async () => {
+  await document.fonts.load('600 20px "Archivo"'); await document.fonts.load('500 20px "Archivo"');
+  const f = await front(), s = await side();
+  window.out = { front: f.toDataURL("image/png"), side: s.toDataURL("image/png") };
+  document.body.append(f, s); f.style.width = "380px"; s.style.width = "330px";
+})();
+</script></body></html>

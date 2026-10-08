@@ -1,0 +1,21 @@
+<!doctype html><html><body style="margin:0;background:#888"><canvas id=c width=900 height=600></canvas>
+<script type="importmap">{"imports":{"three":"../assets/vendor/three/three.module.min.js","three/addons/":"../assets/vendor/three/addons/"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+const q=new URLSearchParams(location.search);
+const r=new THREE.WebGLRenderer({canvas:c,antialias:true,preserveDrawingBuffer:true}); r.toneMapping=THREE.ACESFilmicToneMapping;
+const s=new THREE.Scene(); s.background=new THREE.Color(0x808080);
+s.environment=new THREE.PMREMGenerator(r).fromScene(new RoomEnvironment(),0.04).texture;
+const cam=new THREE.PerspectiveCamera(35,1.5,0.01,100);
+const g=await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(q.get('m'));
+const o=g.scene; o.traverse(n=>{}); const rm=[]; o.traverse(n=>{if(/floor/i.test(n.name))rm.push(n)}); rm.forEach(n=>n.removeFromParent()); const b=new THREE.Box3().setFromObject(o,true); const sz=b.getSize(new THREE.Vector3()); const ct=b.getCenter(new THREE.Vector3());
+o.position.sub(ct); s.add(o);
+let tris=0,meshes=0; o.traverse(m=>{if(m.isMesh){meshes++;tris+=(m.geometry.index?m.geometry.index.count:m.geometry.attributes.position.count)/3;}});
+const L=[]; o.updateMatrixWorld(true); o.traverse(m=>{if(m.isMesh){m.material.transparent=false;m.material.depthWrite=true;m.material.alphaTest=0;const bb=new THREE.Box3().setFromObject(m);L.push([m.name,m.material.name,bb.min.toArray().map(v=>+v.toFixed(2)),bb.max.toArray().map(v=>+v.toFixed(2))]);}}); window.info={L,size:sz.toArray().map(v=>+v.toFixed(3)),tris:Math.round(tris),meshes};
+const R=Math.max(sz.x,sz.y,sz.z)*1.6;
+window.shot=(a)=>{cam.position.set(Math.sin(a)*R,R*0.25,Math.cos(a)*R);cam.lookAt(0,0,0);r.render(s,cam);};
+window.ready=true;
+</script></body></html>
