@@ -23,3 +23,7 @@ Client : AIRO (Mohammed MAYER, Marseille). Devis → airo.casque@gmail.com via F
 - Commits : `-c user.name="Claude" -c user.email="noreply@anthropic.com"`, messages en français.
 - Fichiers `_*.html` et `_glbtest/` : brouillons locaux exclus du dépôt.
 - Ne pas afficher le prix (6 000 € HT) sans accord du client. Domaine prévu : airoclean.fr (pas encore de CNAME).
+
+## Style de réponse (accord du client)
+- Mode court par défaut (skill `caveman`) : en français, réponse d'abord, sans politesses ni récapitulatif, phrases courtes ; tous les faits techniques gardés. « mode normal » pour revenir aux explications détaillées.
+- Une grosse tâche = une nouvelle session : ce fichier redonne le contexte.
