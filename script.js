@@ -7,19 +7,21 @@
   document.documentElement.classList.add("js");
   document.getElementById("year").textContent = new Date().getFullYear();
 
-  /* Écran d'introduction : disparaît quand la scène 3D est prête (ou au bout de 4 s). */
+  /* Écran d'introduction (ordinateur) : disparaît quand la scène 3D est prête, au plus tard après 2 s.
+     Sur téléphone il est supprimé : le titre doit s'afficher tout de suite. */
   var intro = document.getElementById("intro");
   if (intro) {
     var seen = false;
     try { seen = sessionStorage.getItem("airo-intro") === "1"; sessionStorage.setItem("airo-intro", "1"); } catch (e) { /* stockage indisponible */ }
-    var minDelay = seen ? 400 : 1700, start = Date.now(), closed = false;
+    var minDelay = seen ? 300 : 1200, start = Date.now(), closed = false;
     var close = function () {
       if (closed) return;
       closed = true;
       setTimeout(function () { intro.classList.add("is-done"); }, Math.max(0, minDelay - (Date.now() - start)));
     };
+    if (window.matchMedia("(max-width: 900px)").matches) { minDelay = 0; close(); }
     window.addEventListener("airo:ready", close);
-    setTimeout(close, 4000);
+    setTimeout(close, 2000);   // le texte ne doit jamais attendre la 3D trop longtemps
   }
 
   /* Navigation */

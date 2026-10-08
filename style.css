@@ -116,6 +116,7 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .intro { display: none; }
 .js .intro { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; align-content: center; gap: 18px; background: var(--black); transition: opacity 500ms var(--ease-out), visibility 500ms; }
 .intro.is-done { opacity: 0; visibility: hidden; }
+@media (max-width: 900px) { .js .intro { display: none; } }
 .intro__word { font-size: clamp(5rem, 22vw, 15rem); letter-spacing: .04em; animation: introWord 900ms var(--ease-out) both; }
 .intro__led { display: block; width: min(60vw, 520px); height: 2px; background: var(--airo); box-shadow: 0 0 12px var(--airo), 0 0 32px var(--airo); transform: scaleX(0); animation: introLed 1100ms var(--ease-in-out) 250ms both; }
 @keyframes introWord { from { opacity: 0; transform: translateY(12px); } }
@@ -256,7 +257,7 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .field select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2380868f' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 18px; padding-right: 40px; }
 .field textarea { resize: vertical; min-height: 140px; }
 .field input::placeholder, .field textarea::placeholder { color: #8a9099; }
-.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--bone); }
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--airo); box-shadow: 0 0 0 1px var(--airo); }
 .field.is-invalid input, .field.is-invalid textarea { border-color: var(--danger); }
 .field__err { display: none; font-size: .88rem; color: var(--danger); }
 .field.is-invalid .field__err, .field__err.is-visible { display: block; animation: errIn 200ms var(--ease-out); }
@@ -279,6 +280,7 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 /* Pied de page */
 .footer { border-top: 1px solid var(--rule); padding: 40px 0 32px; overflow: hidden; background: #030405; }
 .footer__mark { font-size: 30vw; font-stretch: 100%; font-weight: 900; line-height: .78; color: var(--graphite); letter-spacing: -0.02em; margin: 0 0 32px -0.04em; user-select: none; }
+.footer__mark::before { content: attr(data-word); }
 .footer__row { display: flex; flex-wrap: wrap; align-items: center; gap: 24px 40px; }
 .footer__links { display: flex; flex-wrap: wrap; gap: 24px; }
 .footer__links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--steel); text-decoration: none; font-size: .95rem; }

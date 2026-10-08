@@ -883,8 +883,13 @@ async function init() {
   loop();
 }
 
-init().catch((err) => {
-  console.error(err);
-  stage.classList.add("no-webgl");
-  ready();
-});
+// La 3D démarre une fois le texte affiché : le titre et les boutons ne l'attendent jamais.
+function start() {
+  init().catch((err) => {
+    console.error(err);
+    stage.classList.add("no-webgl");
+    ready();
+  });
+}
+if ("requestIdleCallback" in window) requestIdleCallback(start, { timeout: 1200 });
+else setTimeout(start, 150);
