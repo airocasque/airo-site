@@ -10,7 +10,7 @@ css = re.sub(r'url\("(assets/(?:fonts|scene)/[^"]+)"\)', lambda m: f'url("{uri(m
 html = re.sub(r'<link rel="(preload|modulepreload|preconnect)"[^>]*>\n?', '', html)
 html = html.replace('<link rel="stylesheet" href="style.css">', '<style>\n' + css + '\n</style>')
 for t in ('assets/img/tex-front-hd.webp','assets/img/tex-side-hd.webp'): bundle = bundle.replace(t, uri(t))
-files = {f'assets/{d}/{p.name}': uri(f'assets/{d}/{p.name}') for d in ('showroom', 'scene') for p in sorted((root/'assets'/d).iterdir())}
+files = {f'assets/{d}/{p.name}': uri(f'assets/{d}/{p.name}') for d in ('showroom', 'world') for p in sorted((root/'assets'/d).iterdir())}
 import json
 bundle = 'window.__AIRO_FILES=' + json.dumps(files) + ';\n' + bundle
 def inline_classic(m):

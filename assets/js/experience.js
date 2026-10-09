@@ -6,7 +6,8 @@ import { Pass, FullScreenQuad } from "three/addons/postprocessing/Pass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
-import { buildConcession, buildDecor, loadModel } from "./showroom.js";
+import { loadModel } from "./showroom.js";
+import { buildWorld } from "./world.js";
 
 const stage = document.getElementById("xpStage");
 const canvas = document.getElementById("xpCanvas");
@@ -492,18 +493,19 @@ async function init() {
   machine.add(helmetA, helmetB);
   machine.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
 
-  // Décor : la photo de la concession remise en relief ; la borne est posée sur le socle central.
-  // Le dessus du socle est ramené à y = 0 : la borne et les caméras gardent leurs repères habituels.
-  const shop = await buildConcession({ renderer, mobile });
-  shop.group.position.y = -shop.podiumTop;
-  // la concession est rendue à part (calque de fond, avec profondeur de champ) ; la borne est rendue par-dessus, nette
-  const bgA = new THREE.Scene(); bgA.background = new THREE.Color(0x050608); bgA.add(shop.group);
-  scene.background = null;
-  // reflets discrets et cohérents : l'environnement de la borne est la concession elle-même
-  scene.environment = pmrem.fromScene(bgA, 0.035, 0.05, 100).texture;
+  // Décor : la concession entièrement en 3D (world.js) ; la borne est posée sur le socle central (y = 0).
+  const world = await buildWorld({ renderer, mobile, font: FONT });
+  // reflets de la borne : l'environnement est la salle elle-même (sans la borne)
+  {
+    const envScene = new THREE.Scene(); envScene.add(world.group);
+    if (world.reflector) world.reflector.visible = false;
+    scene.environment = pmrem.fromScene(envScene, 0.035, 0.05, 100).texture;
+    if (world.reflector) world.reflector.visible = true;
+  }
+  scene.add(world.group);
   scene.environmentIntensity = 0.6;
-  const T = Object.fromEntries(Object.entries(shop.targets).map(([k, p]) => [k, p.clone().setY(p.y - shop.podiumTop)]));
-  const shopEye = shop.origin.clone().setY(shop.origin.y - shop.podiumTop);
+  scene.fog = new THREE.FogExp2(0x07080a, mobile ? 0.03 : 0.024);
+  const T = world.targets;
   // ombre de contact : ancre la borne au sol (suit sa rotation)
   const contact = new THREE.Mesh(new THREE.PlaneGeometry(W * 2.1, D * 2.1), basic({ map: radialTex("rgba(0,0,0,0.95)", "rgba(0,0,0,0)"), transparent: true, depthWrite: false }));
   contact.rotation.x = -Math.PI / 2; contact.position.y = 0.003; contact.renderOrder = 1; machine.add(contact);
@@ -605,7 +607,6 @@ async function init() {
     u.tColor.value = rtRaw.texture; u.tDepth.value = rtRaw.depthTexture;
     u.near.value = L.cam.near; u.far.value = L.cam.far; u.focus.value = L.focus; u.aperture.value = L.aperture;
     fsq.material = dofMat; renderer.setRenderTarget(out); fsq.render(renderer);
-    if (L.machine) { const ac = renderer.autoClear; renderer.autoClear = false; renderer.clearDepth(); renderer.render(scene, L.cam); renderer.autoClear = ac; }
   }
   class StagePass extends Pass {
     constructor() { super(); this.needsSwap = true; }
@@ -784,29 +785,23 @@ async function init() {
   const mixCam = (a, b, t) => { v3.lerpVectors(a.pos, b.pos, t); look.lerpVectors(a.look, b.look, t); };
 
   /* ---------- parcours dans la concession ----------
-     Chaque section du site a son « arrêt » : un point de vue de la concession principale (autour de la borne)
-     ou un autre espace (mur de casques, salon, accessoires, équipement). Dans la concession principale,
-     les arrêts restent sur l'axe œil → cible : c'est là que le relief reste juste.
-     Changement d'espace : la caméra sortante continue d'avancer, l'entrante arrive par un travelling,
-     les deux images se fondent. Profondeur de champ (dof) : 0 = tout net, 1 = mise au point sur la borne. */
+     Chaque section du site a son « arrêt » dans la salle : mur de casques, écrans, borne, comptoir, salon.
+     Entre deux arrêts la caméra glisse d'un point de vue à l'autre ; pendant la lecture d'une section elle
+     continue de dériver lentement (travelling). dof : force de la profondeur de champ ; fm : 1 = mise au
+     point sur la borne, 0 = sur ce que l'on regarde. */
   const V = (x, y, z) => new THREE.Vector3(x, y, z);
   const P = (px, py, pz, lx, ly, lz) => ({ pos: V(px, py, pz), look: V(lx, ly, lz) });
-  const toward = (target, f, lift = 0, up = 0.2) => {
-    const pos = shopEye.clone().lerp(target, f); pos.y += lift;
-    return { pos, look: target.clone().setY(target.y + up) };   // regard un peu haut : le bas du décor reste hors champ
-  };
   const legs = [
-    // [section, espace, point de vue, profondeur de champ, entrée (autres espaces)]
-    // Accueil (vue générale) et présentation de la borne : la scène du haut de page (espace A).
-    ["#probleme", "B", P(0, 0, -0.55, -0.35, -0.05, -6), 0, P(0.5, 0.06, 0, 0.15, 0, -6)],         // mur de casques : travelling latéral
-    ["#programmes", "C", P(0, 0, -0.5, -0.12, -0.05, -6), 0, P(0.35, 0.2, 0, 0.35, 0.25, -6)],     // technologie : autre zone (équipement)
-    ["#technologie", "C", P(-0.2, 0.02, -0.8, -0.32, -0.08, -6), 0],                               // on longe le rayon
-    ["#professionnels", "E", P(0.05, 0, -0.5, 0.25, -0.05, -6), 0, P(-0.5, 0, 0, -0.25, 0, -6)],   // espace professionnel
-    ["#rentabilite", "E", P(-0.12, 0, -0.75, 0.02, -0.06, -6), 0],                                  // travelling latéral
-    ["#fiche", "A", P(0.15, 1.78, 4.45, 0, 1.05, 0), 1],                                            // retour à la borne, nette sur fond flou
-    ["#faq", "D", P(0, 0, -0.45, 0.05, -0.05, -6), 0, P(0, 0.12, 0.05, 0, 0.05, -6)],              // contact : le salon, plus calme
-    ["#devis", "D", P(0, 0.02, -0.8, 0.05, -0.08, -6), 0],                                          // lente avancée jusqu'au formulaire
-  ].map(([sel, decor, pose, dof, enter]) => ({ el: document.querySelector(sel), decor, pose, dof, enter })).filter((l) => l.el);
+    // [section, point de vue, dof, fm, dérive pendant la lecture]
+    ["#probleme", P(-6.0, 1.5, 3.6, T.helmets.x, 1.15, -1.2), 0.55, 0, V(0, 0, -1.6)],           // le long du mur de casques
+    ["#programmes", P(-5.0, 1.8, -4.4, -6.2, 1.95, -9), 0.4, 0, V(0.5, 0, 0)],                    // écran des programmes
+    ["#technologie", P(0.5, 1.55, 2.6, 0.08, 0.98, 0), 1, 1, V(-0.35, 0, -0.15)],                // la borne de près
+    ["#professionnels", P(4.4, 1.65, 6.6, 11, 1.9, 3.6), 0.5, 0, V(0, 0, -0.8)],                 // comptoir des pros
+    ["#rentabilite", P(4.4, 1.7, 1.2, 10.5, 1.7, 5.2), 0.5, 0, V(0, 0, 0.6)],                          // le long du comptoir
+    ["#fiche", P(0.15, 1.78, 4.45, 0, 1.05, 0), 1, 1, V(0.3, 0, 0)],                              // retour à la borne
+    ["#faq", P(4.2, 1.45, 0.6, 8.4, 0.7, -3.8), 0.5, 0, V(0.4, 0, -0.3)],                         // le salon
+    ["#devis", P(5.6, 1.2, -1.0, 9.4, 0.75, -4.2), 0.45, 0, V(0.3, 0, -0.2)],                     // plus près, plus calme
+  ].map(([sel, pose, dof, fm, drift]) => ({ el: document.querySelector(sel), pose, dof, fm, drift })).filter((l) => l.el);
   let legStart = [], legEnd = [];
   function measureLegs() {
     const vh = window.innerHeight, y0 = window.scrollY;
@@ -819,62 +814,32 @@ async function init() {
   if ("ResizeObserver" in window) new ResizeObserver(measureLegs).observe(document.body);
   let sy = window.scrollY;
   const easeOut = (x) => 1 - Math.pow(1 - x, 3);
-  const lerpPose = (a, b, k) => ({ pos: a.pos.clone().lerp(b.pos, k), look: a.look.clone().lerp(b.look, k) });
-  const push = (pose, k) => {            // la caméra sortante continue d'avancer vers ce qu'elle regarde
-    const d = pose.look.clone().sub(pose.pos).normalize().multiplyScalar(0.9 * k);
-    return { pos: pose.pos.clone().add(d), look: pose.look.clone().add(d) };
-  };
-  const enterA = (pose) => {             // arrivée dans la concession principale : léger recul + décalage latéral
-    const back = pose.pos.clone().sub(pose.look).normalize().multiplyScalar(0.7);
-    return { pos: pose.pos.clone().add(back).add(V(0.35, 0.05, 0)), look: pose.look.clone() };
-  };
-  // État du parcours pour une position de défilement : un ou deux espaces, leurs points de vue, le fondu.
+  // Point de vue pour une position de défilement (une seule salle : pas de fondu, la caméra se déplace).
   function journey(y, start) {
-    let cur = { decor: "A", ...start };
+    let cur = { decor: "A", pos: start.pos, look: start.look, dof: start.dof, fm: 1 };
     for (let i = 0; i < legs.length; i++) {
-      const L = legs[i], k = smooth(legStart[i], legEnd[i], y);
+      const L = legs[i];
+      let k = smooth(legStart[i], legEnd[i], y);
       if (k <= 0) break;
-      if (L.decor === cur.decor || !decors[L.decor]) {
-        if (L.decor !== cur.decor) continue;                       // espace pas encore chargé : on reste où l'on est
-        const p = lerpPose(cur, L.pose, k);
-        cur = { decor: L.decor, pos: p.pos, look: p.look, dof: lerp(cur.dof, L.dof, k) };
-        continue;
-      }
-      if (k < 1) {
-        // mouvements réduits : simple fondu entre les deux points de vue, sans déplacement
-        const out = reduceMotion ? cur : push(cur, easeOut(k));
-        const inn = reduceMotion ? L.pose : lerpPose(L.decor === "A" ? enterA(L.pose) : L.enter, L.pose, easeOut(k));
-        return { a: { decor: cur.decor, ...out, dof: cur.dof * (1 - k) }, b: { decor: L.decor, ...inn, dof: L.dof * k }, mix: smooth(0.12, 0.85, k) };
-      }
-      cur = { decor: L.decor, pos: L.pose.pos.clone(), look: L.pose.look.clone(), dof: L.dof };
+      if (reduceMotion) k = k < 0.5 ? 0 : 1;                   // mouvements réduits : changement de plan net
+      const next = i + 1 < legs.length ? legStart[i + 1] : legEnd[i] + window.innerHeight * 1.5;
+      const h = reduceMotion ? 0 : smooth(legEnd[i], next, y) - 0.5;   // dérive centrée sur l'arrêt
+      const pos = L.pose.pos.clone().addScaledVector(L.drift, h), look = L.pose.look.clone().addScaledVector(L.drift, h);
+      cur = { decor: "A", pos: cur.pos.clone().lerp(pos, k), look: cur.look.clone().lerp(look, k), dof: lerp(cur.dof, L.dof, k), fm: lerp(cur.fm, L.fm, k) };
     }
     return { a: cur, b: null, mix: 0 };
   }
 
   const focusPoint = V(0, 0.95, 0);   // centre de la borne : c'est là que se fait la mise au point
-  decors.A = { scene: bgA, cam: camera, machine: true, focus: 5, aperture: 0, apertureTarget: 0 };
+  decors.A = { scene, cam: camera, machine: true, focus: 5, aperture: 0, apertureTarget: 0 };
   layers[0] = decors.A;
 
-  const slugs = { B: "casques", C: "equipement", D: "salon", E: "accessoires" }, loading = {};
-  let loadBusy = false;
-  function loadNearDecors() {
-    if (loadBusy) return;
-    const ahead = sy + window.innerHeight * 3;   // priorité à l'espace le plus proche (saut par le menu)
-    const i = legs.findLastIndex((l, j) => l.decor !== "A" && !loading[l.decor] && legStart[j] < ahead);
-    if (i < 0) return;
-    const k = legs[i].decor; loading[k] = loadBusy = true;
-    buildDecor(slugs[k], { renderer, mobile }).then(({ scene: sc }) => {
-      const cam = new THREE.PerspectiveCamera(40, 1, 0.05, 120); sizeDecorCam(cam);
-      decors[k] = { scene: sc, cam, machine: false, focus: 6, aperture: 0, apertureTarget: 0 };
-    }).catch((e) => console.warn("espace", slugs[k], e)).finally(() => { loadBusy = false; });
-  }
 
   let running = true, looping = false, t0 = performance.now(), firstFrame = true, bootStart = null;
   // la scène reste en fond de toute la page : on ne la met en pause que lorsque l'onglet est caché
   document.addEventListener("visibilitychange", () => { running = !document.hidden; if (running && !looping) loop(); });
 
   let lastNow = performance.now();
-  let lastSolo = null, cutFrom = null, cutT = 1;
   const damp = (k, dt) => 1 - Math.pow(1 - k, dt * 60); // même rendu à 30, 60 ou 144 images/s
   function frame(now) {
     const t = (now - t0) / 1000;
@@ -934,25 +899,17 @@ async function init() {
       d.cam.position.copy(st.pos).add(V(smx * 0.18 * sway, -smy * 0.08 * sway, 0));
       d.cam.lookAt(st.look);
       d.apertureTarget = (quality >= 2 ? 0 : st.dof);
-      d.focus = d.machine ? d.cam.position.distanceTo(focusPoint) : 6;
+      d.focus = lerp(d.cam.position.distanceTo(st.look), d.cam.position.distanceTo(focusPoint), st.fm ?? 1);
       return d;
     };
     layers[0] = setLayer(0, J.a) || decors.A;
     layers[1] = J.b ? setLayer(1, J.b) : null;
     layerMix = J.mix;
-    // changement d'espace brusque (saut par le menu, décor qui finit de charger) : fondu plutôt qu'une coupure
-    if (!J.b) {
-      if (lastSolo && layers[0] !== lastSolo) { cutFrom = lastSolo; cutT = 0; }
-      lastSolo = layers[0];
-      if (cutT < 1) { cutT = Math.min(1, cutT + dt / 0.8); layers[1] = layers[0]; layers[0] = cutFrom; layerMix = smooth(0, 1, cutT); }
-    } else { lastSolo = null; cutT = 1; }
     // mise au point progressive : l'ouverture suit sa cible avec inertie
     for (const d of Object.values(decors)) { d.aperture += ((d.apertureTarget || 0) - d.aperture) * (reduceMotion ? 1 : damp(0.06, dt)); }
     v3.copy(camera.position);
     // les motos du premier plan n'existent en relief que près du point de vue de la photo :
     // elles s'effacent quand la caméra s'en éloigne (le décor derrière elles est reconstitué)
-    shop.fg.material.opacity = 1 - smooth(0.9, 2.2, v3.distanceTo(shopEye));
-    shop.fg.visible = shop.fg.material.opacity > 0.01;
 
     // portes : ouverture avec un léger rebond (ressort), charnière à droite
     const sDep = seg(3), sCyc = seg(4), sRet = seg(5), sEnd = seg(6);
@@ -1052,8 +1009,6 @@ async function init() {
       firstFrame = false; stage.classList.add("is-live"); ready();
       measureLegs();
     }
-    // les autres espaces se chargent à l'approche de leur section (une seule image HD à la fois)
-    loadNearDecors();
   }
 
   // Qualité adaptative : on mesure le temps d'image et on allège le rendu sur les appareils modestes.
@@ -1079,7 +1034,7 @@ async function init() {
     looping = true;
     const now = performance.now();
     // sur mobile, scène immobile : on ne redessine qu'une image sur trois (batterie, chauffe)
-    if (sy !== lastSy || dragging || Math.abs(spin) > 0.0005 || Math.abs(progress - shown) > 0.0005 || cutT < 1) { idleSince = now; lastSy = sy; }
+    if (sy !== lastSy || dragging || Math.abs(spin) > 0.0005 || Math.abs(progress - shown) > 0.0005) { idleSince = now; lastSy = sy; }
     const idle = mobile && !reduceMotion && bootStart !== null && now - bootStart > 4000 && now - idleSince > 1500;
     if (!idle || ++idleSkip % 3 === 0) {
       frame(now);
