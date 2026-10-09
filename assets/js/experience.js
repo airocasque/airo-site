@@ -6,7 +6,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
-import { buildShowroom, loadModel } from "./showroom.js";
+import { buildConcession, loadModel } from "./showroom.js";
 
 const stage = document.getElementById("xpStage");
 const canvas = document.getElementById("xpCanvas");
@@ -443,13 +443,11 @@ async function init() {
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x050608);
-  scene.fog = new THREE.Fog(0x050608, 16, 40);
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environmentIntensity = 0.35;
 
-  const camera = new THREE.PerspectiveCamera(30, 1, 0.05, 40);
-  camera.layers.enable(1);   // calque 1 : objets visibles mais exclus du reflet du sol
+  const camera = new THREE.PerspectiveCamera(36, 1, 0.05, 120);
 
   // matériaux
   const screen = makeScreen();
@@ -494,20 +492,23 @@ async function init() {
   machine.add(helmetA, helmetB);
   machine.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
 
-  // Décor : la borne est installée dans une concession moto (mur de casques, motos exposées, vitrine)
-  const { room, populate, mirror, floor } = buildShowroom({ renderer, font: FONT, mobile });
-  scene.add(room);
+  // Décor : la photo de la concession remise en relief ; la borne est posée sur le socle central.
+  // Le dessus du socle est ramené à y = 0 : la borne et les caméras gardent leurs repères habituels.
+  const shop = await buildConcession({ renderer, mobile });
+  shop.group.position.y = -shop.podiumTop;
+  scene.add(shop.group);
+  const T = Object.fromEntries(Object.entries(shop.targets).map(([k, p]) => [k, p.clone().setY(p.y - shop.podiumTop)]));
+  const shopEye = shop.origin.clone().setY(shop.origin.y - shop.podiumTop);
   // ombre de contact : ancre la borne au sol (suit sa rotation)
   const contact = new THREE.Mesh(new THREE.PlaneGeometry(W * 2.1, D * 2.1), basic({ map: radialTex("rgba(0,0,0,0.95)", "rgba(0,0,0,0)"), transparent: true, depthWrite: false }));
   contact.rotation.x = -Math.PI / 2; contact.position.y = 0.003; contact.renderOrder = 1; machine.add(contact);
 
-  // éclairage de studio
-  scene.add(new THREE.HemisphereLight(0xdfe6f2, 0x000000, 0.18));
+  // éclairage accordé à la photo : plafond chaud, néon bleu du socle par en dessous
+  scene.add(new THREE.HemisphereLight(0xfff1de, 0x1a2140, 0.45));
+  const podGlow = new THREE.PointLight(0x3d6bff, 5, 2.6, 1.6); podGlow.position.set(0, 0.12, 0.75); scene.add(podGlow);
   const key = new THREE.DirectionalLight(0xffffff, 1.4); key.position.set(2.2, 3.4, 4.2); scene.add(key);
   const pool = new THREE.SpotLight(0xf3f5fa, 60, 12, 0.32, 0.9, 1.5);          // spot du plafond sur la borne
   pool.position.set(0.6, 4.5, 1.6); pool.target.position.set(0, 0.6, 0); scene.add(pool, pool.target);
-  const wall = new THREE.SpotLight(0x4f7dff, 40, 9, 0.62, 1, 1.4);             // léger halo bleu AIRO sur le mur, caché derrière la borne
-  wall.position.set(0, 0.5, -1.0); wall.target.position.set(0, 2.6, -6); scene.add(wall, wall.target);
   const rimR = new THREE.DirectionalLight(0x2f6bff, 1.4); rimR.position.set(-3, 2.5, -3); scene.add(rimR);
   const rimL = new THREE.DirectionalLight(0xbfd0ff, 0.9); rimL.position.set(3.5, 1.8, -2.5); scene.add(rimL);
 
@@ -575,8 +576,9 @@ async function init() {
     renderer.setSize(vw, vh, false);
     composer.setSize(vw, vh);
     bloom.resolution.set(vw, vh);
-    camera.aspect = sideLayout ? (vw * 1.5) / vh : vw / vh;
-    if (sideLayout) camera.setViewOffset(vw * 1.5, vh, 0, 0, vw, vh); // machine à droite, texte à gauche
+    camera.fov = sideLayout ? 36 : 42;
+    camera.aspect = sideLayout ? (vw * 1.32) / vh : vw / vh;
+    if (sideLayout) camera.setViewOffset(vw * 1.32, vh, 0, 0, vw, vh); // borne à droite, texte à gauche
     else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   }
@@ -698,15 +700,57 @@ async function init() {
 
   /* ---------- boucle ---------- */
   const v3 = new THREE.Vector3(), look = new THREE.Vector3();
-  const camFar = { pos: new THREE.Vector3(0, 1.08, 5.2), look: new THREE.Vector3(0, 0.98, 0) };
+  const camFar = { pos: new THREE.Vector3(0, 1.42, 5.1), look: new THREE.Vector3(0, 1.12, 0) };
   const camScreen = { pos: new THREE.Vector3(0.25, 1.55, 2.4), look: new THREE.Vector3(0.22, 1.42, 0) };
   const camLocker = { pos: new THREE.Vector3(0.75, 1.1, 3.4), look: new THREE.Vector3(0.28, 0.95, 0) };
-  const camEnd = { pos: new THREE.Vector3(0, 1.15, 5.6), look: new THREE.Vector3(0, 0.98, 0) };
+  const camEnd = { pos: new THREE.Vector3(0, 1.45, 5.2), look: new THREE.Vector3(0, 1.1, 0) };
   const mixCam = (a, b, t) => { v3.lerpVectors(a.pos, b.pos, t); look.lerpVectors(a.look, b.look, t); };
 
+  /* ---------- parcours dans la concession ----------
+     Après la présentation de la borne, chaque section du site a son « arrêt » dans la concession :
+     la caméra quitte le point de vue de la photo et avance vers un mur, un écran, le comptoir…
+     Les arrêts dans la photo restent sur l'axe œil → cible : c'est là que le relief reste juste. */
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const toward = (target, f, lift = 0, up = 0.2) => {
+    const pos = shopEye.clone().lerp(target, f); pos.y += lift;
+    return { pos, look: target.clone().setY(target.y + up) };   // regard un peu haut : le bas du décor reste hors champ
+  };
+  const legs = [
+    // caméra haute (≈ 2 m) : les motos du premier plan sortent du cadre au lieu de s'étirer
+    ["#probleme", toward(T.helmetsWall, 0.35, 0.4)],                    // mur de casques
+    ["#programmes", toward(T.tvL, 0.5, 0.45)],                          // écran de gauche
+    ["#technologie", { pos: V(0.5, 1.55, 2.6), look: V(0.08, 0.98, 0) }],  // gros plan sur les casiers
+    ["#professionnels", toward(T.counter, 0.5, 0.55)],                  // le comptoir
+    ["#rentabilite", toward(T.tvR, 0.42, 0.5)],                         // écran de droite
+    ["#fiche", { pos: V(0.55, 1.9, 4.3), look: V(0, 1.05, 0) }],         // la borne, vue plongeante
+    ["#faq", toward(T.airo, 0.45, 0.1)],                                // enseigne AIRO
+    ["#devis", { pos: V(-0.25, 1.5, 4.7), look: V(0.15, 1.1, 0) }],     // retour à la borne
+  ].map(([sel, pose]) => ({ el: document.querySelector(sel), pose })).filter((l) => l.el);
+  let legStart = [], legEnd = [];
+  function measureLegs() {
+    const vh = window.innerHeight, y0 = window.scrollY;
+    legStart = legs.map((l) => l.el.getBoundingClientRect().top + y0 - vh);          // la section entre par le bas
+    legEnd = legs.map((l) => l.el.getBoundingClientRect().top + y0 - vh * 0.3);      // son panneau arrive
+  }
+  measureLegs();
+  window.addEventListener("resize", measureLegs);
+  window.addEventListener("load", measureLegs);
+  if ("ResizeObserver" in window) new ResizeObserver(measureLegs).observe(document.body);
+  let sy = window.scrollY;
+  const jp = V(0, 0, 0), jl = V(0, 0, 0);
+  function journey(y) {      // pose de caméra pour une position de défilement donnée
+    jp.copy(camEnd.pos); jl.copy(camEnd.look);
+    for (let i = 0; i < legs.length; i++) {
+      const k = smooth(legStart[i], legEnd[i], y);
+      if (k <= 0) break;
+      jp.lerp(legs[i].pose.pos, k); jl.lerp(legs[i].pose.look, k);
+    }
+    return legStart.length && y > legStart[0];
+  }
+
   let running = true, looping = false, t0 = performance.now(), firstFrame = true, bootStart = null;
-  const vis = new IntersectionObserver((e) => { running = e[0].isIntersecting; if (running && !looping) loop(); });
-  vis.observe(xp);
+  // la scène reste en fond de toute la page : on ne la met en pause que lorsque l'onglet est caché
+  document.addEventListener("visibilitychange", () => { running = !document.hidden; if (running && !looping) loop(); });
 
   let lastNow = performance.now();
   const damp = (k, dt) => 1 - Math.pow(1 - k, dt * 60); // même rendu à 30, 60 ou 144 images/s
@@ -746,7 +790,11 @@ async function init() {
       v3.sub(look).multiplyScalar(1 - 0.1 * Math.sin(seg(4) * Math.PI)).add(look); // poussée lente pendant le cycle
     }
     else mixCam(camLocker, camEnd, smooth(B[6], B[7] - 0.02, p));
-    if (!sideLayout) {
+    sy += (window.scrollY - sy) * (reduceMotion ? 1 : damp(0.1, dt));
+    const inJourney = journey(sy);
+    stage.classList.toggle("is-journey", inJourney);
+    if (inJourney) { v3.copy(jp); look.copy(jl); }
+    else if (!sideLayout) {
       const k = Math.max(1, 0.85 / camera.aspect);
       v3.sub(look).multiplyScalar(k * 0.78).add(look);
       // sur mobile le texte occupe le bas de l'écran : on remonte la borne dans le cadre
@@ -757,6 +805,10 @@ async function init() {
     if (!reduceMotion) { v3.x += smx * 0.25; v3.y -= smy * 0.12; }
     camera.position.copy(v3);
     camera.lookAt(look);
+    // les motos du premier plan n'existent en relief que près du point de vue de la photo :
+    // elles s'effacent quand la caméra s'en éloigne (le décor derrière elles est reconstitué)
+    shop.fg.material.opacity = 1 - smooth(0.8, 2.2, v3.distanceTo(shopEye));
+    shop.fg.visible = shop.fg.material.opacity > 0.01;
 
     // portes : ouverture avec un léger rebond (ressort), charnière à droite
     const sDep = seg(3), sCyc = seg(4), sRet = seg(5), sEnd = seg(6);
@@ -852,7 +904,7 @@ async function init() {
     updateCallouts(sideLayout && step === 1 && !dragging);
     finish.uniforms.uTime.value = reduceMotion ? 0 : t;
     composer.render();
-    if (firstFrame) { firstFrame = false; stage.classList.add("is-live"); ready(); populate(scene).catch((e) => console.warn("décor", e)); }
+    if (firstFrame) { firstFrame = false; stage.classList.add("is-live"); ready(); }
   }
 
   // Qualité adaptative : on mesure le temps d'image et on allège le rendu sur les appareils modestes.
@@ -865,7 +917,7 @@ async function init() {
     perfFrames = 0;
     if (ms > 26 && quality < 3) {
       quality++;
-      if (quality === 1 && mirror) { mirror.visible = false; floor.material.opacity = 1; floor.material.transparent = false; floor.material.needsUpdate = true; }
+      if (quality === 1) renderer.setPixelRatio(Math.max(1, maxDpr * 0.8));
       if (quality === 2) renderer.setPixelRatio(Math.max(1, maxDpr * 0.6));
       if (quality === 3) { bloom.enabled = false; finish.enabled = false; }
       resize();

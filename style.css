@@ -123,8 +123,13 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 @keyframes introLed { to { transform: scaleX(1); } }
 
 /* Scène 3D */
-.xp { position: relative; background: var(--black); }
-.xp__stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+.xp { position: relative; }
+/* la scène 3D est le décor de toute la page : fixe derrière les sections */
+.xp__stage { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100lvh; overflow: hidden; z-index: 0; background: #050608; }
+.xp__stage.no-webgl { background: #050608 url("assets/scene/shop-poster.webp") center / cover no-repeat; }
+.xp__stage.is-journey .xp-dots, .xp__stage.is-journey .xp__hint, .xp__stage.is-journey .xp-callouts { opacity: 0; visibility: hidden; transition: opacity 300ms ease, visibility 0s 300ms; }
+.xp__stage::after { transition: opacity 600ms ease; }
+.xp__stage.is-journey::after { opacity: .35; }
 .xp__stage canvas:focus-visible { outline: 2px solid var(--airo); outline-offset: -6px; }
 .xp__stage canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: pan-y; opacity: 0; transition: opacity 900ms var(--ease-out); }
 .xp__stage.is-live canvas { opacity: 1; }
@@ -159,7 +164,7 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .callout--left .callout__dot { margin: 0 -4.5px 0 0; }
 .callout--left .callout__text { padding: 0 10px 0 0; text-align: right; }
 
-.xp__steps { position: relative; z-index: 2; margin-top: -100vh; margin-top: -100svh; pointer-events: none; }
+.xp__steps { position: relative; z-index: 2; pointer-events: none; }
 .xp-step { min-height: 130vh; }
 .xp-step:nth-child(1) { min-height: 100vh; padding-top: calc(var(--nav-h) + 9vh); }
 .xp-step:nth-child(2) { min-height: 200vh; }
@@ -391,9 +396,16 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .nav__links a.is-current::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; background: var(--airo); }
 
 /* Raccord doux entre la scène 3D et la suite */
-.problem { margin-top: -22vh; padding-top: calc(22vh + clamp(96px, 12vw, 160px)); border-top: 0; z-index: 3; pointer-events: none;
-  background: linear-gradient(180deg, rgba(5, 6, 8, 0) 0, #050608 22vh, #030405 100%); }
-.problem > .wrap { pointer-events: auto; }
+/* Parcours : chaque section s'ouvre sur une fenêtre transparente où la caméra traverse la concession,
+   puis son contenu arrive sur un panneau sombre (ou clair pour le simulateur). */
+:root { --gap: 64vh; --panel: rgba(5, 6, 8, .95); }
+.block, .insta, .footer { position: relative; z-index: 1; }
+.gap { --fill: var(--panel); border-top: 0; padding-top: calc(var(--gap) + clamp(96px, 12vw, 160px));
+  background: linear-gradient(180deg, transparent 0, transparent var(--gap), var(--fill) calc(var(--gap) + 22vh), var(--fill) 100%); }
+.gap:has(+ .gap) { background: linear-gradient(180deg, transparent 0, transparent var(--gap), var(--fill) calc(var(--gap) + 22vh), var(--fill) calc(100% - 14vh), transparent 100%); }
+.calc.gap { --fill: var(--bone); }
+.calc.gap:has(+ .gap) { background: linear-gradient(180deg, transparent 0, transparent var(--gap), var(--bone) calc(var(--gap) + 22vh), var(--bone) calc(100% - 1px), #050608 100%); }
+@media (max-width: 900px) { :root { --gap: 46vh; } }
 
 /* Grain photo sur toute la page : matière, comme un tirage */
 body::after { content: ""; position: fixed; inset: 0; z-index: 90; pointer-events: none; opacity: .045; mix-blend-mode: overlay;

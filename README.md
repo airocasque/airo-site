@@ -9,7 +9,7 @@ Site de présentation de la machine AIRO (nettoyage, désinfection et séchage d
 - `assets/fonts/` — police Archivo (licence SIL OFL) hébergée avec le site.
 - `script.js` — écran d'intro, menu mobile, animations au défilement, validation et envoi du formulaire.
 - `assets/js/experience.js` — la borne AIRO modélisée en 3D (Three.js) : rotation à 360°, écran tactile animé, portes des casiers A et B qui s'ouvrent, casque, vapeur, fumée et néons. L'animation suit le défilement de la page ; on peut aussi faire tourner la borne à la souris ou au doigt.
-- `assets/js/showroom.js` — le décor de la scène 3D : une concession moto (sol en béton ciré avec reflets, mur de casques rétroéclairé, motos exposées, vitrine). Les motos et les casques sont de vrais modèles 3D (`assets/showroom/`, licence CC BY, auteurs crédités dans les mentions légales).
+- `assets/js/showroom.js` — le décor de la scène 3D : la photo de la concession remise en relief (carte de profondeur), dans laquelle la caméra se déplace au fil du défilement ; la borne 3D est posée sur le socle central. Fichiers dans `assets/scene/`, chaîne de fabrication dans `tools/scene-pipeline/`.
 - `assets/vendor/three/` — moteur 3D Three.js (r170, licence MIT) hébergé avec le site.
 - `assets/js/motion.js` — défilement fluide (Lenis) et animations GSAP : titre révélé mot à mot, titres de sections, aperçu des secteurs, profondeur du pied de page.
 - `assets/vendor/gsap/` (GSAP 3.12.5, licence « Standard no charge ») et `assets/vendor/lenis/` (Lenis 1.1.0, MIT).
