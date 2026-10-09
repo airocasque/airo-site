@@ -263,7 +263,7 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .field.is-invalid .field__err, .field__err.is-visible { display: block; animation: errIn 200ms var(--ease-out); }
 @keyframes errIn { from { opacity: 0; transform: translateY(-4px); } }
 .consent { display: flex; gap: 12px; align-items: flex-start; color: var(--steel); font-size: .92rem; cursor: pointer; margin-bottom: 8px; }
-.consent input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--airo); flex: none; }
+.consent input { width: 24px; height: 24px; margin: -1px 0 0; accent-color: var(--airo); flex: none; }
 #f-consent-err { margin-bottom: 16px; }
 #quoteSubmit { margin-top: 16px; }
 .hp { position: absolute !important; left: -9999px !important; width: 1px; height: 1px; opacity: 0; }
@@ -299,6 +299,70 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 .legal__back { margin-left: auto; }
 .fiche__docs { margin-top: 24px; }
 .fiche__docs a { display: inline-flex; align-items: center; min-height: 44px; color: var(--bone); }
+
+/* Simulateur : section claire pour casser le rythme sombre */
+.calc { background: var(--bone); color: #0d0f12; border-top: 0; }
+.calc .block__title { color: #0d0f12; }
+.calc__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(32px, 6vw, 96px); align-items: center; }
+.eyebrow { display: block; font-size: .8rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #6b95ff; margin-bottom: 14px; }
+.calc .eyebrow { color: #1f4fd1; }
+.calc__intro > p:not(.eyebrow) { color: #3a3f47; font-size: 1.08rem; max-width: 30em; margin-top: 20px; }
+.calc__intro .calc__fine { font-size: .92rem; color: #555b64; }
+.calc__panel { background: #0d0f12; color: var(--bone); border-radius: 6px; padding: clamp(24px, 4vw, 48px); display: grid; gap: 28px; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .45); }
+.calc__row { display: grid; grid-template-columns: 1fr auto; row-gap: 12px; align-items: baseline; }
+.calc__row label { color: #b4bac3; }
+.calc__row output { font-stretch: 75%; font-weight: 700; font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+.calc__row input { grid-column: 1 / -1; }
+.calc input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; cursor: pointer; --fill: 50%; }
+.calc input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--airo) var(--fill), #2b2f35 var(--fill)); }
+.calc input[type=range]::-moz-range-track { height: 4px; border-radius: 2px; background: #2b2f35; }
+.calc input[type=range]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--airo); }
+.calc input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -9px; border-radius: 50%; background: #fff; border: 3px solid var(--airo); }
+.calc input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 3px solid var(--airo); }
+.calc input[type=range]:focus-visible { outline: 2px solid var(--airo); outline-offset: 4px; }
+.calc__result { border-top: 1px solid #2b2f35; padding-top: 24px; }
+.calc__big { font-stretch: 62%; font-weight: 800; font-size: clamp(3.4rem, 7vw, 5.6rem); line-height: .9; font-variant-numeric: tabular-nums; }
+.calc__unit { margin-left: 12px; color: #b4bac3; font-size: 1.1rem; }
+.calc__year { margin-top: 10px; color: #b4bac3; }
+.calc__year strong { color: var(--bone); }
+
+/* FAQ */
+.faq__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+.faq__list { border-top: 1px solid var(--rule); }
+.faq__item { border-bottom: 1px solid var(--rule); }
+.faq__item summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; gap: 24px; align-items: center; padding: 22px 0; font-stretch: 75%; font-weight: 700; font-size: 1.3rem; }
+.faq__item summary::-webkit-details-marker { display: none; }
+.faq__item summary::after { content: ""; flex: none; width: 14px; height: 14px; background: linear-gradient(var(--bone), var(--bone)) center / 14px 2px no-repeat, linear-gradient(var(--bone), var(--bone)) center / 2px 14px no-repeat; transition: transform 250ms var(--ease-out); }
+.faq__item[open] summary::after { transform: rotate(45deg); }
+.faq__item summary:hover { color: #fff; }
+.faq__item p { color: var(--steel); max-width: 40em; padding: 0 0 24px; }
+
+/* Bandeau Instagram */
+.insta { border-top: 1px solid var(--rule); background: #07080b; }
+.insta__row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 40px; }
+.insta__text { font-stretch: 75%; font-weight: 700; font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.15; max-width: 22em; }
+.insta__btn { gap: 10px; flex: none; }
+
+/* Formulaire : précisions facultatives repliées */
+.form__more { margin-top: 18px; border-top: 1px solid var(--rule); }
+.form__more summary { cursor: pointer; padding: 16px 0; color: var(--bone); font-weight: 600; }
+.form__more[open] summary { margin-bottom: 8px; }
+
+/* Barre de contact mobile */
+.mbar { display: none; }
+@media (max-width: 900px) {
+  .mbar { position: fixed; z-index: 60; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px;
+    padding: 10px max(12px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    background: rgba(5, 6, 8, .92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--rule);
+    transform: translateY(110%); transition: transform 300ms var(--ease-out); }
+  .mbar.is-on { transform: none; }
+  .mbar a { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 18px; font-weight: 600; text-decoration: none; border-radius: var(--radius); }
+  .mbar__call { border: 1px solid var(--rule); color: var(--bone); }
+  .mbar__quote { background: #2a62f0; color: #fff; }
+  .calc__grid, .faq__grid { grid-template-columns: minmax(0, 1fr); }
+  .insta__row { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) { .mbar { transition: none; } }
 
 /* Programmes : la durée devient l'élément graphique */
 .prog { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--bone); }

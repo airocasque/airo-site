@@ -26,16 +26,91 @@
       "name": "AIRO",
       "email": "airo.casque@gmail.com",
       "telephone": "+33 6 68 73 12 07",
-      "sameAs": ["https://www.instagram.com/airo.officiel/"],
-      "address": { "@type": "PostalAddress", "streetAddress": "8 rue de la République, Bureau 3", "postalCode": "13001", "addressLocality": "Marseille", "addressCountry": "FR" },
-      "areaServed": { "@type": "AdministrativeArea", "name": "Bouches-du-Rhône" }
+      "sameAs": [
+        "https://www.instagram.com/airo.officiel/"
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "8 rue de la République, Bureau 3",
+        "postalCode": "13001",
+        "addressLocality": "Marseille",
+        "addressCountry": "FR"
+      },
+      "areaServed": {
+        "@type": "AdministrativeArea",
+        "name": "Bouches-du-Rhône"
+      }
     },
     {
       "@type": "Product",
       "name": "Borne AIRO",
-      "brand": { "@type": "Brand", "name": "AIRO" },
+      "brand": {
+        "@type": "Brand",
+        "name": "AIRO"
+      },
       "category": "Borne de nettoyage de casques",
       "description": "Borne en libre-service à deux casiers qui nettoie, désinfecte et sèche les casques à la vapeur sèche, en 3 à 10 minutes."
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Combien de temps dure un nettoyage ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Trois programmes : nettoyage avancé en 10 minutes, nettoyage rapide en 7 minutes, séchage seul en 3 minutes. Les deux casiers fonctionnent en même temps."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Qui fixe le prix payé par les clients ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Vous. Les tarifs et les programmes proposés se règlent selon votre activité."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Comment les clients paient-ils ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Directement sur la borne, par carte bancaire, grâce au terminal de paiement intégré. Aucun personnel n’est nécessaire."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quels casques peut-on nettoyer ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Intégral, modulable, jet, trail, karting, automobile, équitation, ski, vélo et plus. Les casques équipés d’intercom sont compatibles."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quel est le délai de livraison ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Entre 30 et 90 jours selon la commande. La date est précisée sur le devis."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "L’installation et la formation sont-elles comprises ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Livraison, installation et prise en main sont incluses lorsqu’elles figurent au devis."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quelle garantie, et qui assure le SAV ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "La borne est garantie 12 mois pièces et main-d’œuvre. Le service après-vente est assuré par AIRO dans les Bouches-du-Rhône ; ailleurs, les modalités sont fixées au devis."
+          }
+        }
+      ]
     }
   ]
 }
@@ -76,6 +151,7 @@
       <a href="#technologie">Technologie</a>
       <a href="#fiche">Fiche technique</a>
       <a href="#secteurs">Secteurs</a>
+      <a href="#faq">FAQ</a>
       <a class="btn btn--primary nav__cta-mobile" href="#devis">Demander un devis</a>
     </nav>
     <a class="btn btn--primary btn--sm nav__cta" href="#devis">Demander un devis</a>
@@ -204,8 +280,8 @@
   <section class="block tech" id="technologie">
     <div class="wrap tech__grid">
       <figure class="tech__media">
-        <img src="assets/img/cutaway.webp" alt="Vue en coupe d'un casque traversé par la vapeur sèche" width="675" height="640" loading="lazy">
-        <figcaption>Vue en coupe : la vapeur atteint les mousses sans mouiller le casque.</figcaption>
+        <img src="assets/img/tech-locker.webp" alt="Casque intégral déposé sur le support vapeur du casier A de la borne AIRO" width="840" height="900" loading="lazy">
+        <figcaption>Le casque se pose sur le support vapeur. La porte se referme, le cycle démarre.</figcaption>
       </figure>
       <div class="tech__body">
         <h2 class="block__title">Nettoyer en profondeur, sans abîmer.</h2>
@@ -223,7 +299,7 @@
   <!-- Professionnels -->
   <section class="block pros" id="professionnels">
     <figure class="pros__photo">
-      <img src="assets/img/client.webp" alt="Un vendeur remet un casque propre à un client" width="547" height="419" loading="lazy">
+      <img src="assets/img/pros-showroom.webp" alt="La borne AIRO installée près du mur de casques d’une concession moto" width="1200" height="820" loading="lazy">
     </figure>
     <div class="wrap pros__body">
       <h2 class="block__title">Pour vous, c’est un service en plus. Pour vos clients, une raison de revenir.</h2>
@@ -233,6 +309,39 @@
         <div><dt>Un point de vente qui se distingue</dt><dd>Un service que vos concurrents ne proposent pas.</dd></div>
         <div><dt>Des clients fidèles</dt><dd>Ils reviennent pour le nettoyage, et en profitent pour le reste.</dd></div>
       </dl>
+    </div>
+  </section>
+
+  <!-- Rentabilité -->
+  <section class="block calc" id="rentabilite" aria-labelledby="calc-title">
+    <div class="wrap calc__grid">
+      <div class="calc__intro">
+        <p class="eyebrow">Simulateur</p>
+        <h2 class="block__title" id="calc-title">Ce que la borne peut vous rapporter.</h2>
+        <p>Vous fixez le prix du nettoyage. Réglez les curseurs selon votre activité pour estimer le chiffre d’affaires généré par la borne.</p>
+        <p class="calc__fine">Deux casiers indépendants : jusqu’à 12 casques par heure en nettoyage avancé, davantage en nettoyage rapide. Estimation indicative, hors frais de paiement.</p>
+      </div>
+      <form class="calc__panel" id="calc" onsubmit="return false">
+        <div class="calc__row">
+          <label for="c-day">Casques nettoyés par jour</label>
+          <output id="c-day-out" for="c-day">8</output>
+          <input id="c-day" type="range" min="1" max="60" step="1" value="8">
+        </div>
+        <div class="calc__row">
+          <label for="c-price">Prix d’un nettoyage</label>
+          <output id="c-price-out" for="c-price">6 €</output>
+          <input id="c-price" type="range" min="2" max="20" step="1" value="6">
+        </div>
+        <div class="calc__row">
+          <label for="c-open">Jours d’ouverture par semaine</label>
+          <output id="c-open-out" for="c-open">6</output>
+          <input id="c-open" type="range" min="1" max="7" step="1" value="6">
+        </div>
+        <div class="calc__result" aria-live="polite">
+          <p><span class="calc__big" id="c-month">1 248 €</span><span class="calc__unit">par mois</span></p>
+          <p class="calc__year">soit <strong id="c-year">14 976 €</strong> par an</p>
+        </div>
+      </form>
     </div>
   </section>
 
@@ -266,6 +375,22 @@
     </div>
   </section>
 
+  <!-- Questions fréquentes -->
+  <section class="block faq" id="faq" aria-labelledby="faq-title">
+    <div class="wrap faq__grid">
+      <h2 class="block__title" id="faq-title">Questions fréquentes</h2>
+      <div class="faq__list">
+        <details class="faq__item"><summary>Combien de temps dure un nettoyage ?</summary><p>Trois programmes : nettoyage avancé en 10 minutes, nettoyage rapide en 7 minutes, séchage seul en 3 minutes. Les deux casiers fonctionnent en même temps.</p></details>
+        <details class="faq__item"><summary>Qui fixe le prix payé par les clients ?</summary><p>Vous. Les tarifs et les programmes proposés se règlent selon votre activité.</p></details>
+        <details class="faq__item"><summary>Comment les clients paient-ils ?</summary><p>Directement sur la borne, par carte bancaire, grâce au terminal de paiement intégré. Aucun personnel n’est nécessaire.</p></details>
+        <details class="faq__item"><summary>Quels casques peut-on nettoyer ?</summary><p>Intégral, modulable, jet, trail, karting, automobile, équitation, ski, vélo et plus. Les casques équipés d’intercom sont compatibles.</p></details>
+        <details class="faq__item"><summary>Quel est le délai de livraison ?</summary><p>Entre 30 et 90 jours selon la commande. La date est précisée sur le devis.</p></details>
+        <details class="faq__item"><summary>L’installation et la formation sont-elles comprises ?</summary><p>Livraison, installation et prise en main sont incluses lorsqu’elles figurent au devis.</p></details>
+        <details class="faq__item"><summary>Quelle garantie, et qui assure le SAV ?</summary><p>La borne est garantie 12 mois pièces et main-d’œuvre. Le service après-vente est assuré par AIRO dans les Bouches-du-Rhône ; ailleurs, les modalités sont fixées au devis.</p></details>
+      </div>
+    </div>
+  </section>
+
   <!-- Secteurs -->
   <section class="block sectors" id="secteurs">
     <div class="wrap">
@@ -283,6 +408,17 @@
   </section>
 
   <!-- Devis -->
+  <!-- Instagram -->
+  <section class="insta" aria-label="AIRO sur Instagram">
+    <div class="wrap insta__row">
+      <p class="insta__text"><span class="eyebrow">En vidéo</span>Voyez la borne fonctionner pour de vrai, chez nos clients.</p>
+      <a class="btn btn--ghost insta__btn" href="https://www.instagram.com/airo.officiel/" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        Voir @airo.officiel
+      </a>
+    </div>
+  </section>
+
   <section class="block quote" id="devis">
     <div class="wrap quote__grid">
       <div class="quote__intro">
@@ -321,10 +457,6 @@
             <input id="f-name" name="Nom" type="text" autocomplete="name" required>
             <p class="field__err" id="f-name-err">Indiquez votre nom.</p>
           </div>
-          <div class="field" data-pro>
-            <label for="f-company">Entreprise ou établissement <span class="opt">facultatif</span></label>
-            <input id="f-company" name="Entreprise" type="text" autocomplete="organization">
-          </div>
           <div class="field">
             <label for="f-email">E-mail</label>
             <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" spellcheck="false" required>
@@ -349,25 +481,35 @@
               <option>Autre</option>
             </select>
           </div>
-          <div class="field">
-            <label for="f-city">Ville ou code postal <span class="opt">facultatif</span></label>
-            <input id="f-city" name="Ville" type="text" autocomplete="address-level2">
-          </div>
-          <div class="field field--full" data-pro>
-            <label for="f-volume">Casques à nettoyer par semaine</label>
-            <select id="f-volume" name="Volume estimé">
-              <option value="">Je ne sais pas encore</option>
-              <option>Moins de 20</option>
-              <option>De 20 à 100</option>
-              <option>Plus de 100</option>
-            </select>
-          </div>
           <div class="field field--full">
             <label for="f-msg">Votre message</label>
-            <textarea id="f-msg" name="Message" rows="5" required placeholder="Votre activité, l’emplacement prévu, vos questions…"></textarea>
+            <textarea id="f-msg" name="Message" rows="4" required placeholder="Votre activité, l’emplacement prévu, vos questions…"></textarea>
             <p class="field__err" id="f-msg-err">Écrivez quelques mots sur votre projet.</p>
           </div>
         </div>
+
+        <details class="form__more">
+          <summary>Ajouter des précisions <span class="opt">facultatif</span></summary>
+          <div class="form__grid">
+            <div class="field" data-pro>
+              <label for="f-company">Entreprise ou établissement <span class="opt">facultatif</span></label>
+              <input id="f-company" name="Entreprise" type="text" autocomplete="organization">
+            </div>
+            <div class="field">
+              <label for="f-city">Ville ou code postal <span class="opt">facultatif</span></label>
+              <input id="f-city" name="Ville" type="text" autocomplete="address-level2">
+            </div>
+            <div class="field" data-pro>
+              <label for="f-volume">Casques à nettoyer par semaine</label>
+              <select id="f-volume" name="Volume estimé">
+                <option value="">Je ne sais pas encore</option>
+                <option>Moins de 20</option>
+                <option>De 20 à 100</option>
+                <option>Plus de 100</option>
+              </select>
+            </div>
+          </div>
+        </details>
 
         <label class="consent">
           <input type="checkbox" id="f-consent" required>
@@ -389,6 +531,11 @@
   </section>
 
 </main>
+
+<nav class="mbar" id="mbar" aria-label="Contact rapide">
+  <a class="mbar__call" href="tel:+33668731207"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>Appeler</a>
+  <a class="mbar__quote" href="#devis">Demander un devis</a>
+</nav>
 
 <footer class="footer">
   <div class="wrap">

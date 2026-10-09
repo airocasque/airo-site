@@ -139,3 +139,38 @@
       });
   });
 })();
+
+/* Simulateur de revenus : aucun prix de machine, seulement le chiffre d'affaires de la borne. */
+(function () {
+  var form = document.getElementById("calc");
+  if (!form) return;
+  var day = document.getElementById("c-day"), price = document.getElementById("c-price"), open = document.getElementById("c-open");
+  var fmt = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
+  var paint = function (input) {   // remplissage de la piste jusqu'au curseur
+    var pct = ((input.value - input.min) / (input.max - input.min)) * 100;
+    input.style.setProperty("--fill", pct + "%");
+  };
+  var update = function () {
+    var perWeek = +day.value * +price.value * +open.value;
+    var month = perWeek * 52 / 12;
+    document.getElementById("c-day-out").textContent = day.value;
+    document.getElementById("c-price-out").textContent = price.value + " €";
+    document.getElementById("c-open-out").textContent = open.value;
+    document.getElementById("c-month").textContent = fmt.format(month) + " €";
+    document.getElementById("c-year").textContent = fmt.format(perWeek * 52) + " €";
+    [day, price, open].forEach(paint);
+  };
+  form.addEventListener("input", update);
+  update();
+})();
+
+/* Barre de contact mobile : masquée en haut de page et quand le formulaire est à l'écran. */
+(function () {
+  var bar = document.getElementById("mbar"), quote = document.getElementById("devis");
+  if (!bar || !quote || !("IntersectionObserver" in window)) return;
+  var inQuote = false, scrolled = false;
+  var sync = function () { bar.classList.toggle("is-on", scrolled && !inQuote); };
+  new IntersectionObserver(function (e) { inQuote = e[0].isIntersecting; sync(); }, { threshold: 0.05 }).observe(quote);
+  var onScroll = function () { var s = window.scrollY > window.innerHeight * 0.6; if (s !== scrolled) { scrolled = s; sync(); } };
+  window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+})();
