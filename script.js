@@ -95,6 +95,12 @@
       "<h3>Demande envoyée" + (name ? ", merci " + name.replace(/[<>&"]/g, "") : "") + ".</h3>" +
       "<p>Nous l’avons bien reçue et vous répondons par e-mail ou par téléphone.</p>" +
       '<a class="btn btn--ghost" href="#xp">Retour en haut</a></div>';
+    // mesure des demandes : actif seulement si un outil de statistiques est installé sur la page
+    try {
+      if (window.plausible) window.plausible("Devis envoyé");
+      if (window.gtag) window.gtag("event", "generate_lead", { form: "devis" });
+      document.dispatchEvent(new CustomEvent("airo:devis"));
+    } catch (e) {}
   }
 
   // Prévient avant de quitter la page si une demande est en cours de saisie

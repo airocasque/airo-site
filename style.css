@@ -355,15 +355,19 @@ h2, .block__title { font-size: clamp(2.5rem, 5.2vw, 5.2rem); }
 
 /* Barre de contact mobile */
 .mbar { display: none; }
+@media (max-width: 379px) { .mbar__lbl { display: none; } .mbar a.mbar__call { width: 48px; padding: 0; } }
 @media (max-width: 900px) {
-  .mbar { position: fixed; z-index: 60; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px;
+  .mbar { position: fixed; z-index: 60; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: auto auto 1fr; gap: 8px;
     padding: 10px max(12px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
     background: rgba(5, 6, 8, .92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--rule);
     transform: translateY(110%); transition: transform 300ms var(--ease-out); }
   .mbar.is-on { transform: none; }
   .mbar a { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 18px; font-weight: 600; text-decoration: none; border-radius: var(--radius); }
   .mbar__call { border: 1px solid var(--rule); color: var(--bone); }
-  .mbar__quote { background: #2a62f0; color: #fff; }
+  .mbar__quote { background: #2a62f0; color: #fff; white-space: nowrap; }
+  .mbar a.mbar__call { padding: 0 14px; }
+  .mbar a.mbar__quote { padding: 0 12px; }
+  .mbar a.mbar__wa { width: 48px; padding: 0; border: 1px solid var(--rule); color: #25d366; }
   .calc__grid, .faq__grid { grid-template-columns: minmax(0, 1fr); }
   .insta__row { flex-direction: column; align-items: flex-start; }
 }

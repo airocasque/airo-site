@@ -433,7 +433,7 @@ async function init() {
     return;
   }
   const mobile = isMobile();
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.5 : 1.75));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.3 : 1.75));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.95;
   renderer.shadowMap.enabled = !mobile;
@@ -874,6 +874,7 @@ async function init() {
   document.addEventListener("visibilitychange", () => { running = !document.hidden; if (running && !looping) loop(); });
 
   let lastNow = performance.now();
+  let lastSolo = null, cutFrom = null, cutT = 1;
   const damp = (k, dt) => 1 - Math.pow(1 - k, dt * 60); // même rendu à 30, 60 ou 144 images/s
   function frame(now) {
     const t = (now - t0) / 1000;
@@ -939,6 +940,12 @@ async function init() {
     layers[0] = setLayer(0, J.a) || decors.A;
     layers[1] = J.b ? setLayer(1, J.b) : null;
     layerMix = J.mix;
+    // changement d'espace brusque (saut par le menu, décor qui finit de charger) : fondu plutôt qu'une coupure
+    if (!J.b) {
+      if (lastSolo && layers[0] !== lastSolo) { cutFrom = lastSolo; cutT = 0; }
+      lastSolo = layers[0];
+      if (cutT < 1) { cutT = Math.min(1, cutT + dt / 0.8); layers[1] = layers[0]; layers[0] = cutFrom; layerMix = smooth(0, 1, cutT); }
+    } else { lastSolo = null; cutT = 1; }
     // mise au point progressive : l'ouverture suit sa cible avec inertie
     for (const d of Object.values(decors)) { d.aperture += ((d.apertureTarget || 0) - d.aperture) * (reduceMotion ? 1 : damp(0.06, dt)); }
     v3.copy(camera.position);
@@ -1051,7 +1058,7 @@ async function init() {
 
   // Qualité adaptative : on mesure le temps d'image et on allège le rendu sur les appareils modestes.
   let perfFrames = 0, perfStart = 0, quality = 0;
-  const maxDpr = Math.min(window.devicePixelRatio, mobile ? 1.5 : 1.75);
+  const maxDpr = Math.min(window.devicePixelRatio, mobile ? 1.3 : 1.75);
   function adapt(now) {
     if (perfFrames === 0) perfStart = now;
     if (++perfFrames < 90) return;
@@ -1066,12 +1073,18 @@ async function init() {
     }
   }
 
+  let idleSince = performance.now(), lastSy = -1, idleSkip = 0;
   function loop() {
     if (!running) { looping = false; return; }
     looping = true;
     const now = performance.now();
-    frame(now);
-    if (!document.hidden) adapt(now);
+    // sur mobile, scène immobile : on ne redessine qu'une image sur trois (batterie, chauffe)
+    if (sy !== lastSy || dragging || Math.abs(spin) > 0.0005 || Math.abs(progress - shown) > 0.0005 || cutT < 1) { idleSince = now; lastSy = sy; }
+    const idle = mobile && !reduceMotion && bootStart !== null && now - bootStart > 4000 && now - idleSince > 1500;
+    if (!idle || ++idleSkip % 3 === 0) {
+      frame(now);
+      if (!document.hidden && !idle) adapt(now);
+    }
     requestAnimationFrame(loop);
   }
   loop();
