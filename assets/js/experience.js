@@ -797,14 +797,15 @@ async function init() {
   };
   const legs = [
     // [section, espace, point de vue, profondeur de champ, entrée (autres espaces)]
-    ["#probleme", "B", P(0, 0, -0.55, -0.35, -0.05, -6), 0, P(0.5, 0.06, 0, 0.15, 0, -6)],         // travelling latéral le long des casques
-    ["#programmes", "A", toward(T.tvL, 0.5, 0.45), 0],                                             // écran de gauche
-    ["#technologie", "A", P(0.5, 1.55, 2.6, 0.08, 0.98, 0), 1],                                    // gros plan sur les casiers
-    ["#professionnels", "D", P(0, 0, -0.75, 0.05, -0.08, -6), 0, P(0, 0.12, 0.05, 0, 0.05, -6)],   // travelling avant vers le salon
-    ["#rentabilite", "E", P(0.05, 0, -0.5, 0.25, -0.05, -6), 0, P(-0.5, 0, 0, -0.25, 0, -6)],      // travelling latéral, rayon accessoires
-    ["#fiche", "A", P(0.15, 1.78, 4.45, 0, 1.05, 0), 1],                                            // la borne, vue plongeante
-    ["#faq", "C", P(0, 0, -0.5, -0.12, -0.05, -6), 0, P(0.35, 0.2, 0, 0.35, 0.25, -6)],           // changement de perspective, équipement
-    ["#devis", "A", P(-0.25, 1.5, 4.7, 0.15, 1.1, 0), 1],                                          // retour à la borne
+    // Accueil (vue générale) et présentation de la borne : la scène du haut de page (espace A).
+    ["#probleme", "B", P(0, 0, -0.55, -0.35, -0.05, -6), 0, P(0.5, 0.06, 0, 0.15, 0, -6)],         // mur de casques : travelling latéral
+    ["#programmes", "C", P(0, 0, -0.5, -0.12, -0.05, -6), 0, P(0.35, 0.2, 0, 0.35, 0.25, -6)],     // technologie : autre zone (équipement)
+    ["#technologie", "C", P(-0.2, 0.02, -0.8, -0.32, -0.08, -6), 0],                               // on longe le rayon
+    ["#professionnels", "E", P(0.05, 0, -0.5, 0.25, -0.05, -6), 0, P(-0.5, 0, 0, -0.25, 0, -6)],   // espace professionnel
+    ["#rentabilite", "E", P(-0.12, 0, -0.75, 0.02, -0.06, -6), 0],                                  // travelling latéral
+    ["#fiche", "A", P(0.15, 1.78, 4.45, 0, 1.05, 0), 1],                                            // retour à la borne, nette sur fond flou
+    ["#faq", "D", P(0, 0, -0.45, 0.05, -0.05, -6), 0, P(0, 0.12, 0.05, 0, 0.05, -6)],              // contact : le salon, plus calme
+    ["#devis", "D", P(0, 0.02, -0.8, 0.05, -0.08, -6), 0],                                          // lente avancée jusqu'au formulaire
   ].map(([sel, decor, pose, dof, enter]) => ({ el: document.querySelector(sel), decor, pose, dof, enter })).filter((l) => l.el);
   let legStart = [], legEnd = [];
   function measureLegs() {
@@ -853,6 +854,20 @@ async function init() {
   const focusPoint = V(0, 0.95, 0);   // centre de la borne : c'est là que se fait la mise au point
   decors.A = { scene: bgA, cam: camera, machine: true, focus: 5, aperture: 0, apertureTarget: 0 };
   layers[0] = decors.A;
+
+  const slugs = { B: "casques", C: "equipement", D: "salon", E: "accessoires" }, loading = {};
+  let loadBusy = false;
+  function loadNearDecors() {
+    if (loadBusy) return;
+    const ahead = sy + window.innerHeight * 3;   // priorité à l'espace le plus proche (saut par le menu)
+    const i = legs.findLastIndex((l, j) => l.decor !== "A" && !loading[l.decor] && legStart[j] < ahead);
+    if (i < 0) return;
+    const k = legs[i].decor; loading[k] = loadBusy = true;
+    buildDecor(slugs[k], { renderer, mobile }).then(({ scene: sc }) => {
+      const cam = new THREE.PerspectiveCamera(40, 1, 0.05, 120); sizeDecorCam(cam);
+      decors[k] = { scene: sc, cam, machine: false, focus: 6, aperture: 0, apertureTarget: 0 };
+    }).catch((e) => console.warn("espace", slugs[k], e)).finally(() => { loadBusy = false; });
+  }
 
   let running = true, looping = false, t0 = performance.now(), firstFrame = true, bootStart = null;
   // la scène reste en fond de toute la page : on ne la met en pause que lorsque l'onglet est caché
@@ -1028,15 +1043,10 @@ async function init() {
     composer.render();
     if (firstFrame) {
       firstFrame = false; stage.classList.add("is-live"); ready();
-      // les autres espaces se chargent une fois la première image affichée
-      for (const [k, slug] of Object.entries({ B: "casques", C: "equipement", D: "salon", E: "accessoires" })) {
-        buildDecor(slug, { renderer, mobile }).then(({ scene: sc }) => {
-          const cam = new THREE.PerspectiveCamera(40, 1, 0.05, 120); sizeDecorCam(cam);
-          decors[k] = { scene: sc, cam, machine: false, focus: 6, aperture: 0, apertureTarget: 0 };
-          measureLegs();
-        }).catch((e) => console.warn("espace", slug, e));
-      }
+      measureLegs();
     }
+    // les autres espaces se chargent à l'approche de leur section (une seule image HD à la fois)
+    loadNearDecors();
   }
 
   // Qualité adaptative : on mesure le temps d'image et on allège le rendu sur les appareils modestes.
