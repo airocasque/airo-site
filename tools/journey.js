@@ -3,14 +3,18 @@
 const { chromium } = require('playwright');
 (async () => {
   const [w, h, tag] = [+process.argv[2] || 1280, +process.argv[3] || 800, process.argv[4] || 'j'];
+  const MID = process.argv[5] === 'mid';
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: w, height: h }, reducedMotion: 'reduce' });
   p.setDefaultTimeout(600000); const errs = [];
   p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text().slice(0, 200)); });
   await p.goto('http://localhost:8765/index.html');
   await p.waitForFunction(() => /is-live|no-webgl/.test(document.getElementById('xpStage').className), null, { timeout: 600000 });
-  await p.waitForTimeout(6000);
-  const stops = await p.evaluate(() => [['hero', 0], ['xp-fin', document.getElementById('xp').offsetHeight - innerHeight * 1.1]].concat(
-    ['probleme', 'programmes', 'technologie', 'professionnels', 'rentabilite', 'fiche', 'faq', 'devis'].map(id => [id, document.getElementById(id).getBoundingClientRect().top + scrollY - innerHeight * 0.32])));
+  await p.waitForTimeout(12000);
+  const stops = await p.evaluate((MID) => [['hero', 0], ['xp-fin', document.getElementById('xp').offsetHeight - innerHeight * 1.1]].concat(
+    ['probleme', 'programmes', 'technologie', 'professionnels', 'rentabilite', 'fiche', 'faq', 'devis'].flatMap(id => {
+      const top = document.getElementById(id).getBoundingClientRect().top + scrollY;
+      return (MID ? [[id + '-mid', top - innerHeight * 0.68]] : []).concat([[id, top - innerHeight * 0.32]]);
+    })), MID);
   for (const [name, y] of stops) {
     await p.evaluate(y => window.scrollTo({ top: y, behavior: 'instant' }), Math.round(y));
     await p.waitForTimeout(7000);

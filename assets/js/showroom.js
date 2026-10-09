@@ -77,7 +77,7 @@ function reliefGeometry(depthImg, info, seg, { margin = true } = {}) {
     pos.setXYZ(i, (u * 2 - 1) * tx * z, (1 - v * 2) * ty * z, -z);
     uv.setXY(i, uc, 1 - vc);
     const out = margin ? Math.max(Math.abs(u - uc) / MX, Math.abs(v - vc) / MY) : 0;   // 0 dans la photo → 1 au bord
-    col[i * 3] = col[i * 3 + 1] = col[i * 3 + 2] = 1 - Math.min(1, out * 4) * 0.97;   // s'éteint vite hors cadre
+    col[i * 3] = col[i * 3 + 1] = col[i * 3 + 2] = 1 - Math.min(1, out * 6) * 0.98;   // s'éteint vite hors cadre
   }
   geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
   geo.applyMatrix4(new THREE.Matrix4().fromArray(info.matrix));
@@ -107,4 +107,19 @@ export async function buildConcession({ renderer, mobile = false } = {}) {
   const v = (a) => new THREE.Vector3().fromArray(a);
   const targets = Object.fromEntries(Object.entries(info.targets).map(([k, a]) => [k, v(a)]));
   return { group, fg, podiumTop: info.podiumTop, origin: v(info.camera), targets };
+}
+
+/* Autres espaces de la concession (mur de casques, équipement, salon, accessoires) : une photo chacun,
+   remise en relief sur une seule couche. Repère : œil de la photo à l'origine, regard vers -z. */
+export async function buildDecor(slug, { renderer, mobile = false } = {}) {
+  const info = await fetch(url(`assets/scene/${slug}.json`)).then((r) => r.json());
+  const [dImg, tex] = await Promise.all([
+    loadImage(url(`assets/scene/${slug}-depth16.png`)),
+    new THREE.TextureLoader().loadAsync(url(`assets/scene/${slug}-${mobile ? "sd" : "hd"}.webp`)),
+  ]);
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const mesh = new THREE.Mesh(reliefGeometry(dImg, info, mobile ? 220 : 420), new THREE.MeshBasicMaterial({ map: tex, vertexColors: true, toneMapped: false }));
+  mesh.frustumCulled = false;
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(0x050608); scene.add(mesh);
+  return { scene, info };
 }
