@@ -287,3 +287,44 @@ export async function buildWorld({ renderer, mobile = false, font = "sans-serif"
   };
   return { group, reflector, targets };
 }
+
+/* Studio de tournage (rendu du film de la borne, tools/film.js) : fond noir, sol miroir sombre,
+   socle lumineux, lignes de lumière au loin et éclairage de contre-jour façon photo de moto. */
+export function buildStudio({ renderer } = {}) {
+  const group = new THREE.Group();
+  const glow = (r, g, b) => new THREE.MeshBasicMaterial({ color: new THREE.Color(r, g, b) });
+  const size = renderer.getDrawingBufferSize(new THREE.Vector2());
+  const floor = new Reflector(new THREE.PlaneGeometry(60, 60), { shader: floorShader, textureWidth: size.x / 2, textureHeight: size.y / 2, clipBias: 0.003, multisample: 0 });
+  const u = floor.material.uniforms;
+  const tl = new THREE.TextureLoader();
+  u.tFloor.value = tl.load(url("assets/world/smooth_concrete_floor_diff.webp")); u.tFloor.value.colorSpace = THREE.SRGBColorSpace;
+  u.tRough.value = tl.load(url("assets/world/smooth_concrete_floor_rough.webp"));
+  for (const t of [u.tFloor.value, u.tRough.value]) t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  u.repeat.value.set(14, 14); u.tint.value.setRGB(0.03, 0.03, 0.035); u.strength.value = 0.85;
+  u.texel.value.set(2 / size.x, 2 / size.y);
+  floor.rotation.x = -Math.PI / 2; floor.position.y = FLOOR; group.add(floor);
+  // socle noir laqué, liseré bleu AIRO
+  const PS = 1.5;
+  const pod = new THREE.Mesh(new THREE.BoxGeometry(PS, -FLOOR, PS), new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.12, metalness: 0.6 }));
+  pod.position.y = FLOOR / 2; group.add(pod);
+  const blue = glow(0.25, 0.6, 2.6);
+  for (const [w, d, x, z] of [[PS, 0.012, 0, PS / 2], [PS, 0.012, 0, -PS / 2], [0.012, PS, PS / 2, 0], [0.012, PS, -PS / 2, 0]]) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w + 0.01, 0.012, d + 0.01), blue); m.position.set(x, -0.006, z); group.add(m);
+  }
+  // lignes de lumière au loin (vitesse, piste)
+  const line = glow(1.6, 1.7, 2.0);
+  for (const [y, z, w] of [[2.9, -8, 22], [3.25, -8, 22]]) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.012, 0.012), line); m.position.set(0, y, z); group.add(m);
+  }
+  // halo bleu derrière la borne
+  const c = document.createElement("canvas"); c.width = c.height = 256;
+  const g = c.getContext("2d"), gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+  gr.addColorStop(0, "rgba(60,110,255,0.55)"); gr.addColorStop(0.45, "rgba(30,60,180,0.18)"); gr.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
+  const haze = new THREE.Mesh(new THREE.PlaneGeometry(7, 5), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  haze.position.set(0, 1.2, -3); group.add(haze);
+  // contre-jours : découpent la silhouette de la borne
+  const spot = (color, i, x, y, z, a = 0.5) => { const s = new THREE.SpotLight(color, i, 14, a, 0.6, 1.4); s.position.set(x, y, z); s.target.position.set(0, 0.9, 0); group.add(s, s.target); };
+  spot(0xcfdcff, 90, -2.6, 3.2, -2.2); spot(0xcfdcff, 90, 2.6, 3.2, -2.2); spot(0xffffff, 55, 0, 4.4, 1.2, 0.42);
+  return { group, reflector: floor };
+}

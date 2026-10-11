@@ -120,8 +120,8 @@
 <script type="importmap">
 { "imports": { "three": "./assets/vendor/three/three.module.min.js", "three/addons/": "./assets/vendor/three/addons/" } }
 </script>
-<link rel="modulepreload" href="assets/vendor/three/three.module.min.js">
-<link rel="modulepreload" href="assets/js/experience.js">
+<link rel="preload" href="assets/film/d/000.webp" as="image" media="(min-width: 901px)">
+<link rel="preload" href="assets/film/m/000.webp" as="image" media="(max-width: 900px)">
 <link rel="preconnect" href="https://formsubmit.co">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -131,7 +131,7 @@
   <defs>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
-    <symbol id="i-drag" viewBox="0 0 24 24"><path d="M8 7l-4 5 4 5M16 7l4 5-4 5M4 12h16"/></symbol>
+    <symbol id="i-drag" viewBox="0 0 24 24"><path d="M12 4v15M6 13l6 6 6-6"/></symbol>
   </defs>
 </svg>
 
@@ -166,7 +166,7 @@
   <!-- La borne en 3D, pilotée par le défilement -->
   <section class="xp" id="xp" aria-label="Découvrir la borne AIRO">
     <div class="xp__stage" id="xpStage">
-      <canvas id="xpCanvas" tabindex="0" aria-label="Modèle 3D de la borne AIRO. Faites glisser, ou utilisez les flèches gauche et droite, pour la faire tourner." role="img"></canvas>
+      <canvas id="xpCanvas" tabindex="0" aria-label="Film de la borne AIRO : rotation, dépôt du casque, cycle vapeur et retrait, au fil du défilement." role="img"></canvas>
       <img class="xp__fallback" src="assets/img/machine.webp" alt="La borne AIRO avec ses deux casiers A et B et son écran tactile" width="581" height="1000" loading="lazy">
       <div class="xp-callouts" id="xpCallouts" aria-hidden="true"></div>
       <div class="xp-hotspots" id="xpHotspots"></div>
@@ -179,7 +179,7 @@
         <button type="button" aria-label="Étape 4 : récupérer le casque"></button>
         <button type="button" aria-label="Fin"></button>
       </nav>
-      <p class="xp__hint" aria-hidden="true"><svg class="ico"><use href="#i-drag"/></svg>Glissez pour faire tourner la borne · touchez les points</p>
+      <p class="xp__hint" aria-hidden="true"><svg class="ico"><use href="#i-drag"/></svg>Faites défiler · touchez les points</p>
     </div>
 
     <div class="xp__steps wrap">
@@ -251,7 +251,7 @@
   </section>
 
   <!-- Le problème -->
-  <section class="block problem gap" id="probleme">
+  <section class="block problem" id="probleme">
     <div class="wrap">
       <h2 class="block__title">Un casque protège votre tête. Rien ne protège l’intérieur du casque.</h2>
       <ul class="threats">
@@ -265,7 +265,7 @@
   </section>
 
   <!-- Programmes -->
-  <section class="block programs-band gap" id="programmes">
+  <section class="block programs-band" id="programmes">
     <div class="wrap">
       <h2 class="block__title">Trois programmes. Vous fixez les prix.</h2>
       <ul class="prog">
@@ -278,10 +278,10 @@
   </section>
 
   <!-- Technologie -->
-  <section class="block tech gap" id="technologie">
+  <section class="block tech" id="technologie">
     <div class="wrap tech__grid">
       <figure class="tech__media">
-        <img src="assets/img/tech-locker.webp" alt="Casque intégral déposé sur le support vapeur du casier A de la borne AIRO" width="690" height="990" loading="lazy">
+        <img src="assets/img/tech-locker.webp" alt="Casque intégral déposé sur le support vapeur du casier A de la borne AIRO" width="480" height="690" loading="lazy">
         <figcaption>Le casque se pose sur le support vapeur. La porte se referme, le cycle démarre.</figcaption>
       </figure>
       <div class="tech__body">
@@ -298,9 +298,9 @@
   </section>
 
   <!-- Professionnels -->
-  <section class="block pros gap" id="professionnels">
+  <section class="block pros" id="professionnels">
     <figure class="pros__photo">
-      <img src="assets/img/pros-showroom.webp" alt="La borne AIRO sur son socle lumineux, au centre d’une concession moto" width="1200" height="905" loading="lazy">
+      <img src="assets/img/pros-showroom.webp" alt="La borne AIRO sur son socle lumineux" width="800" height="600" loading="lazy">
     </figure>
     <div class="wrap pros__body">
       <h2 class="block__title">Pour vous, c’est un service en plus. Pour vos clients, une raison de revenir.</h2>
@@ -314,7 +314,7 @@
   </section>
 
   <!-- Rentabilité -->
-  <section class="block calc gap" id="rentabilite" aria-labelledby="calc-title">
+  <section class="block calc" id="rentabilite" aria-labelledby="calc-title">
     <div class="wrap calc__grid">
       <div class="calc__intro">
         <p class="eyebrow">Simulateur</p>
@@ -347,7 +347,7 @@
   </section>
 
   <!-- Fiche technique -->
-  <section class="block fiche gap" id="fiche">
+  <section class="block fiche" id="fiche">
     <div class="wrap">
       <h2 class="block__title">Fiche technique</h2>
       <div class="fiche__grid">
@@ -377,7 +377,7 @@
   </section>
 
   <!-- Questions fréquentes -->
-  <section class="block faq gap" id="faq" aria-labelledby="faq-title">
+  <section class="block faq" id="faq" aria-labelledby="faq-title">
     <div class="wrap faq__grid">
       <h2 class="block__title" id="faq-title">Questions fréquentes</h2>
       <div class="faq__list">
@@ -420,7 +420,7 @@
     </div>
   </section>
 
-  <section class="block quote gap" id="devis">
+  <section class="block quote" id="devis">
     <div class="wrap quote__grid">
       <div class="quote__intro">
         <h2 class="block__title">Demander un devis</h2>
@@ -564,6 +564,9 @@
 <script src="assets/vendor/lenis/lenis.min.js" defer></script>
 <script src="script.js" defer></script>
 <script src="assets/js/motion.js" defer></script>
-<script type="module" src="assets/js/experience.js"></script>
+<!-- film de la borne (images pré-calculées) ; ?studio = studio 3D de tournage (tools/film.js) -->
+<script type="module">
+  if (new URLSearchParams(location.search).has("studio")) import("./assets/js/experience.js"); else import("./assets/js/film.js");
+</script>
 </body>
 </html>

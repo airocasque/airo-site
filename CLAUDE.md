@@ -4,24 +4,27 @@ Site statique (GitHub Pages, pas de build), en français. Dépôt `airocasque/ai
 Client : AIRO (Mohammed MAYER, Marseille). Devis → airo.casque@gmail.com via FormSubmit (`script.js`).
 
 ## Carte du code
-- `index.html` : une page. Hero + scène 3D défilante (`.xp`, 7 `.xp-step`), puis sections probleme, programmes, technologie, professionnels, rentabilite (simulateur, section claire), fiche, faq (+ FAQPage JSON-LD), secteurs, bandeau Instagram, devis. Barre d'appel fixe sur mobile (`#mbar`). Aucun prix de machine sur le site. La table d'import doit rester AVANT les `modulepreload`.
+- `index.html` : une page. Hero + film de la borne défilant (`.xp`, 7 `.xp-step`), puis sections probleme, programmes, technologie, professionnels, rentabilite (simulateur, section claire), fiche, faq (+ FAQPage JSON-LD), secteurs, bandeau Instagram, devis. Barre d'appel fixe sur mobile (`#mbar`). Aucun prix de machine sur le site. La table d'import doit rester AVANT les `modulepreload`.
 - `style.css` : jetons dans `:root` (noir, `--airo` #2f6bff, police Archivo auto-hébergée). Mobile ≤ 900 px.
 - `script.js` : intro (désactivée ≤ 900 px), menu, formulaire (champs facultatifs repliés dans `.form__more`), simulateur, barre mobile. `assets/js/motion.js` : Lenis + GSAP (révélations, scrollspy).
-- `assets/js/experience.js` : borne 3D procédurale (textures `tex-front-hd`/`tex-side-hd`), caméra liée au défilement (`B[]`), points interactifs `HS` (fiche en verre `#hsCard`, visibles en haut de page et à la fin de la présentation), portes, vapeur, casques, post-traitement (bloom + grain), qualité adaptative. Démarre sur `requestIdleCallback`.
-- `assets/js/showroom.js` : `loadModel()` (GLB clonés, posés au sol). `assets/js/world.js` : `buildWorld()` = concession entièrement en 3D (sol béton réfléchissant `Reflector` sur desktop, mur de lattes noyer + enseigne AIRO, écrans des programmes, mur de casques instanciés, comptoir pros, salon, piliers, anneau lumineux). Repère : dessus du socle y = 0, sol `FLOOR` = -0.15, borne au centre face à +z ; casques à gauche (x<0), salon et comptoir à droite.
+- `assets/js/film.js` (chargé par le site) : film de la borne piloté par le défilement = images pré-calculées `assets/film/d|m/NNN.webp` (150, ordinateur 1280×720 / mobile 576×1024), chargement du grossier au fin, `meta.json` (repères `B` du tournage, remappés sur ceux de la page), `hotspots.json` (positions des 5 points interactifs par image, fiche en verre `#hsCard`). Aucune 3D en direct pour les visiteurs.
+- `assets/js/experience.js` : borne 3D procédurale (textures `tex-front-hd`/`tex-side-hd`), portes, vapeur, casques, post-traitement. Ne sert plus qu'au tournage : `index.html?studio` (studio noir `buildStudio()`, image pilotée par `window.__seqP`/`__seqT`).
+- `assets/js/world.js` : `buildStudio()` (studio de tournage : sol miroir, socle, lignes de lumière, contre-jours) ; `buildWorld()` = ancienne concession 3D, plus utilisée. `assets/js/showroom.js` : `loadModel()` (GLB).
 - `assets/world/` : textures CC0 Poly Haven (béton, noyer, mur). `assets/showroom/*.glb` : casques (CC BY) + mobilier/plantes CC0 Poly Haven (optimisés gltf-transform : meshopt + webp 1k). `assets/scene/shop-poster.webp` : image de secours sans WebGL.
-- Rendu : `StagePass` = scène complète (salle + borne) → profondeur de champ (`dofMat`, mise au point sur la borne ou sur la zone regardée, `fm`) → bloom → grain.
-- Parcours caméra : la scène 3D est fixe derrière toute la page ; les sections `.gap` s'ouvrent sur une fenêtre transparente. `legs` dans `experience.js` : un point de vue par section (casques → écran programmes → borne → comptoir → fiche/borne → salon pour FAQ et devis), interpolé au défilement, avec une lente dérive pendant la lecture. Mouvements réduits : changements de plan nets.
 - `assets/showroom/helmet-a|b.glb` : casques CC BY (crédits dans `mentions-legales.html`).
 - `assets/vendor/` : three r170 (+ addons utilisés), GSAP 3.12.5, Lenis 1.1.0 (option `prevent` obligatoire).
 
 ## Outils (`tools/`)
-- `build-preview.sh [sortie]` : aperçu autonome en un fichier (`inline.py` embarque tout, y compris les GLB via `window.__AIRO_FILES`).
+- `film.js <w> <h> <dossier> <N> [de] [à]` : tournage du film (Playwright, tranches parallélisables) ; puis `python3 tools/film-pack.py <dossier> d|m` → `assets/film/`. ~7 s/image en Chromium logiciel.
+- `build-preview.sh [sortie]` : aperçu autonome en un fichier (`inline.py` embarque tout, y compris le film via `window.__AIRO_FILES`).
 - `texgen.html` + `texgen-export.js` : redessine les textes/pictos nets de la borne par-dessus la photo.
 - `still.js <w> <h> <fraction> <png>` : rendu fixe de la scène sans textes (images des sections technologie et professionnels).
 - `journey.js <w> <h> <tag>` : une capture par arrêt du parcours caméra.
 - `viewer.html?m=assets/showroom/x.glb` : inspecter un modèle. `capture.js <w> <h> <tag> <fractions>` : captures de la scène 3D (Playwright, reducedMotion).
 - Tests locaux : `python3 -m http.server 8765`. Chromium logiciel = 3D très lente : prévoir de longs délais, Lighthouse plante quand la 3D tourne (utiliser `--disable-gpu` pour mesurer le chargement).
+
+## Direction visuelle
+- Style « film de course » (type Ducati) choisi par le client : noir profond, titres en capitales serrées, chapitres numérotés (`01 —`), accents bleu AIRO. Matières verre dépoli (skill `apple-design`).
 
 ## Règles de travail
 - Changements chirurgicaux, pas de refonte non demandée ; vérifier (captures desktop 1280×800 + mobile 390×844) avant d'annoncer « fini ».

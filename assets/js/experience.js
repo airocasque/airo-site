@@ -7,7 +7,7 @@ import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { loadModel } from "./showroom.js";
-import { buildWorld } from "./world.js";
+import { buildWorld, buildStudio } from "./world.js";
 
 const stage = document.getElementById("xpStage");
 const canvas = document.getElementById("xpCanvas");
@@ -18,6 +18,8 @@ const dots = Array.from(document.querySelectorAll(".xp-dots button"));
 const ready = () => window.dispatchEvent(new Event("airo:ready"));
 const isMobile = () => window.matchMedia("(max-width: 900px)").matches;
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// ?studio : mode tournage du film (tools/film.js) — borne seule en studio, image pilotée par window.__seqP / __seqT
+const STUDIO = new URLSearchParams(location.search).has("studio");
 
 /* ---------- utilitaires ---------- */
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -433,11 +435,11 @@ async function init() {
     ready();
     return;
   }
-  const mobile = isMobile();
+  const mobile = isMobile() && !STUDIO;   // le tournage se fait toujours en pleine qualité
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.3 : 1.75));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.95;
-  renderer.shadowMap.enabled = !mobile;
+  renderer.shadowMap.enabled = !mobile && !STUDIO;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   try { await Promise.race([document.fonts.load(`800 100px ${FONT}`), new Promise((r) => setTimeout(r, 1500))]); } catch (e) { /* police de secours */ }
@@ -494,17 +496,22 @@ async function init() {
   machine.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
 
   // Décor : la concession entièrement en 3D (world.js) ; la borne est posée sur le socle central (y = 0).
-  const world = await buildWorld({ renderer, mobile, font: FONT });
-  // reflets de la borne : l'environnement est la salle elle-même (sans la borne)
-  {
-    const envScene = new THREE.Scene(); envScene.add(world.group);
-    if (world.reflector) world.reflector.visible = false;
-    scene.environment = pmrem.fromScene(envScene, 0.035, 0.05, 100).texture;
-    if (world.reflector) world.reflector.visible = true;
+  const world = STUDIO ? buildStudio({ renderer }) : await buildWorld({ renderer, mobile, font: FONT });
+  if (!STUDIO) {
+    // reflets de la borne : l'environnement est la salle elle-même (sans la borne)
+    {
+      const envScene = new THREE.Scene(); envScene.add(world.group);
+      if (world.reflector) world.reflector.visible = false;
+      scene.environment = pmrem.fromScene(envScene, 0.035, 0.05, 100).texture;
+      if (world.reflector) world.reflector.visible = true;
+    }
+    scene.add(world.group);
+    scene.environmentIntensity = 0.6;
+    scene.fog = new THREE.FogExp2(0x07080a, mobile ? 0.03 : 0.024);
+  } else {
+    scene.add(world.group); scene.background = new THREE.Color(0x000000); scene.environmentIntensity = 0.45;
+    world.targets = { helmets: new THREE.Vector3(-11, 1.5, -0.5) };
   }
-  scene.add(world.group);
-  scene.environmentIntensity = 0.6;
-  scene.fog = new THREE.FogExp2(0x07080a, mobile ? 0.03 : 0.024);
   const T = world.targets;
   // ombre de contact : ancre la borne au sol (suit sa rotation)
   const contact = new THREE.Mesh(new THREE.PlaneGeometry(W * 2.1, D * 2.1), basic({ map: radialTex("rgba(0,0,0,0.95)", "rgba(0,0,0,0)"), transparent: true, depthWrite: false }));
@@ -551,7 +558,7 @@ async function init() {
   const sparks = Array.from({ length: 7 }, (_, i) => { const s = new THREE.Sprite(sparkMat); s.userData.a = i * 0.9; machine.add(s); return s; });
 
   // post-traitement (lueur néon)
-  const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: mobile ? 0 : 4 });
+  const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: mobile || STUDIO ? 0 : 4 });
   const composer = new EffectComposer(renderer, rt);
 
   /* Rendu par espaces : chaque espace (concession principale, mur de casques, salon…) est dessiné dans sa
@@ -559,7 +566,7 @@ async function init() {
      1. décor photo + profondeur → 2. profondeur de champ (décor seul) → 3. borne par-dessus, toujours nette.
      Entre deux espaces, les deux images se fondent pendant que les deux caméras continuent d'avancer. */
   const rtRaw = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, depthTexture: new THREE.DepthTexture(1, 1) });
-  const rtLayer = [0, 1].map(() => new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: mobile ? 0 : 4 }));
+  const rtLayer = [0, 1].map(() => new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: mobile || STUDIO ? 0 : 4 }));
   const quadVS = "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }";
   const dofMat = new THREE.ShaderMaterial({
     defines: { TAPS: mobile ? 12 : 28 },
@@ -622,7 +629,7 @@ async function init() {
     }
   }
   composer.addPass(new StagePass());
-  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.4, 1.05);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), STUDIO ? 0.32 : 0.5, 0.4, 1.05);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
   // finition « film » : vignettage et grain très légers, appliqués après la conversion des couleurs
@@ -704,6 +711,7 @@ async function init() {
   // Bornes des étapes (fraction de la section) : intro, 360°, programme, dépôt, cycle, retrait, fin.
   // Calculées depuis la hauteur réelle de chaque bloc de texte (voir .xp-step dans style.css).
   const B = [0, 0.06, 0.28, 0.43, 0.6, 0.77, 0.93, 1];
+  if (STUDIO) window.__B = B;   // repères du tournage, enregistrés dans meta.json
   function measure() {
     const total = xp.offsetHeight - window.innerHeight;
     steps.forEach((s, i) => { if (i > 0) B[i] = clamp((s.offsetTop - window.innerHeight * 0.5) / Math.max(1, total)); });
@@ -842,6 +850,16 @@ async function init() {
   }
   const hw = new THREE.Vector3(), hn = new THREE.Vector3(), hc = new THREE.Vector3();
   function updateHotspots(show) {
+    if (STUDIO) {   // tournage : position de chaque point (fraction de l'image) ou null s'il est caché, pour le lecteur du film
+      window.__hsFrame = HS.map((h) => {
+        hw.copy(h.wp).applyMatrix4(machine.matrixWorld); hn.copy(h.wn).applyQuaternion(machine.quaternion);
+        hc.copy(camera.position).sub(hw).normalize();
+        if (hn.dot(hc) <= 0.3) return null;
+        hw.project(camera);
+        return [+(hw.x * 0.5 + 0.5).toFixed(4), +(-hw.y * 0.5 + 0.5).toFixed(4)];
+      });
+      return;
+    }
     if (!hsLayer) return;
     for (const h of HS) {
       let vis = false;
@@ -927,24 +945,25 @@ async function init() {
   let lastNow = performance.now();
   const damp = (k, dt) => 1 - Math.pow(1 - k, dt * 60); // même rendu à 30, 60 ou 144 images/s
   function frame(now) {
-    const t = (now - t0) / 1000;
+    const t = STUDIO && window.__seqT != null ? window.__seqT : (now - t0) / 1000;
+    if (STUDIO && window.__seqP != null) progress = window.__seqP;
     const dt = Math.min(0.1, (now - lastNow) / 1000); lastNow = now;
     // mise sous tension à l'apparition : LED qui se tracent, écran qui s'allume, casiers éclairés
     if (bootStart === null) bootStart = now;
-    const bt = reduceMotion ? 9 : (now - bootStart) / 1000;
+    const bt = reduceMotion || STUDIO ? 9 : (now - bootStart) / 1000;
     const boot = smooth(0.9, 1.6, bt);
     leds[0].scale.y = leds[1].scale.y = Math.max(0.001, smooth(0.0, 0.9, bt));
     leds[2].scale.x = Math.max(0.001, smooth(0.7, 1.1, bt));
     leds[3].scale.y = leds[4].scale.y = Math.max(0.001, smooth(0.4, 1.3, bt));
     mats.screen.color.setScalar(0.92 * smooth(1.0, 1.5, bt) * (bt < 1.12 && bt > 1.02 ? 0.3 : 1));
-    shown += (progress - shown) * (reduceMotion ? 1 : damp(0.12, dt));
+    shown += (progress - shown) * (reduceMotion || STUDIO ? 1 : damp(0.12, dt));
     const p = shown;
     const seg = (i) => clamp((p - B[i]) / (B[i + 1] - B[i]));
     let step = 0; for (let i = 0; i < B.length - 1; i++) if (progress >= B[i]) step = i;
     setActive(step);
 
     // rotation de la borne
-    const idle = reduceMotion ? 0 : Math.sin(t * 0.35) * 0.25;
+    const idle = reduceMotion || STUDIO ? 0 : Math.sin(t * 0.35) * 0.25;
     const rIntro = -0.55 + idle * (1 - smooth(0.0, 0.1, p));
     let rot = lerp(rIntro, Math.PI * 2, smooth(B[1], B[2], p));
     rot = lerp(rot, Math.PI * 2 - 0.5, smooth(B[6], B[7], p));
@@ -963,11 +982,11 @@ async function init() {
     }
     else mixCam(camLocker, camEnd, smooth(B[6], B[7] - 0.02, p));
     // entrée en scène : la borne glisse dans le champ par un travelling latéral, puis la mise au point se fait sur elle
-    const intro = reduceMotion ? 1 : easeOut(clamp((now - bootStart) / 3400));
+    const intro = reduceMotion || STUDIO ? 1 : easeOut(clamp((now - bootStart) / 3400));
     if (p < B[2]) v3.add(V(-0.85, 0.12, 0.22).multiplyScalar((1 - intro) * (1 - smooth(0, B[1], p))));
     let xpDof = 0.9 * smooth(0.45, 1, intro);
     sy += (window.scrollY - sy) * (reduceMotion ? 1 : damp(0.1, dt));
-    const inJourney = legStart.length > 0 && sy > legStart[0];
+    const inJourney = !STUDIO && legStart.length > 0 && sy > legStart[0];
     stage.classList.toggle("is-journey", inJourney);
     if (!inJourney && !sideLayout) {
       const k = Math.max(1, 0.85 / camera.aspect);
@@ -983,7 +1002,7 @@ async function init() {
       const d = decors[st.decor]; if (!d) return null;
       d.cam.position.copy(st.pos).add(V(smx * 0.18 * sway, -smy * 0.08 * sway, 0));
       d.cam.lookAt(st.look);
-      d.apertureTarget = (quality >= 2 ? 0 : st.dof);
+      d.apertureTarget = (quality >= 2 || STUDIO ? 0 : st.dof);   // studio : fond noir, pas besoin de flou
       d.focus = lerp(d.cam.position.distanceTo(st.look), d.cam.position.distanceTo(focusPoint), st.fm ?? 1);
       return d;
     };
@@ -1027,8 +1046,8 @@ async function init() {
     const steamAmt = smooth(0.04, 0.22, sCyc) * (1 - smooth(0.88, 1, sCyc));
     const escape = p >= B[5] ? smooth(0.15, 0.35, sRet) * (1 - smooth(0.35, 0.7, sRet)) : 0;
     const vap = Math.max(steamAmt, escape);
-    steamMat.opacity = vap * 0.5;
-    puffMat.opacity = vap * 0.22;
+    steamMat.opacity = vap * (STUDIO ? 0.3 : 0.5);   // fond noir du studio : vapeur plus légère
+    puffMat.opacity = vap * (STUDIO ? 0.12 : 0.22);
     if (vap > 0.001) {
       const ch = CAV.y1 - CAV.y0, cw = CAV.x1 - CAV.x0;
       const fill = (pos, seed, n, spread, rise) => {
@@ -1121,10 +1140,10 @@ async function init() {
     const now = performance.now();
     // sur mobile, scène immobile : on ne redessine qu'une image sur trois (batterie, chauffe)
     if (sy !== lastSy || dragging || Math.abs(spin) > 0.0005 || Math.abs(progress - shown) > 0.0005) { idleSince = now; lastSy = sy; }
-    const idle = mobile && !reduceMotion && bootStart !== null && now - bootStart > 4000 && now - idleSince > 1500;
+    const idle = mobile && !STUDIO && !reduceMotion && bootStart !== null && now - bootStart > 4000 && now - idleSince > 1500;
     if (!idle || ++idleSkip % 3 === 0) {
       frame(now);
-      if (!document.hidden && !idle) adapt(now);
+      if (!document.hidden && !idle && !STUDIO) adapt(now);
     }
     requestAnimationFrame(loop);
   }

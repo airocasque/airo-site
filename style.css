@@ -530,3 +530,17 @@ html.lenis { scroll-behavior: auto; }
 @media (prefers-contrast: more) and (max-width: 900px) {
   .xp-step__inner { background: #000 !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-color: var(--bone) !important; }
 }
+
+/* Film de la borne : le cadre fixe ne sert qu'à la présentation, on le libère ensuite */
+.xp__stage.is-past { visibility: hidden; }
+.xp__stage canvas { cursor: default; }
+
+/* Direction « film de course » (type Ducati) : noir profond, titres capitales serrés, chapitres numérotés */
+main { counter-reset: chap; }
+.block { background: radial-gradient(70% 40% at 50% 0%, rgba(47, 107, 255, .07), transparent 70%), #030304; }
+.block__title, .xp-step h1, .xp-step h2 { text-transform: uppercase; letter-spacing: 0; line-height: .9; }
+.block:not(.calc) .block__title::before { counter-increment: chap; content: counter(chap, decimal-leading-zero) "  —"; display: block; white-space: pre; margin-bottom: 20px;
+  font: 600 .78rem/1 var(--font); font-stretch: 100%; letter-spacing: .24em; color: #6b95ff; }
+.xp-step .step-no { color: #6b95ff; }
+.xp-step__inner .lead { font-size: 1.15rem; }
+@media (min-width: 901px) { .xp-step h1 { font-size: clamp(3rem, 6vw, 6.6rem); max-width: 11.5em; } }
