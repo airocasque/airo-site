@@ -781,6 +781,86 @@ async function init() {
     }
   }
 
+  /* ---------- points interactifs : on touche une partie de la borne, une fiche s'ouvre ---------- */
+  const hsLayer = document.getElementById("xpHotspots");
+  const HS = [
+    { p: [0, 1.665, ZF], n: [0, 0, 1], t: "Écran tactile", d: "Le client choisit son programme : nettoyage avancé (10 min), rapide (7 min) ou séchage seul (3 min)." },
+    { p: [0, 1.33, ZF], n: [0, 0, 1], t: "Paiement par carte", d: "Terminal de paiement intégré : le client paie directement sur la borne. Aucun personnel n’est nécessaire." },
+    { p: [0.03, 0.88, ZF], n: [0, 0, 1], t: "Vapeur sèche", d: "Le casque se pose sur le support vapeur. La vapeur traverse les mousses, élimine 99,9 % des bactéries et neutralise les odeurs." },
+    { p: [0.03, 0.42, ZF], n: [0, 0, 1], t: "Deux casiers indépendants", d: "Chaque casier fonctionne seul : deux clients peuvent utiliser la borne en même temps. Le séchage est intégré au cycle." },
+    { p: [W / 2 - 0.004, 1.75, ZF], n: [0.7, 0, 0.7], t: "Signature lumineuse", d: "Les bandeaux LED AIRO rendent la borne visible de loin dans votre point de vente." },
+  ];
+  const card = document.createElement("div");
+  card.className = "hs-card"; card.id = "hsCard"; card.setAttribute("role", "dialog"); card.setAttribute("aria-labelledby", "hsTitle"); card.hidden = true;
+  card.innerHTML = '<button type="button" class="hs-card__close" aria-label="Fermer">×</button><span class="hs-card__n"></span><h3 id="hsTitle"></h3><p></p><a href="#devis" class="hs-card__cta">Demander un devis →</a>';
+  if (hsLayer) {
+    HS.forEach((h, i) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "hs"; b.setAttribute("aria-label", h.t); b.setAttribute("aria-expanded", "false"); b.setAttribute("aria-controls", "hsCard");
+      b.innerHTML = '<span class="hs__ring"></span><span class="hs__dot"></span>';
+      b.addEventListener("click", (ev) => { ev.stopPropagation(); openHs === i ? closeHs() : openCard(i); });
+      hsLayer.appendChild(b);
+      Object.assign(h, { el: b, wp: new THREE.Vector3(...h.p), wn: new THREE.Vector3(...h.n).normalize(), on: false, x: 0, y: 0 });
+    });
+    hsLayer.appendChild(card);
+  }
+  let openHs = -1;
+  function openCard(i) {
+    if (openHs >= 0) HS[openHs].el.setAttribute("aria-expanded", "false");
+    openHs = i; const h = HS[i];
+    card.querySelector(".hs-card__n").textContent = `${String(i + 1).padStart(2, "0")} / ${String(HS.length).padStart(2, "0")}`;
+    card.querySelector("h3").textContent = h.t; card.querySelector("p").textContent = h.d;
+    h.el.setAttribute("aria-expanded", "true");
+    card.hidden = false; card.classList.remove("is-on"); void card.offsetWidth; card.classList.add("is-on");
+    placeCard();
+  }
+  function closeHs(focusBack) {
+    if (openHs < 0) return;
+    const h = HS[openHs]; h.el.setAttribute("aria-expanded", "false");
+    if (focusBack) h.el.focus();
+    openHs = -1; card.classList.remove("is-on"); card.hidden = true;
+  }
+  card.querySelector(".hs-card__close").addEventListener("click", () => closeHs(true));
+  card.querySelector(".hs-card__cta").addEventListener("click", () => closeHs());
+  document.addEventListener("pointerdown", (ev) => { if (openHs >= 0 && !card.contains(ev.target) && !ev.target.closest(".hs")) closeHs(); });
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") closeHs(true); });
+  function placeCard() {
+    if (openHs < 0) return;
+    const h = HS[openHs], cw2 = card.offsetWidth, ch = card.offsetHeight, m = 14;
+    if (!sideLayout) {   // mobile : au-dessus ou au-dessous du point, jamais sous le texte du bas
+      const above = h.y - 30 - ch >= 64;
+      const y = above ? h.y - 30 - ch : h.y + 30;
+      card.style.transform = `translate3d(${m}px, ${y}px, 0)`;
+      card.style.transformOrigin = `${h.x - m}px ${above ? "100%" : "0%"}`;
+      return;
+    }
+    const right = h.x + 26 + cw2 <= vw - m;                     // la fiche s'ouvre du côté où elle a la place
+    let x = right ? h.x + 26 : h.x - 26 - cw2; x = Math.max(m, Math.min(vw - cw2 - m, x));
+    const y = Math.max(72, Math.min(vh - ch - m, h.y - ch / 2));
+    card.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    card.style.transformOrigin = right ? "left center" : "right center";   // elle naît du point touché
+  }
+  const hw = new THREE.Vector3(), hn = new THREE.Vector3(), hc = new THREE.Vector3();
+  function updateHotspots(show) {
+    if (!hsLayer) return;
+    for (const h of HS) {
+      let vis = false;
+      if (show) {
+        hw.copy(h.wp).applyMatrix4(machine.matrixWorld);
+        hn.copy(h.wn).applyQuaternion(machine.quaternion);
+        hc.copy(camera.position).sub(hw).normalize();
+        if (hn.dot(hc) > 0.3) {
+          hw.project(camera);
+          h.x = (hw.x * 0.5 + 0.5) * vw; h.y = (-hw.y * 0.5 + 0.5) * vh;
+          vis = h.y > 70 && h.y < vh * (sideLayout ? 0.94 : 0.56) && h.x > 10 && h.x < vw - 10;   // mobile : pas sous le texte
+          if (vis) h.el.style.transform = `translate3d(${h.x}px, ${h.y}px, 0)`;
+        }
+      }
+      if (vis !== h.on) { h.el.classList.toggle("is-on", vis); h.el.tabIndex = vis ? 0 : -1; h.on = vis; }
+    }
+    if (openHs >= 0) { if (!HS[openHs].on) closeHs(); else placeCard(); }
+  }
+
   /* ---------- boucle ---------- */
   const v3 = new THREE.Vector3(), look = new THREE.Vector3();
   const camFar = { pos: new THREE.Vector3(-0.3, 1.42, 5.1), look: new THREE.Vector3(-0.38, 1.12, 0) };   // borne décalée à droite du titre
@@ -1008,6 +1088,7 @@ async function init() {
     mats.led.color.copy(ledColor).multiplyScalar(breathe);
 
     updateCallouts(sideLayout && step === 1 && !dragging);
+    updateHotspots(!inJourney && !dragging && bt > 3.6 && (step === 0 || step === 6 || (!sideLayout && step === 1)));
     finish.uniforms.uTime.value = reduceMotion ? 0 : t;
     composer.render();
     if (firstFrame) {
