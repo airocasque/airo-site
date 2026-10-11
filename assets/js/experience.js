@@ -665,21 +665,26 @@ async function init() {
 
   /* ---------- rotation à la souris / au doigt ---------- */
   let userRot = 0, spin = 0, dragging = false, dragId = null, lastX = 0, lastT = 0, lastDrag = 0;
+  const hist = [];   // positions récentes du doigt, pour la vitesse au relâchement
   canvas.addEventListener("pointerdown", (e) => {
     if (dragging) return; // un seul doigt pilote la rotation
-    dragging = true; dragId = e.pointerId; lastX = e.clientX; lastT = performance.now(); spin = 0;
+    dragging = true; dragId = e.pointerId; lastX = e.clientX; lastT = performance.now(); spin = 0;   // on rattrape la borne en plein élan
+    hist.length = 0; hist.push([lastX, lastT]);
     canvas.setPointerCapture(e.pointerId); stage.classList.add("is-grabbing");
   });
   canvas.addEventListener("pointermove", (e) => {
     if (!dragging || e.pointerId !== dragId) return;
     const now = performance.now(), dx = (e.clientX - lastX) * 0.01;
-    userRot += dx;
-    spin = dx / Math.max(8, now - lastT) * 16; // vitesse par image, conservée au relâchement
+    userRot += dx;   // la borne suit le doigt 1:1
+    hist.push([e.clientX, now]); while (hist.length > 2 && now - hist[0][1] > 100) hist.shift();
     lastX = e.clientX; lastT = now; lastDrag = now;
   });
   const endDrag = (e) => {
     if (e && e.pointerId !== dragId) return;
     dragging = false; dragId = null; stage.classList.remove("is-grabbing");
+    // élan : vitesse moyenne des 100 dernières ms, transmise telle quelle à la rotation libre
+    const a = hist[0], b = hist[hist.length - 1];
+    spin = a && b && b[1] > a[1] ? (b[0] - a[0]) * 0.01 / (b[1] - a[1]) * 16 : 0;
     if (performance.now() - lastT > 80) spin = 0; // geste arrêté avant de lâcher : pas d'élan
   };
   canvas.addEventListener("pointerup", endDrag);
