@@ -1,7 +1,7 @@
 ---
 workflow: general-video
 format: 1080x1920
-duration: 18s
+duration: 17s
 audio: sfx
 loop: false
 theme: "à choisir à l'étape 3"

@@ -1,0 +1,5 @@
+@font-face { font-family: "Archivo"; src: url("../../../assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; }
+html,body { margin:0; width:1080px; height:1920px; overflow:hidden; background:#06070a; color:#eef1f6; font-family:"Archivo",sans-serif; }
+.cap { font-stretch:62%; font-weight:800; line-height:.88; letter-spacing:-.01em; }
+.mono { font-family: ui-monospace, Menlo, monospace; letter-spacing:.14em; font-size:26px; color:#9fb6ff; }
+.logo { position:absolute; left:50%; transform:translateX(-50%); bottom:120px; font-style:italic; font-weight:800; font-size:64px; letter-spacing:.02em; }
