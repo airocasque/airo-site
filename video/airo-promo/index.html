@@ -139,7 +139,7 @@ const fogEl = document.getElementById("s4-fog");
   const f = document.createElement("i"); f.className = "fog"; f.id = "fog" + k; Object.assign(f.style, { left: x + "px", top: y + "px", width: r + "px", height: r + "px" }); fogEl.appendChild(f);
 });
 
-Promise.all([...need.map(load), document.fonts.ready]).then(() => {
+Promise.all([...need.map(load), new Promise((res) => { const im = new Image(); im.onload = () => { FR.reveal = im; res(); }; im.onerror = res; im.src = "assets/hd/reveal.webp"; }), document.fonts.ready]).then(() => {
   const tl = gsap.timeline({ paused: true });
 
   // 1 · Accroche : les mots tombent, la buée glisse ; gel des 6 dernières images
@@ -152,7 +152,7 @@ Promise.all([...need.map(load), document.fonts.ready]).then(() => {
 
   // 2 · Révélation : noir et silence, le projecteur claque, lente avancée, puis on plonge dans la borne
   const s2 = { k: 0 };   // proxy : l'image est (re)dessinée à chaque recherche dans le temps
-  tl.fromTo(s2, { k: 0 }, { k: 1, duration: 1.6, ease: "none", onUpdate: () => drawCover("s2-shot", 0, 0) }, 1.8);
+  tl.fromTo(s2, { k: 0 }, { k: 1, duration: 1.6, ease: "none", onUpdate: () => drawCover("s2-shot", "reveal", 0) }, 1.8);   // image cadrée borne au centre
   tl.fromTo("#s2-cam", { opacity: 0, scale: 1 }, { opacity: 1, scale: 1.08, duration: 1.0, ease: "power4.out" }, 2.05);
   tl.fromTo("#s2-cone", { opacity: 0 }, { keyframes: [{ opacity: 0.9, duration: 0.05 }, { opacity: 0.25, duration: 0.06 }, { opacity: 1, duration: 0.08 }], ease: "none" }, 2.05);
   tl.to("#s2-cam", { scale: 1.9, filter: "blur(10px)", duration: 0.32, ease: "power4.in" }, 3.08);
