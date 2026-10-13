@@ -544,3 +544,19 @@ main { counter-reset: chap; }
 .xp-step .step-no { color: #6b95ff; }
 .xp-step__inner .lead { font-size: 1.15rem; }
 @media (min-width: 901px) { .xp-step h1 { font-size: clamp(3rem, 6vw, 6.6rem); max-width: 11.5em; } }
+
+/* Le clip (vidéo verticale, lue sans le son quand elle est à l'écran) */
+.clip__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: clamp(40px, 6vw, 96px); align-items: center; }
+.clip__body p { max-width: 34em; color: var(--steel); font-size: 1.1rem; line-height: 1.6; margin: 24px 0 32px; }
+.clip__media { position: relative; margin: 0; border-radius: 28px; overflow: hidden; aspect-ratio: 9 / 16; background: #070a14;
+  box-shadow: 0 0 0 1px rgba(47, 107, 255, .45), 0 0 60px rgba(47, 107, 255, .25), 0 40px 100px rgba(0, 0, 0, .55); }
+.clip__media video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.clip__sound { position: absolute; right: 14px; bottom: 14px; min-height: 40px; padding: 0 16px; border: 1px solid rgba(255, 255, 255, .18); border-radius: 999px;
+  background: rgba(10, 12, 18, .55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); color: var(--bone); font: 600 .85rem/1 var(--font); cursor: pointer; }
+.clip__sound:active { transform: scale(.96); }
+@media (max-width: 900px) { .clip__grid { grid-template-columns: minmax(0, 1fr); } .clip__media { max-width: 360px; width: 100%; justify-self: center; } }
+
+/* Lisibilité : sur les plans rapprochés du film, le texte reste sur un fond plus sombre */
+@media (min-width: 901px) { .xp__stage.hint-off::after { background: linear-gradient(90deg, rgba(3, 4, 6, .9) 0%, rgba(3, 4, 6, .74) 38%, rgba(3, 4, 6, 0) 62%), linear-gradient(0deg, rgba(3, 4, 6, .55) 0%, rgba(3, 4, 6, 0) 30%); } }
+/* Mobile : les encadrés de texte restent au-dessus de la barre Appeler / Devis */
+@media (max-width: 900px) { .xp-step__inner, .xp-step--hero .xp-step__inner { bottom: calc(84px + env(safe-area-inset-bottom)); } }

@@ -180,3 +180,25 @@
   var onScroll = function () { var s = window.scrollY > window.innerHeight * 0.6; if (s !== scrolled) { scrolled = s; sync(); } };
   window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
 })();
+
+/* Clip : lu (sans le son) seulement quand il est à l'écran ; bouton pour le son. Mouvements réduits : pas de lecture auto. */
+(function () {
+  var v = document.getElementById("clipVideo"), btn = document.getElementById("clipSound");
+  if (!v) return;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) v.setAttribute("controls", "");
+  if ("IntersectionObserver" in window && !reduce) {
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) { v.preload = "auto"; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+        else v.pause();
+      });
+    }, { threshold: 0.35 }).observe(v);
+  }
+  if (btn) btn.addEventListener("click", function () {
+    v.muted = !v.muted;
+    if (!v.muted) { v.currentTime = 0; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    btn.setAttribute("aria-pressed", String(!v.muted));
+    btn.textContent = v.muted ? "Activer le son" : "Couper le son";
+  });
+})();

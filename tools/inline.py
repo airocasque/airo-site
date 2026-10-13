@@ -2,7 +2,7 @@ import base64, re, sys, pathlib
 root = pathlib.Path(sys.argv[1]); out = pathlib.Path(sys.argv[2]); bundle = pathlib.Path(sys.argv[3]).read_text()
 def uri(rel):
     p = root / rel
-    mime = {'.jpg':'image/jpeg','.png':'image/png','.woff2':'font/woff2','.webp':'image/webp','.pdf':'application/pdf','.glb':'model/gltf-binary','.json':'application/json'}[p.suffix]
+    mime = {'.jpg':'image/jpeg','.png':'image/png','.woff2':'font/woff2','.webp':'image/webp','.pdf':'application/pdf','.glb':'model/gltf-binary','.json':'application/json','.mp4':'video/mp4','.webm':'video/webm'}[p.suffix]
     return f"data:{mime};base64," + base64.b64encode(p.read_bytes()).decode()
 html = (root/'index.html').read_text()
 css = (root/'style.css').read_text()
@@ -18,7 +18,7 @@ def inline_classic(m):
 html = re.sub(r'<script src="([^"]+)" defer></script>', inline_classic, html)
 html = re.sub(r'<script type="importmap">.*?</script>\s*', '', html, flags=re.S)
 html = re.sub(r'<script type="module">\s*if \(new URLSearchParams.*?</script>', lambda m: '<script>\n' + bundle.replace('</script', '<\\/script') + '\n</script>', html, flags=re.S)
-html = re.sub(r'(src|href|data-img|content)="(assets/(?:img|docs)/[^"]+)"', lambda m: f'{m.group(1)}="{uri(m.group(2))}"', html)
+html = re.sub(r'(src|href|data-img|content|poster)="(assets/(?:img|docs|video)/[^"]+)"', lambda m: f'{m.group(1)}="{uri(m.group(2))}"', html)
 assert not re.search(r'(src|href|url\()=?"?assets/', html), [l for l in html.splitlines() if 'assets/' in l and 'data:' not in l][:5]
 out.write_text(html)
 print(out, round(out.stat().st_size/1e6, 2), 'Mo')
