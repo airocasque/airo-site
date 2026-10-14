@@ -302,6 +302,7 @@ const WIN = { x0: -0.199, x1: 0.267, y0: 0.02, y1: 0.37 };    // vitre, mesurée
 const CAV = { x0: -0.212, x1: 0.28, y0: 0.012, y1: 0.376 };   // intérieur du casier
 const SCREEN = { x0: -0.227, x1: 0.227, y0: 1.515, y1: 1.814 };
 
+const TOP_R = 0.1;                             // rayon des coins supérieurs (photo de la borne : haut arrondi + arc LED)
 const frontV = (y) => (y - Y0) / BH;
 const frontU = (x) => (x + W / 2) / W;
 function photoPlane(x0, x1, y0, y1) {
@@ -312,19 +313,29 @@ function photoPlane(x0, x1, y0, y1) {
   return g;
 }
 
+// contour de façade entre y0 et y1, coins supérieurs arrondis (repère : x au centre)
+function topShape(y0, y1, r = TOP_R) {
+  const s = new THREE.Shape(), hw = W / 2;
+  s.moveTo(-hw, y0); s.lineTo(hw, y0); s.lineTo(hw, y1 - r); s.quadraticCurveTo(hw, y1, hw - r, y1);
+  s.lineTo(-hw + r, y1); s.quadraticCurveTo(-hw, y1, -hw, y1 - r); s.closePath();
+  return s;
+}
+// face photo épousant ce contour (UV de la photo de façade)
+function photoShape(y0, y1) {
+  const g = new THREE.ShapeGeometry(topShape(y0, y1), 16), pos = g.attributes.position, uv = g.attributes.uv;
+  for (let i = 0; i < pos.count; i++) uv.setXY(i, frontU(pos.getX(i)), frontV(pos.getY(i)));
+  return g;
+}
+
 function buildMachine(mats) {
   const machine = new THREE.Group();
   const add = (geo, mat, x, y, z, parent = machine) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); parent.add(m); return m; };
   const zoneD = CD + 0.02, zoneZ = ZF - zoneD / 2;
 
-  // bloc arrière, coins arrondis côté dos
-  const rearDepth = D - zoneD, r = 0.035, hw = W / 2, hd = rearDepth / 2;
-  const shape = new THREE.Shape();
-  shape.moveTo(-hw, -hd); shape.lineTo(hw, -hd); shape.lineTo(hw, hd - r); shape.quadraticCurveTo(hw, hd, hw - r, hd);
-  shape.lineTo(-hw + r, hd); shape.quadraticCurveTo(-hw, hd, -hw, hd - r); shape.lineTo(-hw, -hd);
-  const rear = new THREE.ExtrudeGeometry(shape, { depth: BH, bevelEnabled: false, curveSegments: 10 });
-  rear.rotateX(-Math.PI / 2);
-  add(rear, mats.body, 0, Y0, -D / 2 + hd);
+  // bloc arrière : même contour que la façade (haut arrondi), sur la profondeur restante
+  const rearDepth = D - zoneD;
+  const rear = new THREE.ExtrudeGeometry(topShape(Y0, H), { depth: rearDepth, bevelEnabled: false, curveSegments: 16 });
+  add(rear, mats.body, 0, 0, -D / 2);
 
   // blocs pleins de façade + leur face photo
   const block = (y0, y1) => {
@@ -333,7 +344,9 @@ function buildMachine(mats) {
   };
   block(Y0, LOCKERS.B);          // socle « AIRO »
   block(1.22, 1.49);             // panneau de commande
-  block(1.49, H);                // bloc écran
+  // bloc écran : haut arrondi, la photo épouse l'arrondi
+  add(new THREE.ExtrudeGeometry(topShape(1.49, H), { depth: zoneD, bevelEnabled: false, curveSegments: 16 }), mats.body, 0, 0, ZF - zoneD);
+  add(photoShape(1.49, H), mats.front, 0, 0, ZF + 0.0006);
 
   // écran tactile animé, posé sur la dalle de la photo
   const scr = new THREE.PlaneGeometry(SCREEN.x1 - SCREEN.x0, SCREEN.y1 - SCREEN.y0);
@@ -344,19 +357,27 @@ function buildMachine(mats) {
   [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => add(foot, mats.metal, sx * (W / 2 - 0.06), Y0 / 2, sz * (D / 2 - 0.07)));
 
   // flancs identiques (photo du flanc redressée) et dos
-  const sideGeo = new THREE.PlaneGeometry(D - 0.012, BH);
-  const right = add(sideGeo, mats.side, W / 2 + 0.0015, Y0 + BH / 2, 0); right.rotation.y = Math.PI / 2;
-  const left = add(sideGeo, mats.side, -W / 2 - 0.0015, Y0 + BH / 2, 0); left.rotation.y = -Math.PI / 2;
-  const back = add(new THREE.PlaneGeometry(W - 0.07, BH), mats.back, 0, Y0 + BH / 2, -D / 2 - 0.0015); back.rotation.y = Math.PI;
+  // (les flancs s'arrêtent où commence l'arrondi du haut)
+  const SH = BH - TOP_R, sideGeo = new THREE.PlaneGeometry(D - 0.012, SH);
+  { const uv = sideGeo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, uv.getY(i) * SH / BH); }
+  const right = add(sideGeo, mats.side, W / 2 + 0.0015, Y0 + SH / 2, 0); right.rotation.y = Math.PI / 2;
+  const left = add(sideGeo, mats.side, -W / 2 - 0.0015, Y0 + SH / 2, 0); left.rotation.y = -Math.PI / 2;
+  const back = add(new THREE.PlaneGeometry(W - 0.07, BH - 0.03), mats.back, 0, Y0 + (BH - 0.03) / 2, -D / 2 - 0.0015); back.rotation.y = Math.PI;
 
   // bandeaux LED : arêtes avant et haut (animés à l'allumage)
   const leds = [];
-  const ledV = new THREE.BoxGeometry(0.011, BH - 0.02, 0.011); ledV.translate(0, (BH - 0.02) / 2, 0);
+  const LV = BH - TOP_R - 0.01;
+  const ledV = new THREE.BoxGeometry(0.011, LV, 0.011); ledV.translate(0, LV / 2, 0);
   leds.push(add(ledV, mats.led, W / 2 - 0.004, Y0 + 0.01, ZF + 0.002));
   leds.push(add(ledV, mats.led, -W / 2 + 0.004, Y0 + 0.01, ZF + 0.002));
-  const ledH = new THREE.BoxGeometry(W, 0.011, 0.011);
-  leds.push(add(ledH, mats.led, 0, H - 0.004, ZF + 0.002));
-  const ledBack = new THREE.BoxGeometry(0.011, BH - 0.06, 0.011); ledBack.translate(0, (BH - 0.06) / 2, 0);
+  // arc LED : suit l'arrondi du haut, d'un côté à l'autre
+  { const e = 0.004, r = TOP_R - e, hw = W / 2 - e, yt = H - e, z = 0;
+    const path = new THREE.CurvePath();
+    path.add(new THREE.QuadraticBezierCurve3(new THREE.Vector3(-hw, yt - r, z), new THREE.Vector3(-hw, yt, z), new THREE.Vector3(-hw + r, yt, z)));
+    path.add(new THREE.LineCurve3(new THREE.Vector3(-hw + r, yt, z), new THREE.Vector3(hw - r, yt, z)));
+    path.add(new THREE.QuadraticBezierCurve3(new THREE.Vector3(hw - r, yt, z), new THREE.Vector3(hw, yt, z), new THREE.Vector3(hw, yt - r, z)));
+    leds.push(add(new THREE.TubeGeometry(path, 96, 0.0058, 8, false), mats.led, 0, 0, ZF + 0.002)); }
+  const ledBack = new THREE.BoxGeometry(0.011, BH - TOP_R - 0.04, 0.011); ledBack.translate(0, (BH - TOP_R - 0.04) / 2, 0);
   leds.push(add(ledBack, mats.ledSoft, W / 2 - 0.004, Y0 + 0.03, -D / 2 + 0.03));
   leds.push(add(ledBack, mats.ledSoft, -W / 2 + 0.004, Y0 + 0.03, -D / 2 + 0.03));
 
@@ -474,13 +495,16 @@ async function init() {
     led: basic({ color: ledColor, toneMapped: false }),
     ledSoft: basic({ color: new THREE.Color(0x2f6bff).multiplyScalar(2), toneMapped: false }),
     ledWhite: basic({ color: new THREE.Color(0xeaf0ff).multiplyScalar(3), toneMapped: false, side: THREE.DoubleSide }),
-    interior: std({ color: 0x2b3038, metalness: 0.15, roughness: 0.62, side: THREE.BackSide }),
+    // casier : éclairage figé comme sur la photo (sombre, plus clair sous la réglette LED du haut), insensible aux projecteurs
+    interior: basic({ side: THREE.BackSide, map: (() => { const [c, g] = makeCanvas(64, 256); const gr = g.createLinearGradient(0, 0, 0, 256);
+      gr.addColorStop(0, "#5a626e"); gr.addColorStop(0.18, "#2c3139"); gr.addColorStop(0.6, "#181b20"); gr.addColorStop(1, "#0e1013");
+      g.fillStyle = gr; g.fillRect(0, 0, 64, 256); return texFrom(c, 4); })() }),
     fan: std({ map: fanTex(), roughness: 0.6 }),
     dock: new THREE.MeshPhysicalMaterial({ color: 0x23262d, metalness: 0.55, roughness: 0.25, clearcoat: 0.8, clearcoatRoughness: 0.15 }),
     dockDark: std({ color: 0x101216, metalness: 0.5, roughness: 0.4 }),
     dockLabel: basic({ map: (() => { const [c, g] = makeCanvas(256, 72); g.fillStyle = "#e9ecf1"; rr(g, 2, 2, 252, 68, 10); g.fill(); g.fillStyle = "#14161b"; rr(g, 8, 8, 240, 56, 8); g.fill(); g.font = `italic 800 46px ${FONT}`; g.fillStyle = "#fff"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("AIRO", 128, 38); return texFrom(c, 4); })() }),
     door: std({ color: 0x0c0d10, metalness: 0.6, roughness: 0.32 }),
-    glass: new THREE.MeshPhysicalMaterial({ color: 0xbcd0ff, metalness: 0, roughness: 0.05, transparent: true, opacity: 0.1, envMapIntensity: 1.3, side: THREE.DoubleSide, depthWrite: false }),
+    glass: new THREE.MeshPhysicalMaterial({ color: 0x1a2230, metalness: 0, roughness: 0.05, transparent: true, opacity: 0.12, envMapIntensity: 0.12, side: THREE.DoubleSide, depthWrite: false }),
   };
 
   const { machine, lockers, leds } = buildMachine(mats);
@@ -1046,8 +1070,8 @@ async function init() {
     const steamAmt = smooth(0.04, 0.22, sCyc) * (1 - smooth(0.88, 1, sCyc));
     const escape = p >= B[5] ? smooth(0.15, 0.35, sRet) * (1 - smooth(0.35, 0.7, sRet)) : 0;
     const vap = Math.max(steamAmt, escape);
-    steamMat.opacity = vap * (STUDIO ? 0.3 : 0.5);   // fond noir du studio : vapeur plus légère
-    puffMat.opacity = vap * (STUDIO ? 0.12 : 0.22);
+    steamMat.opacity = vap * (STUDIO ? 0.13 : 0.4);   // fond noir du studio : vapeur plus légère
+    puffMat.opacity = vap * (STUDIO ? 0.06 : 0.16);
     if (vap > 0.001) {
       const ch = CAV.y1 - CAV.y0, cw = CAV.x1 - CAV.x0;
       const fill = (pos, seed, n, spread, rise) => {
@@ -1067,12 +1091,12 @@ async function init() {
     }
     // vitre embuée et lumière bleue pulsée pendant le cycle
     const pulse = 0.5 + 0.5 * Math.sin(t * 6);
-    A.light.intensity = boot * (0.4 + steamAmt * (1.4 + pulse * 1.1));
+    A.light.intensity = boot * (0.4 + steamAmt * (0.7 + pulse * 0.5));
     A.light.color.setHSL(0.6, 0.3 + steamAmt * 0.7, 0.75 - steamAmt * 0.1);
     Bk.light.intensity = boot * 0.4;
-    A.glassMat.opacity = 0.1 + steamAmt * 0.38;
-    A.glassMat.roughness = 0.05 + steamAmt * 0.5;
-    A.glassMat.color.setHSL(0.6, 0.4, 0.8 + steamAmt * 0.12);
+    A.glassMat.opacity = 0.12 + steamAmt * 0.08;              // buée légère : on voit toujours le casque
+    A.glassMat.roughness = 0.05 + steamAmt * 0.35;
+    A.glassMat.color.setHSL(0.6, 0.3, 0.12 + steamAmt * 0.25);
 
     // étincelles quand le casque sort propre
     const sparkAmt = smooth(0.55, 0.75, sRet) * (1 - smooth(0.0, 0.5, sEnd));
