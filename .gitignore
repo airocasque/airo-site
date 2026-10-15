@@ -3,3 +3,4 @@ skills-lock.json
 video/*/snapshots/
 video/*/renders/
 tools/machine/_check-*.jpg
+video/*/.hyperframes/
