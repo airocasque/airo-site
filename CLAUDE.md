@@ -14,6 +14,8 @@ Client : AIRO (Mohammed MAYER, Marseille). Devis → airo.casque@gmail.com via F
 - `assets/showroom/helmet-a|b.glb` : casques CC BY (crédits dans `mentions-legales.html`).
 - `assets/vendor/` : three r170 (+ addons utilisés), GSAP 3.12.5, Lenis 1.1.0 (option `prevent` obligatoire).
 
+- `apple/` : variante « page produit Apple » (skill apple-design seul) : `index.html`, `apple.css`, `apple.js` (ressorts, galerie à glisser avec élan, film au défilement réutilisant `assets/film`). `noindex`, site principal inchangé.
+
 ## Outils (`tools/`)
 - `film.js <w> <h> <dossier> <N> [de] [à]` : tournage du film (Playwright, tranches parallélisables) ; puis `python3 tools/film-pack.py <dossier> d|m` → `assets/film/`. ~7 s/image en Chromium logiciel.
 - `build-preview.sh [sortie]` : aperçu autonome en un fichier (`inline.py` embarque tout, y compris le film via `window.__AIRO_FILES`).
