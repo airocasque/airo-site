@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: w, height: h }, reducedMotion: 'reduce', isMobile: w < 600, hasTouch: w < 600, deviceScaleFactor: 1 });
   const errs = []; p.setDefaultTimeout(120000); p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error' || m.type()==='warning') errs.push(m.text().slice(0,200)); });
-  await p.goto('http://localhost:8765/index.html', { waitUntil: 'load' });
+  await p.goto('http://localhost:8765/film.html', { waitUntil: 'load' });
   await p.waitForFunction(() => document.getElementById('xpStage').classList.contains('is-live') || document.getElementById('xpStage').classList.contains('no-webgl'), null, { timeout: 540000 });
   await p.waitForTimeout(25000);
   const info = await p.evaluate(() => ({ live: document.getElementById('xpStage').className, xpH: document.getElementById('xp').offsetHeight, vh: innerHeight }));

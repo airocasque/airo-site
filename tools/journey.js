@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: w, height: h }, reducedMotion: 'reduce' });
   p.setDefaultTimeout(600000); const errs = [];
   p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text().slice(0, 200)); });
-  await p.goto('http://localhost:8765/index.html');
+  await p.goto('http://localhost:8765/film.html');
   await p.waitForFunction(() => /is-live|no-webgl/.test(document.getElementById('xpStage').className), null, { timeout: 600000 });
   await p.waitForTimeout(12000);
   const stops = await p.evaluate((MID) => [['hero', 0], ['xp-fin', document.getElementById('xp').offsetHeight - innerHeight * 1.1]].concat(

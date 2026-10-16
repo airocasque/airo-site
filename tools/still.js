@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
   const [w, h, f, out, clip] = [+process.argv[2], +process.argv[3], +process.argv[4], process.argv[5], process.argv[6]];
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
   p.setDefaultTimeout(600000); p.on('console', m => { if (/error|lost/i.test(m.text())) console.log('console:', m.text().slice(0, 160)); });
-  await p.goto('http://localhost:8765/index.html');
+  await p.goto('http://localhost:8765/film.html');
   await p.addStyleTag({ content: '.xp__steps{visibility:hidden!important}.nav,.xp__hint,.xp-dots,.xp-callouts,.intro,.mbar{display:none!important}.xp__stage::after{display:none!important}' });
   await p.waitForFunction(() => document.getElementById('xpStage').classList.contains('is-live'), null, { timeout: 600000 });
   await p.waitForTimeout(30000);
