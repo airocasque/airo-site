@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>AIRO — Borne de nettoyage de casques à la vapeur sèche</title>
+<meta name="description" content="AIRO nettoie, désinfecte et sèche les casques en libre-service, en 3 à 10 minutes. Une borne à deux casiers pour concessions, kartings, circuits, centres équestres, écoles et stations. Demandez un devis.">
+<meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://airocasque.github.io/airo-site/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AIRO — Borne de nettoyage de casques">
+<meta property="og:description" content="Vapeur sèche, désinfection, séchage. Deux casiers, aucune manipulation. Demandez un devis.">
+<meta property="og:image" content="assets/img/og.jpg">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="AIRO">
+<meta name="twitter:card" content="summary_large_image">
+<script>document.documentElement.classList.add("js")</script>
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "AIRO",
+      "email": "airo.casque@gmail.com",
+      "telephone": "+33 6 68 73 12 07",
+      "sameAs": [
+        "https://www.instagram.com/airo.officiel/"
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "8 rue de la République, Bureau 3",
+        "postalCode": "13001",
+        "addressLocality": "Marseille",
+        "addressCountry": "FR"
+      },
+      "areaServed": {
+        "@type": "AdministrativeArea",
+        "name": "Bouches-du-Rhône"
+      }
+    },
+    {
+      "@type": "Product",
+      "name": "Borne AIRO",
+      "brand": {
+        "@type": "Brand",
+        "name": "AIRO"
+      },
+      "category": "Borne de nettoyage de casques",
+      "description": "Borne en libre-service à deux casiers qui nettoie, désinfecte et sèche les casques à la vapeur sèche, en 3 à 10 minutes."
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Combien de temps dure un nettoyage ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Trois programmes : nettoyage avancé en 10 minutes, nettoyage rapide en 7 minutes, séchage seul en 3 minutes. Les deux casiers fonctionnent en même temps."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Qui fixe le prix payé par les clients ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Vous. Les tarifs et les programmes proposés se règlent selon votre activité."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Comment les clients paient-ils ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Directement sur la borne, par carte bancaire, grâce au terminal de paiement intégré. Aucun personnel n’est nécessaire."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quels casques peut-on nettoyer ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Intégral, modulable, jet, trail, karting, automobile, équitation, ski, vélo et plus. Les casques équipés d’intercom sont compatibles."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quel est le délai de livraison ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Entre 30 et 90 jours selon la commande. La date est précisée sur le devis."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "L’installation et la formation sont-elles comprises ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Livraison, installation et prise en main sont incluses lorsqu’elles figurent au devis."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quelle garantie, et qui assure le SAV ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "La borne est garantie 12 mois pièces et main-d’œuvre. Le service après-vente est assuré par AIRO dans les Bouches-du-Rhône ; ailleurs, les modalités sont fixées au devis."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="preload" href="assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+<!-- la table d’import doit précéder tout module, sinon « three » n’est pas résolu -->
+<script type="importmap">
+{ "imports": { "three": "./assets/vendor/three/three.module.min.js", "three/addons/": "./assets/vendor/three/addons/" } }
+</script>
+<link rel="preload" href="assets/film/d/000.webp" as="image" media="(min-width: 901px)">
+<link rel="preload" href="assets/film/m/000.webp" as="image" media="(max-width: 900px)">
+<link rel="preconnect" href="https://formsubmit.co">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-drag" viewBox="0 0 24 24"><path d="M12 4v15M6 13l6 6 6-6"/></symbol>
+  </defs>
+</svg>
+
+<div class="intro" id="intro" aria-hidden="true">
+  <p class="intro__word" translate="no">AIRO</p>
+  <span class="intro__led"></span>
+</div>
+
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<header class="nav" id="nav">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href="#xp" aria-label="AIRO, retour en haut" translate="no">AIRO</a>
+    <nav class="nav__links" id="navLinks" aria-label="Navigation principale">
+      <a href="#xp-fonctionnement">Fonctionnement</a>
+      <a href="#programmes">Programmes</a>
+      <a href="#technologie">Technologie</a>
+      <a href="#fiche">Fiche technique</a>
+      <a href="#secteurs">Secteurs</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn--primary nav__cta-mobile" href="#devis">Demander un devis</a>
+    </nav>
+    <a class="btn btn--primary btn--sm nav__cta" href="#devis">Demander un devis</a>
+    <button class="nav__toggle" id="navToggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="navLinks">
+      <svg class="ico"><use href="#i-menu"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="contenu">
+
+  <!-- La borne en 3D, pilotée par le défilement -->
+  <section class="xp" id="xp" aria-label="Découvrir la borne AIRO">
+    <div class="xp__stage" id="xpStage">
+      <canvas id="xpCanvas" tabindex="0" aria-label="Film de la borne AIRO : rotation, dépôt du casque, cycle vapeur et retrait, au fil du défilement." role="img"></canvas>
+      <img class="xp__fallback" src="assets/img/machine.webp" alt="La borne AIRO avec ses deux casiers A et B et son écran tactile" width="581" height="1000" loading="lazy">
+      <div class="xp-callouts" id="xpCallouts" aria-hidden="true"></div>
+      <div class="xp-hotspots" id="xpHotspots"></div>
+      <nav class="xp-dots" aria-label="Étapes de la présentation">
+        <button type="button" aria-label="Début"></button>
+        <button type="button" aria-label="La borne"></button>
+        <button type="button" aria-label="Étape 1 : choisir le programme"></button>
+        <button type="button" aria-label="Étape 2 : déposer le casque"></button>
+        <button type="button" aria-label="Étape 3 : le cycle"></button>
+        <button type="button" aria-label="Étape 4 : récupérer le casque"></button>
+        <button type="button" aria-label="Fin"></button>
+      </nav>
+      <p class="xp__hint" aria-hidden="true"><svg class="ico"><use href="#i-drag"/></svg>Faites défiler · touchez les points</p>
+    </div>
+
+    <div class="xp__steps wrap">
+      <div class="xp-step xp-step--hero is-active">
+        <div class="xp-step__inner">
+          <h1>Un casque propre, désinfecté et sec en quelques minutes.</h1>
+          <p class="lead">AIRO est une borne en libre-service qui nettoie les casques à la vapeur sèche. Vous l’installez, vos clients s’en servent.</p>
+          <div class="actions">
+            <a class="btn btn--primary" href="#devis">Demander un devis</a>
+            <a class="btn btn--ghost" href="#xp-borne">Voir la borne</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="xp-step" id="xp-borne">
+        <div class="xp-step__inner">
+          <h2>Deux casiers, un écran, rien à manipuler.</h2>
+          <p>La borne tient dans un coin de magasin. Chaque casier fonctionne seul : deux clients peuvent l’utiliser en même temps.</p>
+        </div>
+      </div>
+
+      <div class="xp-step" id="xp-fonctionnement">
+        <div class="xp-step__inner">
+          <p class="step-no" aria-hidden="true">1</p>
+          <h2>Le client choisit son programme.</h2>
+          <dl class="programs">
+            <div><dt>Nettoyage avancé</dt><dd>10 min</dd></div>
+            <div><dt>Nettoyage rapide</dt><dd>7 min</dd></div>
+            <div><dt>Séchage seul</dt><dd>3 min</dd></div>
+          </dl>
+          <p>Vous réglez les programmes et leur prix selon votre activité.</p>
+        </div>
+      </div>
+
+      <div class="xp-step">
+        <div class="xp-step__inner">
+          <p class="step-no" aria-hidden="true">2</p>
+          <h2>Il pose son casque et ferme la porte.</h2>
+          <p>Le casier s’ouvre après le paiement. Le casque se pose sur le support, la porte se referme.</p>
+        </div>
+      </div>
+
+      <div class="xp-step">
+        <div class="xp-step__inner">
+          <p class="step-no" aria-hidden="true">3</p>
+          <h2>AIRO lance le cycle.</h2>
+          <p>La vapeur sèche traverse les mousses, élimine 99,9 % des bactéries et neutralise les odeurs. Le casque est ensuite séché dans le casier.</p>
+        </div>
+      </div>
+
+      <div class="xp-step">
+        <div class="xp-step__inner">
+          <p class="step-no" aria-hidden="true">4</p>
+          <h2>Il récupère un casque prêt à porter.</h2>
+          <p>Propre, désinfecté et sec. Pendant ce temps, le casier B a servi un autre client.</p>
+        </div>
+      </div>
+
+      <div class="xp-step xp-step--end">
+        <div class="xp-step__inner">
+          <h2>Déposez votre casque. AIRO s’occupe du reste.</h2>
+          <div class="actions">
+            <a class="btn btn--primary" href="#devis">Demander un devis</a>
+            <a class="btn btn--ghost" href="#fiche">Lire la fiche technique</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Le problème -->
+  <section class="block problem" id="probleme">
+    <div class="wrap">
+      <h2 class="block__title">Un casque protège votre tête. Rien ne protège l’intérieur du casque.</h2>
+      <ul class="threats">
+        <li><strong>Humidité</strong><span>La transpiration reste dans les mousses après chaque sortie.</span></li>
+        <li><strong>Bactéries</strong><span>Un intérieur chaud et humide où les germes se multiplient.</span></li>
+        <li><strong>Odeurs</strong><span>Elles s’installent et ne partent plus à l’air libre.</span></li>
+        <li><strong>Saletés</strong><span>Poussière et sébum là où le chiffon ne passe pas.</span></li>
+      </ul>
+      <p class="problem__note">Moto, karting, circuit, équitation, ski : l’usage change, le problème reste le même. Et quand un casque est partagé entre plusieurs personnes, il devient un vrai sujet d’hygiène.</p>
+    </div>
+  </section>
+
+  <!-- Programmes -->
+  <section class="block programs-band" id="programmes">
+    <div class="wrap">
+      <h2 class="block__title">Trois programmes. Vous fixez les prix.</h2>
+      <ul class="prog">
+        <li><p class="prog__n">10<small>min</small></p><h3>Nettoyage avancé</h3><p>Vapeur sèche en profondeur, désinfection, puis séchage complet.</p></li>
+        <li><p class="prog__n">7<small>min</small></p><h3>Nettoyage rapide</h3><p>L’entretien régulier, entre deux utilisations.</p></li>
+        <li><p class="prog__n">3<small>min</small></p><h3>Séchage seul</h3><p>Pour un casque humide après la pluie ou l’effort.</p></li>
+      </ul>
+      <p class="prog__note">Durées indiquées pour les programmes standard. Le nombre de programmes et leurs tarifs se règlent selon votre activité.</p>
+    </div>
+  </section>
+
+  <!-- Technologie -->
+  <section class="block tech" id="technologie">
+    <div class="wrap tech__grid">
+      <figure class="tech__media">
+        <img src="assets/img/tech-locker.webp" alt="Casque intégral déposé sur le support vapeur du casier A de la borne AIRO" width="480" height="690" loading="lazy">
+        <figcaption>Le casque se pose sur le support vapeur. La porte se referme, le cycle démarre.</figcaption>
+      </figure>
+      <div class="tech__body">
+        <h2 class="block__title">Nettoyer en profondeur, sans abîmer.</h2>
+        <dl class="specs-list">
+          <div><dt>Vapeur sèche</dt><dd>Elle pénètre les mousses en profondeur avec très peu d’eau.</dd></div>
+          <div><dt>Désinfection</dt><dd>Réduit les bactéries responsables des mauvaises odeurs.</dd></div>
+          <div><dt>Matériaux</dt><dd>Mousses, textiles et finitions sont préservés.</dd></div>
+          <div><dt>Électronique</dt><dd>Compatible avec les casques équipés d’intercom.</dd></div>
+          <div><dt>Séchage</dt><dd>Intégré au cycle : le casque ressort prêt à être porté.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- Professionnels -->
+  <section class="block pros" id="professionnels">
+    <figure class="pros__photo">
+      <img src="assets/img/pros-showroom.webp" alt="La borne AIRO sur son socle lumineux" width="800" height="600" loading="lazy">
+    </figure>
+    <div class="wrap pros__body">
+      <h2 class="block__title">Pour vous, c’est un service en plus. Pour vos clients, une raison de revenir.</h2>
+      <dl class="specs-list specs-list--two">
+        <div><dt>Un nouveau revenu</dt><dd>Chaque nettoyage est une prestation payée sur la borne, sans personnel.</dd></div>
+        <div><dt>Un meilleur accueil</dt><dd>Vos clients repartent avec un casque propre et une bonne impression.</dd></div>
+        <div><dt>Un point de vente qui se distingue</dt><dd>Un service que vos concurrents ne proposent pas.</dd></div>
+        <div><dt>Des clients fidèles</dt><dd>Ils reviennent pour le nettoyage, et en profitent pour le reste.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- Rentabilité -->
+  <section class="block calc" id="rentabilite" aria-labelledby="calc-title">
+    <div class="wrap calc__grid">
+      <div class="calc__intro">
+        <p class="eyebrow">Simulateur</p>
+        <h2 class="block__title" id="calc-title">Ce que la borne peut vous rapporter.</h2>
+        <p>Vous fixez le prix du nettoyage. Réglez les curseurs selon votre activité pour estimer le chiffre d’affaires généré par la borne.</p>
+        <p class="calc__fine">Deux casiers indépendants : jusqu’à 12 casques par heure en nettoyage avancé, davantage en nettoyage rapide. Estimation indicative, hors frais de paiement.</p>
+      </div>
+      <form class="calc__panel" id="calc" onsubmit="return false">
+        <div class="calc__row">
+          <label for="c-day">Casques nettoyés par jour</label>
+          <output id="c-day-out" for="c-day">8</output>
+          <input id="c-day" type="range" min="1" max="60" step="1" value="8">
+        </div>
+        <div class="calc__row">
+          <label for="c-price">Prix d’un nettoyage</label>
+          <output id="c-price-out" for="c-price">6 €</output>
+          <input id="c-price" type="range" min="2" max="20" step="1" value="6">
+        </div>
+        <div class="calc__row">
+          <label for="c-open">Jours d’ouverture par semaine</label>
+          <output id="c-open-out" for="c-open">6</output>
+          <input id="c-open" type="range" min="1" max="7" step="1" value="6">
+        </div>
+        <div class="calc__result" aria-live="polite">
+          <p><span class="calc__big" id="c-month">1 248 €</span><span class="calc__unit">par mois</span></p>
+          <p class="calc__year">soit <strong id="c-year">14 976 €</strong> par an</p>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Fiche technique -->
+  <section class="block fiche" id="fiche">
+    <div class="wrap">
+      <h2 class="block__title">Fiche technique</h2>
+      <div class="fiche__grid">
+      <div class="fiche__table">
+      <table class="spec">
+        <tbody>
+          <tr><th scope="row">Casiers</th><td>2, indépendants (A et B)</td></tr>
+          <tr><th scope="row">Programmes</th><td>Nettoyage avancé 10 min, nettoyage rapide 7 min, séchage uniquement 3 min. Programmes et tarifs réglables par l’exploitant.</td></tr>
+          <tr><th scope="row">Cycle</th><td>Vapeur sèche, désinfection, séchage intégré</td></tr>
+          <tr><th scope="row">Désinfection</th><td>Élimine 99,9 % des bactéries et neutralise les odeurs</td></tr>
+          <tr><th scope="row">Casques acceptés</th><td>Intégral, modulable, jet, karting, automobile, équitation, ski, vélo et plus</td></tr>
+          <tr><th scope="row">Électronique</th><td>Compatible casques avec intercom</td></tr>
+          <tr><th scope="row">Utilisation</th><td>Libre-service sur écran tactile, paiement par carte bancaire sur la borne (terminal Nayax)</td></tr>
+          <tr><th scope="row">Tarifs</th><td>Fixés par l’exploitant</td></tr>
+          <tr><th scope="row">Installation</th><td>Livraison, installation et formation incluses dans l’offre standard lorsque prévues au devis</td></tr>
+          <tr><th scope="row">Garantie</th><td>12 mois pièces et main-d’œuvre à compter de la mise en service</td></tr>
+          <tr><th scope="row">Service après-vente</th><td>Assuré par AIRO dans les Bouches-du-Rhône ; hors zone sur devis</td></tr>
+        </tbody>
+      </table>
+      <p class="fiche__docs"><a href="assets/docs/AIRO-CGV.pdf" download>Conditions générales de vente (PDF)</a></p>
+      </div>
+      <figure class="fiche__visual">
+        <img src="assets/img/machine.webp" alt="La borne AIRO : écran tactile, deux casiers vitrés A et B, flancs AIRO" width="581" height="1000" loading="lazy">
+      </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Questions fréquentes -->
+  <section class="block faq" id="faq" aria-labelledby="faq-title">
+    <div class="wrap faq__grid">
+      <h2 class="block__title" id="faq-title">Questions fréquentes</h2>
+      <div class="faq__list">
+        <details class="faq__item"><summary>Combien de temps dure un nettoyage ?</summary><p>Trois programmes : nettoyage avancé en 10 minutes, nettoyage rapide en 7 minutes, séchage seul en 3 minutes. Les deux casiers fonctionnent en même temps.</p></details>
+        <details class="faq__item"><summary>Qui fixe le prix payé par les clients ?</summary><p>Vous. Les tarifs et les programmes proposés se règlent selon votre activité.</p></details>
+        <details class="faq__item"><summary>Comment les clients paient-ils ?</summary><p>Directement sur la borne, par carte bancaire, grâce au terminal de paiement intégré. Aucun personnel n’est nécessaire.</p></details>
+        <details class="faq__item"><summary>Quels casques peut-on nettoyer ?</summary><p>Intégral, modulable, jet, trail, karting, automobile, équitation, ski, vélo et plus. Les casques équipés d’intercom sont compatibles.</p></details>
+        <details class="faq__item"><summary>Quel est le délai de livraison ?</summary><p>Entre 30 et 90 jours selon la commande. La date est précisée sur le devis.</p></details>
+        <details class="faq__item"><summary>L’installation et la formation sont-elles comprises ?</summary><p>Livraison, installation et prise en main sont incluses lorsqu’elles figurent au devis.</p></details>
+        <details class="faq__item"><summary>Quelle garantie, et qui assure le SAV ?</summary><p>La borne est garantie 12 mois pièces et main-d’œuvre. Le service après-vente est assuré par AIRO dans les Bouches-du-Rhône ; ailleurs, les modalités sont fixées au devis.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Secteurs -->
+  <section class="block sectors" id="secteurs">
+    <div class="wrap">
+      <h2 class="block__title">Là où un casque est porté, AIRO a sa place.</h2>
+      <ul class="sector-index" id="sectorIndex">
+        <li data-img="assets/img/sec-l0.webp"><img src="assets/img/sec-l0.webp" alt="" width="228" height="228" loading="lazy"><strong>Moto</strong><span>Concessions, magasins, ateliers, garages, loueurs, contrôles techniques</span></li>
+        <li data-img="assets/img/sec-l1.webp"><img src="assets/img/sec-l1.webp" alt="" width="228" height="228" loading="lazy"><strong>Loisirs</strong><span>Kartings, bases de loisirs, parcs d’attractions, activités indoor</span></li>
+        <li data-img="assets/img/sec-l2.webp"><img src="assets/img/sec-l2.webp" alt="" width="228" height="228" loading="lazy"><strong>Sport auto</strong><span>Circuits, écuries, écoles de pilotage, compétitions</span></li>
+        <li data-img="assets/img/sec-r0.webp"><img src="assets/img/sec-r0.webp" alt="" width="228" height="228" loading="lazy"><strong>Sports</strong><span>Ski, snowboard, hockey, VTT, BMX, paintball, airsoft, escalade</span></li>
+        <li data-img="assets/img/sec-r1.webp"><img src="assets/img/sec-r1.webp" alt="" width="228" height="228" loading="lazy"><strong>Équitation</strong><span>Clubs, écuries, centres de formation, promenades</span></li>
+        <li data-img="assets/img/sec-r2.webp"><img src="assets/img/sec-r2.webp" alt="" width="228" height="228" loading="lazy"><strong>Formation</strong><span>Auto-écoles, centres de formation, casernes, collectivités</span></li>
+      </ul>
+      <img class="sector-preview" id="sectorPreview" src="assets/img/sec-l0.webp" alt="" aria-hidden="true" width="228" height="228" loading="lazy">
+    </div>
+  </section>
+
+  <!-- Devis -->
+  <!-- Instagram -->
+  <!-- Le clip : le cycle complet en 17 secondes -->
+  <section class="block clip" id="clip" aria-labelledby="clip-title">
+    <div class="wrap clip__grid">
+      <div class="clip__body">
+        <h2 class="block__title" id="clip-title">Le cycle en 17 secondes.</h2>
+        <p>Le client choisit son programme, pose son casque, ferme la porte. La vapeur sèche fait le reste : 10 minutes plus tard, le casque ressort propre, désinfecté et sec.</p>
+        <div class="actions"><a class="btn btn--primary" href="#devis">Demander un devis</a></div>
+      </div>
+      <figure class="clip__media">
+        <video id="clipVideo" muted loop playsinline preload="none" poster="assets/video/airo-clip-poster.webp" aria-label="Clip AIRO : programme, dépôt du casque, cycle vapeur, casque prêt" width="720" height="1280">
+          <source src="assets/video/airo-clip.webm" type="video/webm">
+          <source src="assets/video/airo-clip.mp4" type="video/mp4">
+        </video>
+        <button type="button" class="clip__sound" id="clipSound" aria-pressed="false">Activer le son</button>
+      </figure>
+    </div>
+  </section>
+
+  <section class="insta" aria-label="AIRO sur Instagram">
+    <div class="wrap insta__row">
+      <p class="insta__text"><span class="eyebrow">En vidéo</span>Voyez la borne fonctionner pour de vrai, chez nos clients.</p>
+      <a class="btn btn--ghost insta__btn" href="https://www.instagram.com/airo.officiel/" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        Voir @airo.officiel
+      </a>
+    </div>
+  </section>
+
+  <section class="block quote" id="devis">
+    <div class="wrap quote__grid">
+      <div class="quote__intro">
+        <h2 class="block__title">Demander un devis</h2>
+        <p>Dites-nous où vous voulez installer la borne. Nous vous répondons avec une proposition adaptée à votre activité.</p>
+        <ul class="assure">
+          <li>Livraison, installation et formation incluses lorsque prévues au devis</li>
+          <li>Garantie 12 mois pièces et main-d’œuvre</li>
+          <li>SAV assuré par AIRO dans les Bouches-du-Rhône</li>
+          <li>Paiement des clients par carte sur la borne</li>
+        </ul>
+        <dl class="contact">
+          <div><dt>Téléphone</dt><dd><a href="tel:+33668731207">06 68 73 12 07</a></dd></div>
+          <div><dt>WhatsApp</dt><dd><a href="https://wa.me/33668731207?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20borne%20AIRO." target="_blank" rel="noopener">Écrire sur WhatsApp</a></dd></div>
+          <div><dt>E-mail</dt><dd><a href="mailto:airo.casque@gmail.com">airo.casque@gmail.com</a></dd></div>
+          <div><dt>Instagram</dt><dd><a href="https://www.instagram.com/airo.officiel/" target="_blank" rel="noopener">@airo.officiel</a></dd></div>
+        </dl>
+      </div>
+
+      <form class="form" id="quoteForm" action="https://formsubmit.co/airo.casque@gmail.com" method="POST" novalidate>
+        <fieldset class="form__type">
+          <legend>Votre demande</legend>
+          <label class="chip"><input type="radio" name="Type de demande" value="Demande de devis" checked><span>Devis</span></label>
+          <label class="chip"><input type="radio" name="Type de demande" value="Demande d'informations"><span>Informations</span></label>
+          <label class="chip"><input type="radio" name="Type de demande" value="Démonstration"><span>Démonstration</span></label>
+        </fieldset>
+
+        <fieldset class="form__type">
+          <legend>Vous êtes</legend>
+          <label class="chip"><input type="radio" name="Profil" value="Professionnel" checked><span>Professionnel</span></label>
+          <label class="chip"><input type="radio" name="Profil" value="Particulier"><span>Particulier</span></label>
+        </fieldset>
+
+        <div class="form__grid">
+          <div class="field">
+            <label for="f-name">Nom et prénom</label>
+            <input id="f-name" name="Nom" type="text" autocomplete="name" required>
+            <p class="field__err" id="f-name-err">Indiquez votre nom.</p>
+          </div>
+          <div class="field">
+            <label for="f-email">E-mail</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" spellcheck="false" required>
+            <p class="field__err" id="f-email-err">Indiquez une adresse e-mail valide, par exemple nom@domaine.fr.</p>
+          </div>
+          <div class="field">
+            <label for="f-phone">Téléphone <span class="opt">facultatif</span></label>
+            <input id="f-phone" name="Téléphone" type="tel" autocomplete="tel" inputmode="tel">
+          </div>
+          <div class="field" data-pro>
+            <label for="f-sector">Activité</label>
+            <select id="f-sector" name="Secteur">
+              <option value="">Choisir</option>
+              <option>Concession ou magasin moto</option>
+              <option>Atelier, garage ou loueur</option>
+              <option>Karting ou centre de loisirs</option>
+              <option>Circuit ou sport automobile</option>
+              <option>Centre équestre</option>
+              <option>Station de ski ou club sportif</option>
+              <option>Auto-école ou centre de formation</option>
+              <option>Collectivité ou caserne</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="field field--full">
+            <label for="f-msg">Votre message</label>
+            <textarea id="f-msg" name="Message" rows="4" required placeholder="Votre activité, l’emplacement prévu, vos questions…"></textarea>
+            <p class="field__err" id="f-msg-err">Écrivez quelques mots sur votre projet.</p>
+          </div>
+        </div>
+
+        <details class="form__more">
+          <summary>Ajouter des précisions <span class="opt">facultatif</span></summary>
+          <div class="form__grid">
+            <div class="field" data-pro>
+              <label for="f-company">Entreprise ou établissement <span class="opt">facultatif</span></label>
+              <input id="f-company" name="Entreprise" type="text" autocomplete="organization">
+            </div>
+            <div class="field">
+              <label for="f-city">Ville ou code postal <span class="opt">facultatif</span></label>
+              <input id="f-city" name="Ville" type="text" autocomplete="address-level2">
+            </div>
+            <div class="field" data-pro>
+              <label for="f-volume">Casques à nettoyer par semaine</label>
+              <select id="f-volume" name="Volume estimé">
+                <option value="">Je ne sais pas encore</option>
+                <option>Moins de 20</option>
+                <option>De 20 à 100</option>
+                <option>Plus de 100</option>
+              </select>
+            </div>
+          </div>
+        </details>
+
+        <label class="consent">
+          <input type="checkbox" id="f-consent" required>
+          <span>J’accepte que mes informations servent à me recontacter au sujet de cette demande. <a href="confidentialite.html">En savoir plus</a></span>
+        </label>
+        <p class="field__err" id="f-consent-err">Cochez la case pour envoyer la demande.</p>
+
+        <input type="hidden" name="_subject" value="Nouvelle demande depuis le site AIRO">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <button class="btn btn--primary btn--block" type="submit" id="quoteSubmit">
+          <span class="btn__label">Envoyer la demande</span>
+        </button>
+        <p class="form__status" id="formStatus" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<nav class="mbar" id="mbar" aria-label="Contact rapide">
+  <a class="mbar__call" href="tel:+33668731207" aria-label="Appeler le 06 68 73 12 07"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg><span class="mbar__lbl">Appeler</span></a>
+  <a class="mbar__wa" href="https://wa.me/33668731207?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20borne%20AIRO." target="_blank" rel="noopener" aria-label="Écrire sur WhatsApp"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 18.8z"/><path d="M9 9.5c.3 1.9 1.6 3.7 4 4.6l1.2-1.2 1.8.8v1.3c-3.6.4-7.5-3.2-7.6-6.8H9.7l.6 1.8z" stroke-width="1.4"/></svg></a>
+  <a class="mbar__quote" href="#devis">Demander un devis</a>
+</nav>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__mark" aria-hidden="true" data-word="AIRO"></div>
+    <div class="footer__row">
+      <img src="assets/img/logo-sm.webp" alt="Logo AIRO nettoyage casque" width="56" height="54" loading="lazy">
+      <nav class="footer__links" aria-label="Liens de pied de page">
+        <a href="#xp-fonctionnement">Fonctionnement</a>
+        <a href="#fiche">Fiche technique</a>
+        <a href="#secteurs">Secteurs</a>
+        <a href="#devis">Demander un devis</a>
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="confidentialite.html">Confidentialité</a>
+        <a href="assets/docs/AIRO-CGV.pdf">CGV</a>
+      </nav>
+      <p class="footer__copy">© <span id="year">2026</span> AIRO</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/vendor/gsap/gsap.min.js" defer></script>
+<script src="assets/vendor/gsap/ScrollTrigger.min.js" defer></script>
+<script src="assets/vendor/lenis/lenis.min.js" defer></script>
+<script src="script.js" defer></script>
+<script src="assets/js/motion.js" defer></script>
+<!-- film de la borne (images pré-calculées) ; ?studio = studio 3D de tournage (tools/film.js) -->
+<script type="module">
+  if (new URLSearchParams(location.search).has("studio")) import("./assets/js/experience.js"); else import("./assets/js/film.js");
+</script>
+</body>
+</html>

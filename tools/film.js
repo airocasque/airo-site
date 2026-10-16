@@ -12,7 +12,7 @@ const fs = require('fs');
   p.setDefaultTimeout(900000); const errs = [];
   p.on('pageerror', e => errs.push(e.message));
   await p.addInitScript(() => { window.__seqP = 0; window.__seqT = 0; });
-  await p.goto('http://localhost:8765/index.html?studio');
+  await p.goto('http://localhost:8765/film.html?studio');
   await p.addStyleTag({ content: '.nav,.intro,.mbar,.xp-dots,.xp__hint,.xp-callouts,.xp-hotspots,.xp__stage::after{display:none!important} .xp__steps{visibility:hidden!important} .xp__stage canvas{opacity:1!important}' });
   await p.waitForFunction(() => /is-live/.test(document.getElementById('xpStage').className));
   await p.waitForTimeout(5000);

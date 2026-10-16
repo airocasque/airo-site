@@ -4,7 +4,7 @@ def uri(rel):
     p = root / rel
     mime = {'.jpg':'image/jpeg','.png':'image/png','.woff2':'font/woff2','.webp':'image/webp','.pdf':'application/pdf','.glb':'model/gltf-binary','.json':'application/json','.mp4':'video/mp4','.webm':'video/webm'}[p.suffix]
     return f"data:{mime};base64," + base64.b64encode(p.read_bytes()).decode()
-html = (root/'index.html').read_text()
+html = (root/'film.html').read_text()
 css = (root/'style.css').read_text()
 css = re.sub(r'url\("(assets/(?:fonts|scene)/[^"]+)"\)', lambda m: f'url("{uri(m.group(1))}")', css)
 html = re.sub(r'<link rel="(preload|modulepreload|preconnect)"[^>]*>\n?', '', html)

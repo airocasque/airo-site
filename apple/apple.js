@@ -63,12 +63,13 @@
   /* ---------- Film de la borne piloté par le défilement ---------- */
   var film = (function () {
     var sec = document.getElementById("film"), cv = document.getElementById("filmCanvas");
+    var bar = document.getElementById("filmBar");
     var ctx = cv.getContext("2d"), N = 150, set = null, imgs = [], shown = -1, started = false;
     var caps = [].slice.call(sec.querySelectorAll(".cap")).map(function (el) {
       return { el: el, a: +el.dataset.from, b: +el.dataset.to };
     });
     function pickSet() { return innerWidth / innerHeight < 0.9 ? "m" : "d"; }
-    function src(i) { return "../assets/film/" + set + "/" + String(i).padStart(3, "0") + ".webp"; }
+    function src(i) { return "assets/film/" + set + "/" + String(i).padStart(3, "0") + ".webp"; }
     function load(i) {
       if (imgs[i]) return;
       var im = new Image(); im.decoding = "async"; imgs[i] = im;
@@ -116,6 +117,7 @@
       if (!started) { started = true; queueAll(); }
       draw();
       var p = progress();
+      bar.style.transform = "scaleX(" + p.toFixed(4) + ")";
       caps.forEach(function (c) {
         var span = c.b - c.a, t = (p - c.a) / span, f = 0.22;
         var o = t < 0 || t > 1 ? 0 : Math.min(1, t / f, c.b > 1 ? 1 : (1 - t) / f);
@@ -296,17 +298,19 @@
       if (data.get("_honey")) return;
       data.set("_replyto", data.get("email"));
       data.set("_subject", data.get("Type de demande") + " — " + data.get("Nom") + " (site AIRO)");
-      btn.disabled = true; btn.textContent = "Envoi en cours…";
+      var label = btn.querySelector(".btn__label");
+      btn.disabled = true; btn.classList.add("is-loading"); label.textContent = "Envoi en cours…";
       fetch("https://formsubmit.co/ajax/airo.casque@gmail.com", { method: "POST", headers: { Accept: "application/json" }, body: data })
         .then(function (r) { return r.json().then(function (j) { if (!r.ok || String(j.success) !== "true") throw 0; }); })
         .then(function () {
-          form.reset(); btn.textContent = "Demande envoyée";
-          status.className = "form__status is-ok";
-          status.textContent = "Merci. Nous vous répondons rapidement.";
+          var first = String(data.get("Nom") || "").trim().split(" ")[0];
+          var sent = document.getElementById("formSent");
+          document.getElementById("sentName").textContent = first ? " " + first : "";
+          form.reset(); form.hidden = true; sent.hidden = false; sent.focus();
           try { if (window.plausible) plausible("Devis envoyé"); document.dispatchEvent(new CustomEvent("airo:devis")); } catch (x) {}
         })
         .catch(function () {
-          btn.disabled = false; btn.textContent = "Envoyer la demande";
+          btn.disabled = false; btn.classList.remove("is-loading"); label.textContent = "Envoyer la demande";
           status.className = "form__status is-error";
           status.innerHTML = "L’envoi a échoué. Réessayez, ou écrivez à <a href=\"mailto:airo.casque@gmail.com\">airo.casque@gmail.com</a>.";
         });
@@ -344,7 +348,60 @@
   }, { rootMargin: "0px 0px -8% 0px" });
   document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
 
-  addEventListener("scroll", onScroll, { passive: true });
+  /* ---------- Menu mobile : feuille ancrée sous la barre ---------- */
+  (function () {
+    var btn = document.getElementById("navToggle"), sheet = document.getElementById("navSheet");
+    var t = 0;
+    function set(open) {
+      clearTimeout(t);
+      nav.classList.toggle("is-open", open);
+      btn.setAttribute("aria-expanded", String(open));
+      btn.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
+      if (open) {
+        sheet.hidden = false; sheet.classList.add("is-closed");
+        requestAnimationFrame(function () { requestAnimationFrame(function () { sheet.classList.remove("is-closed"); }); });
+      } else {
+        sheet.classList.add("is-closed");
+        t = setTimeout(function () { sheet.hidden = true; }, 260);
+      }
+    }
+    btn.addEventListener("click", function () { set(btn.getAttribute("aria-expanded") !== "true"); });
+    sheet.addEventListener("click", function (e) { if (e.target.closest("a")) set(false); });
+    addEventListener("keydown", function (e) { if (e.key === "Escape" && nav.classList.contains("is-open")) { set(false); btn.focus(); } });
+    document.addEventListener("pointerdown", function (e) { if (nav.classList.contains("is-open") && !nav.contains(e.target)) set(false); });
+  })();
+
+  /* ---------- Parcours client : l'étape au centre de l'écran pilote l'image ---------- */
+  (function () {
+    var steps = [].slice.call(document.querySelectorAll(".step")), imgs = [].slice.call(document.querySelectorAll(".steps__frame img"));
+    function on(i) {
+      steps.forEach(function (s, k) { s.classList.toggle("is-on", k === i); });
+      imgs.forEach(function (im, k) { im.classList.toggle("is-on", k === i); });
+    }
+    var mob = matchMedia("(max-width: 900px)").matches;
+    var io2 = new IntersectionObserver(function (es) {
+      es.forEach(function (en) { if (en.isIntersecting) on(+en.target.dataset.i); });
+    }, { rootMargin: mob ? "-62% 0px -30% 0px" : "-45% 0px -45% 0px" });
+    steps.forEach(function (s) { io2.observe(s); });
+  })();
+
+  /* ---------- Barre d'action mobile : après le haut de page, jamais sur le formulaire ---------- */
+  var dock = document.getElementById("dock"), heroSec = document.getElementById("top"), devis = document.getElementById("devis");
+  function dockUpdate() {
+    var past = heroSec.getBoundingClientRect().bottom < 0;
+    var r = devis.getBoundingClientRect(), atForm = r.top < innerHeight && r.bottom > 0;
+    dock.classList.toggle("is-on", past && !atForm);
+  }
+
+  var y = document.getElementById("year"); if (y) y.textContent = new Date().getFullYear();
+
+  addEventListener("scroll", function () { onScroll(); dockUpdate(); }, { passive: true });
   addEventListener("resize", onScroll);
-  onScroll();
+  onScroll(); dockUpdate();
+
+  /* ---------- Arrivée : on attend l'image de la borne pour une entrée nette ---------- */
+  var heroImg = document.querySelector(".hero__machine img");
+  function ready() { requestAnimationFrame(function () { document.documentElement.classList.add("ready"); }); }
+  if (heroImg && !heroImg.complete && heroImg.decode) heroImg.decode().then(ready, ready); else ready();
+  setTimeout(ready, 1200);
 })();
