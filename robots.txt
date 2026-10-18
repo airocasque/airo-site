@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://airocasque.github.io/airo-site/sitemap.xml

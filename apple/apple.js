@@ -42,7 +42,7 @@
   /* ---------- Navigation : thème selon la section dessous, lien actif ---------- */
   var nav = document.getElementById("nav");
   var themed = [].slice.call(document.querySelectorAll("main > section, .foot"));
-  var links = [].slice.call(document.querySelectorAll(".nav__links a"));
+  var links = [].slice.call(document.querySelectorAll(".nav__links a")).filter(function (a) { return a.getAttribute("href").charAt(0) === "#"; });
   var hero = document.querySelector(".hero__machine");
   function onScroll() {
     var probe = 24, cur = null;
@@ -63,6 +63,10 @@
   /* ---------- Film de la borne piloté par le défilement ---------- */
   var film = (function () {
     var sec = document.getElementById("film"), cv = document.getElementById("filmCanvas");
+    if (!sec) return { update: function () {} };
+    // Connexion lente, économie de données ou petit écran : une image sur deux suffit (le film reste fluide).
+    var con = navigator.connection || {};
+    var light = con.saveData || /(^|-)2g|3g/.test(con.effectiveType || "") || innerWidth < 600;
     var bar = document.getElementById("filmBar");
     var ctx = cv.getContext("2d"), N = 150, set = null, imgs = [], shown = -1, started = false;
     var caps = [].slice.call(sec.querySelectorAll(".cap")).map(function (el) {
@@ -73,12 +77,12 @@
     function load(i) {
       if (imgs[i]) return;
       var im = new Image(); im.decoding = "async"; imgs[i] = im;
-      im.onload = function () { im.ok = true; if (Math.abs(i - want()) < 20) { shown = -1; draw(); } };
+      im.onload = function () { im.ok = true; if (Math.abs(i - want()) < 20 && onScreen()) { shown = -1; draw(); } };
       im.src = src(i);
     }
     function queueAll() {                                  // du grossier au fin
       var order = [];
-      [16, 8, 4, 2, 1].forEach(function (s) { for (var i = 0; i < N; i += s) if (order.indexOf(i) < 0) order.push(i); });
+      (light ? [16, 8, 4, 2] : [16, 8, 4, 2, 1]).forEach(function (s) { for (var i = 0; i < N; i += s) if (order.indexOf(i) < 0) order.push(i); });
       var k = 0;
       (function next() {
         for (var j = 0; j < 6 && k < order.length; j++) load(order[k++]);
@@ -89,6 +93,7 @@
       var r = sec.getBoundingClientRect();
       return clamp(-r.top / (r.height - innerHeight), 0, 1);
     }
+    function onScreen() { var r = sec.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }
     function want() { return Math.round(progress() * (N - 1)); }
     function size() {
       var dpr = Math.min(devicePixelRatio || 1, 2);
@@ -114,7 +119,12 @@
     function update() {
       var r = sec.getBoundingClientRect();
       if (r.bottom < -innerHeight || r.top > innerHeight * 2) return;
-      if (!started) { started = true; queueAll(); }
+      // les images du film attendent la fin du chargement de la page (le haut de page passe en premier)
+      if (!started && document.readyState === "complete") {
+        started = true;
+        (window.requestIdleCallback || function (f) { setTimeout(f, 200); })(queueAll, { timeout: 1500 });
+      }
+      if (r.top > innerHeight || r.bottom < 0) return;   // on ne dessine que lorsque le film est à l'écran
       draw();
       var p = progress();
       bar.style.transform = "scaleX(" + p.toFixed(4) + ")";
@@ -133,6 +143,7 @@
   /* ---------- Galerie : glisser 1:1, élan, ressort, élastique ---------- */
   (function () {
     var gal = document.getElementById("gal"), track = document.getElementById("galTrack");
+    if (!gal) return;
     var cards = [].slice.call(track.children), dotsEl = document.getElementById("galDots");
     var prev = document.getElementById("galPrev"), next = document.getElementById("galNext");
     var x = 0, min = 0, snaps = [], dots = [];
@@ -236,6 +247,7 @@
   /* ---------- Simulateur : le total suit un ressort depuis sa valeur affichée ---------- */
   (function () {
     var f = document.getElementById("calc");
+    if (!f) return;
     var day = f.querySelector("#c-day"), price = f.querySelector("#c-price"), open = f.querySelector("#c-open");
     var outM = document.getElementById("c-month"), outY = document.getElementById("c-year");
     var fmt = function (n) { return Math.round(n).toLocaleString("fr-FR") + " €"; };
@@ -272,6 +284,8 @@
   /* ---------- Formulaire de devis (FormSubmit, validation en ligne) ---------- */
   (function () {
     var form = document.getElementById("quoteForm"), status = document.getElementById("formStatus");
+    if (!form) return;
+    if (form.dataset.sector) { var sel = form.querySelector("#f-sector"); if (sel) sel.value = form.dataset.sector; }
     var btn = form.querySelector("button[type=submit]"), consent = document.getElementById("f-consent");
     var consentErr = form.querySelector(".err--consent");
     var req = [].slice.call(form.querySelectorAll(".field [required]"));
@@ -297,6 +311,7 @@
       var data = new FormData(form);
       if (data.get("_honey")) return;
       data.set("_replyto", data.get("email"));
+      data.set("Page", document.title);
       data.set("_subject", data.get("Type de demande") + " — " + data.get("Nom") + " (site AIRO)");
       var label = btn.querySelector(".btn__label");
       btn.disabled = true; btn.classList.add("is-loading"); label.textContent = "Envoi en cours…";
@@ -348,9 +363,61 @@
   }, { rootMargin: "0px 0px -8% 0px" });
   document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
 
+
+  /* ---------- Démo de l'écran : programme → paiement → dépôt → cycle → prêt ---------- */
+  (function () {
+    var root = document.getElementById("kiosk"); if (!root) return;
+    var screens = [].slice.call(root.querySelectorAll(".ks")), track = [].slice.call(document.querySelectorAll(".demo__track li"));
+    var fg = document.getElementById("ringFg"), pct = document.getElementById("ringPct"), phase = document.getElementById("ringPhase");
+    var left = document.getElementById("ringLeft"), ring = root.querySelector(".ks__ring"), C = 326.7;
+    var prog = "", mins = 10, raf = 0, timers = [];
+    function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+    function show(i, focus) {
+      screens.forEach(function (s, k) { s.hidden = k !== i; });
+      track.forEach(function (t, k) { t.classList.toggle("on", k === i); t.classList.toggle("done", k < i); });
+      if (focus) { var t = screens[i].querySelector(".ks__t"); t && t.focus({ preventScroll: true }); }
+    }
+    function reset() {
+      cancelAnimationFrame(raf); timers.forEach(clearTimeout); timers = [];
+      root.querySelector(".ks__card").classList.remove("is-ok");
+      root.querySelectorAll(".is-press").forEach(function (b) { b.classList.remove("is-press"); });
+    }
+    function cycle() {
+      var dur = reduce ? 2500 : 6500, t0 = performance.now();
+      var phases = mins === 3 ? [[1, "Séchage"]] : [[0.6, "Vapeur sèche"], [0.8, "Désinfection"], [1, "Séchage"]];
+      (function frame(now) {
+        var p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 1.4);
+        fg.style.strokeDashoffset = (C * (1 - e)).toFixed(1);
+        var n = Math.round(e * 100);
+        pct.textContent = n + " %"; ring.setAttribute("aria-valuenow", n);
+        for (var i = 0; i < phases.length; i++) if (e <= phases[i][0]) { phase.textContent = phases[i][1]; break; }
+        left.textContent = p < 1 ? "Reste " + Math.max(1, Math.ceil(mins * (1 - e))) + " min" : "Terminé";
+        if (p < 1) raf = requestAnimationFrame(frame); else later(function () { show(4, true); }, 450);
+      })(t0);
+    }
+    root.addEventListener("click", function (e) {
+      var opt = e.target.closest(".ks__opt"), go = e.target.closest("[data-go]");
+      if (opt) {
+        prog = opt.dataset.prog; mins = +opt.dataset.min; opt.classList.add("is-press");
+        root.querySelector(".ks__prog").textContent = prog;
+        root.querySelector(".ks__min").textContent = mins + " min";
+        later(function () { opt.classList.remove("is-press"); show(1, true); }, 180);
+      } else if (go) {
+        var a = go.dataset.go;
+        if (a === "pay") {
+          go.classList.add("is-ok"); go.querySelector("span").textContent = "Paiement accepté";
+          later(function () { go.querySelector("span").textContent = "Présentez votre carte"; show(2, true); }, 800);
+        }
+        if (a === "close") { fg.style.strokeDashoffset = C; show(3, true); cycle(); }
+        if (a === "again") { reset(); show(0, true); }
+      }
+    });
+  })();
+
   /* ---------- Menu mobile : feuille ancrée sous la barre ---------- */
   (function () {
     var btn = document.getElementById("navToggle"), sheet = document.getElementById("navSheet");
+    if (!btn) return;
     var t = 0;
     function set(open) {
       clearTimeout(t);
@@ -388,6 +455,7 @@
   /* ---------- Barre d'action mobile : après le haut de page, jamais sur le formulaire ---------- */
   var dock = document.getElementById("dock"), heroSec = document.getElementById("top"), devis = document.getElementById("devis");
   function dockUpdate() {
+    if (!dock || !heroSec || !devis) return;
     var past = heroSec.getBoundingClientRect().bottom < 0;
     var r = devis.getBoundingClientRect(), atForm = r.top < innerHeight && r.bottom > 0;
     dock.classList.toggle("is-on", past && !atForm);
@@ -404,4 +472,5 @@
   function ready() { requestAnimationFrame(function () { document.documentElement.classList.add("ready"); }); }
   if (heroImg && !heroImg.complete && heroImg.decode) heroImg.decode().then(ready, ready); else ready();
   setTimeout(ready, 1200);
+  addEventListener("load", onScroll);
 })();

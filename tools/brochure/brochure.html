@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>AIRO — Brochure</title>
+<!-- Brochure PDF : node tools/brochure/render.js (sortie : assets/docs/AIRO-brochure.pdf). Aucun prix de machine. -->
+<style>
+@font-face { font-family: Archivo; src: url("../../assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2"); font-weight: 100 900; }
+@font-face { font-family: Archivo; src: url("../../assets/fonts/archivo-latin-ext-wdth-normal.woff2") format("woff2"); font-weight: 100 900; unicode-range: U+0100-024F, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF; }
+@page { size: A4; margin: 0; }
+:root { --ink: #1d1d1f; --ink-2: #6e6e73; --bg-2: #f5f5f7; --blue: #0071e3; --airo: #2f6bff; --line: #d2d2d7; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: Archivo, "Liberation Sans", sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+h1, h2, h3, p { margin: 0; }
+.page { width: 210mm; height: 297mm; position: relative; overflow: hidden; page-break-after: always; padding: 18mm 18mm 16mm; }
+.page:last-child { page-break-after: auto; }
+.dark { background: #000; color: #f5f5f7; }
+.light { background: var(--bg-2); }
+.foot { position: absolute; left: 18mm; right: 18mm; bottom: 10mm; display: flex; justify-content: space-between; font-size: 8pt; color: #86868b; }
+.dark .foot { color: #6e6e73; }
+.h2 { font-size: 30pt; line-height: 1.04; letter-spacing: -.03em; font-weight: 750; }
+.lead { font-size: 12.5pt; line-height: 1.4; color: var(--ink-2); margin-top: 5mm; max-width: 140mm; }
+.dark .lead { color: #a1a1a6; }
+
+/* 1. Couverture */
+.cover { display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 22mm; }
+.logo { font-weight: 800; letter-spacing: .32em; font-size: 12pt; color: #a1a1a6; }
+.cover h1 { margin-top: 9mm; font-size: 48pt; line-height: 1.02; letter-spacing: -.035em; font-weight: 780; }
+.cover h1 span { color: #8fb1ff; }
+.cover .sub { margin-top: 6mm; font-size: 14pt; color: #a1a1a6; }
+.cover .machine { position: relative; margin-top: 12mm; height: 170mm; }
+.cover .machine::before { content: ""; position: absolute; inset: 15% -60% 5%; background: radial-gradient(closest-side, rgba(47,107,255,.38), transparent 70%); }
+.cover .machine img { position: relative; height: 100%; width: auto; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+
+/* 2. Points forts */
+.grid6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin-top: 10mm; }
+.card { position: relative; height: 82mm; border-radius: 5mm; overflow: hidden; background: #000; color: #fff; }
+.card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,.86), rgba(0,0,0,.5) 34%, transparent 58%); }
+.card p { position: relative; z-index: 1; padding: 0 5mm; }
+.card .k { padding-top: 5mm; font-size: 8pt; font-weight: 700; color: #6e9cff; letter-spacing: .02em; }
+.card .t { margin-top: 1.5mm; font-size: 12pt; line-height: 1.16; font-weight: 700; letter-spacing: -.01em; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; margin-top: 12mm; }
+.step { padding-top: 5mm; border-top: 1.5pt solid var(--ink); }
+.step b { display: inline-grid; place-items: center; width: 8mm; height: 8mm; border-radius: 50%; background: var(--blue); color: #fff; font-size: 10pt; }
+.step h3 { margin-top: 4mm; font-size: 12.5pt; letter-spacing: -.01em; }
+.step p { margin-top: 2mm; font-size: 9.5pt; line-height: 1.42; color: var(--ink-2); }
+
+/* 3. Programmes et caractéristiques */
+.prog { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin-top: 9mm; }
+.prog div { padding: 7mm 6mm; border-radius: 5mm; background: #fff; }
+.prog .n { font-size: 40pt; line-height: .95; font-weight: 780; letter-spacing: -.05em; }
+.prog .n small { font-size: 12pt; letter-spacing: 0; margin-left: 1mm; }
+.prog h3 { margin-top: 4mm; font-size: 12pt; }
+.prog p { margin-top: 1.5mm; font-size: 9pt; color: var(--ink-2); line-height: 1.4; }
+.spec { display: grid; grid-template-columns: 52mm 1fr; gap: 9mm; margin-top: 12mm; align-items: start; }
+.spec figure { margin: 0; border-radius: 5mm; overflow: hidden; background: #000; }
+.spec figure img { width: 100%; display: block; }
+.spec dl { margin: 0; }
+.spec dl div { display: grid; grid-template-columns: 36mm 1fr; gap: 4mm; padding: 2.6mm 0; border-top: .6pt solid var(--line); font-size: 9pt; line-height: 1.38; }
+.spec dl div:last-child { border-bottom: .6pt solid var(--line); }
+.spec dt { font-weight: 700; }
+.spec dd { margin: 0; color: var(--ink-2); }
+.note { margin-top: 5mm; font-size: 9pt; color: var(--ink-2); }
+
+/* 4. Secteurs et contact */
+.sect { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; margin-top: 10mm; }
+.sect div { padding: 6mm; border-radius: 5mm; background: #121214; }
+.sect h3 { font-size: 13pt; letter-spacing: -.01em; }
+.sect p { margin-top: 2mm; font-size: 9.5pt; line-height: 1.42; color: #a1a1a6; }
+.also { margin-top: 6mm; font-size: 10pt; color: #a1a1a6; }
+.contact { margin-top: 14mm; display: grid; grid-template-columns: 1fr 44mm; gap: 10mm; align-items: center; padding: 9mm; border-radius: 6mm; background: #fff; color: var(--ink); }
+.contact h2 { font-size: 22pt; letter-spacing: -.025em; line-height: 1.08; }
+.contact ul { list-style: none; margin: 5mm 0 0; padding: 0; display: grid; gap: 1.8mm; font-size: 10.5pt; }
+.contact li span { display: inline-block; width: 24mm; color: var(--ink-2); font-size: 9pt; }
+.qr { text-align: center; font-size: 8pt; color: var(--ink-2); }
+.qr svg { width: 40mm; height: 40mm; display: block; margin-bottom: 2mm; }
+.assure { margin-top: 8mm; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; font-size: 8.5pt; color: #a1a1a6; line-height: 1.35; }
+.assure b { display: block; color: #f5f5f7; font-size: 10pt; margin-bottom: 1mm; }
+</style>
+</head>
+<body>
+
+<section class="page dark cover">
+  <p class="logo">AIRO</p>
+  <h1>Casque propre.<br><span>En 10 minutes.</span></h1>
+  <p class="sub">La borne de nettoyage de casques en libre-service.</p>
+  <div class="machine"><img src="../../assets/img/machine.webp" alt=""></div>
+  <div class="foot"><span>Vapeur sèche · Désinfection · Séchage</span><span>airocasque.github.io/airo-site</span></div>
+</section>
+
+<section class="page">
+  <h2 class="h2">Les points forts.</h2>
+  <p class="lead">Une borne autonome à deux casiers : vos clients choisissent, paient par carte et récupèrent un casque propre et sec.</p>
+  <div class="grid6">
+    <div class="card"><img src="../../assets/film/m/055.webp" alt=""><p class="k">Écran tactile</p><p class="t">Le client choisit. La borne s’occupe du reste.</p></div>
+    <div class="card"><img src="../../assets/film/m/080.webp" alt=""><p class="k">Deux casiers</p><p class="t">Deux casques nettoyés en même temps.</p></div>
+    <div class="card"><img src="../../assets/film/m/100.webp" alt=""><p class="k">Vapeur sèche</p><p class="t">99,9 % des bactéries éliminées. Les odeurs aussi.</p></div>
+    <div class="card"><img src="../../assets/film/m/125.webp" alt=""><p class="k">Séchage intégré</p><p class="t">Le casque ressort sec, prêt à être porté.</p></div>
+    <div class="card"><img src="../../assets/img/tech-locker.webp" alt=""><p class="k">Paiement par carte</p><p class="t">Terminal intégré. Aucun personnel.</p></div>
+    <div class="card"><img src="../../assets/film/m/020.webp" alt=""><p class="k">Tous les casques</p><p class="t">Moto, karting, équitation, ski, vélo. Intercom compris.</p></div>
+  </div>
+  <div class="steps">
+    <div class="step"><b>1</b><h3>Il choisit son programme.</h3><p>Sur l’écran tactile, puis il paie par carte, sur la borne.</p></div>
+    <div class="step"><b>2</b><h3>Il dépose son casque.</h3><p>Le casier s’ouvre, il pose le casque, il referme. L’écran suit le cycle.</p></div>
+    <div class="step"><b>3</b><h3>Il le récupère.</h3><p>Propre, désinfecté et sec. Le casier se déverrouille à la fin du cycle.</p></div>
+  </div>
+  <div class="foot"><span>AIRO</span><span>2</span></div>
+</section>
+
+<section class="page light">
+  <h2 class="h2">Trois programmes.<br>Une fiche claire.</h2>
+  <div class="prog">
+    <div><p class="n">10<small>min</small></p><h3>Nettoyage avancé</h3><p>Vapeur sèche, désinfection et séchage complet.</p></div>
+    <div><p class="n">7<small>min</small></p><h3>Nettoyage rapide</h3><p>Pour un casque porté au quotidien.</p></div>
+    <div><p class="n">3<small>min</small></p><h3>Séchage seul</h3><p>Après la pluie ou une séance intense.</p></div>
+  </div>
+  <p class="note">Programmes et tarifs réglables par l’exploitant.</p>
+  <div class="spec">
+    <figure><img src="../../assets/img/machine.webp" alt=""></figure>
+    <dl>
+      <div><dt>Casiers</dt><dd>2, indépendants (A et B)</dd></div>
+      <div><dt>Cycle</dt><dd>Vapeur sèche, désinfection, séchage intégré</dd></div>
+      <div><dt>Désinfection</dt><dd>Élimine 99,9 % des bactéries et neutralise les odeurs</dd></div>
+      <div><dt>Casques acceptés</dt><dd>Intégral, modulable, jet, karting, automobile, équitation, ski, vélo et plus</dd></div>
+      <div><dt>Électronique</dt><dd>Compatible casques avec intercom</dd></div>
+      <div><dt>Utilisation</dt><dd>Libre-service sur écran tactile, paiement par carte bancaire (terminal Nayax)</dd></div>
+      <div><dt>Tarifs</dt><dd>Fixés par l’exploitant</dd></div>
+      <div><dt>Installation</dt><dd>Livraison, installation et formation incluses lorsque prévues au devis</dd></div>
+      <div><dt>Délai</dt><dd>Entre 30 et 90 jours selon la commande, précisé sur le devis</dd></div>
+      <div><dt>Garantie</dt><dd>12 mois pièces et main-d’œuvre</dd></div>
+      <div><dt>Service après-vente</dt><dd>Assuré par AIRO dans les Bouches-du-Rhône ; hors zone sur devis</dd></div>
+    </dl>
+  </div>
+  <div class="foot"><span>AIRO</span><span>3</span></div>
+</section>
+
+<section class="page dark">
+  <h2 class="h2">Un service de plus.<br>Sans effort de plus.</h2>
+  <p class="lead">Partout où un casque passe d’une tête à l’autre, ou se porte tous les jours.</p>
+  <div class="sect">
+    <div><h3>Karting</h3><p>Les casques prêtés aux pilotes nettoyés entre deux sessions.</p></div>
+    <div><h3>Concessions moto</h3><p>Le casque du client nettoyé pendant l’entretien ou l’essai.</p></div>
+    <div><h3>Centres équestres</h3><p>Les casques de prêt propres à chaque reprise.</p></div>
+    <div><h3>Stations de ski</h3><p>Les casques de location nettoyés entre deux clients.</p></div>
+  </div>
+  <p class="also">Aussi : circuits, ateliers et garages, loueurs, auto-écoles, collectivités et casernes.</p>
+  <div class="assure">
+    <div><b>Aucun personnel</b>Le client paie et lance le cycle seul.</div>
+    <div><b>Vos tarifs</b>Vous fixez le prix du nettoyage.</div>
+    <div><b>Garantie 12 mois</b>Pièces et main-d’œuvre.</div>
+    <div><b>SAV local</b>Assuré par AIRO dans les Bouches-du-Rhône.</div>
+  </div>
+  <div class="contact">
+    <div>
+      <h2>Parlons de votre projet.</h2>
+      <ul>
+        <li><span>Téléphone</span>06 68 73 12 07</li>
+        <li><span>E-mail</span>airo.casque@gmail.com</li>
+        <li><span>Instagram</span>@airo.officiel</li>
+        <li><span>Site</span>airocasque.github.io/airo-site</li>
+      </ul>
+    </div>
+    <div class="qr"><!--QR-->Scannez pour demander un devis</div>
+  </div>
+  <div class="foot"><span>AIRO, Marseille</span><span>4</span></div>
+</section>
+
+</body>
+</html>
