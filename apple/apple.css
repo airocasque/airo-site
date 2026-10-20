@@ -561,3 +561,13 @@ input[type=range]::-moz-range-thumb { width: 28px; height: 28px; border: 0; bord
 .dl svg { width: 18px; height: 18px; fill: none; stroke: var(--blue); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .dl span { color: var(--ink-2); font-weight: 400; font-size: .8125rem; }
 @media (hover: hover) and (pointer: fine) { .dl a:hover { background: #ebebef; } }
+
+/* ---- Simulateur → devis ---- */
+.calc__go { margin-top: 24px; }
+.est { display: flex; align-items: center; gap: 10px; padding: 10px 10px 10px 16px; border-radius: 12px; background: rgba(0,113,227,.08); color: #0058b0; font-size: .875rem; line-height: 1.35; }
+.est[hidden] { display: none; }
+.est span { flex: 1; }
+.est button { flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; display: grid; place-items: center; transition: background-color 150ms, transform 120ms var(--ease-out); }
+.est button:hover { background: rgba(0,113,227,.12); }
+.est button:active { transform: scale(.9); }
+.est svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }

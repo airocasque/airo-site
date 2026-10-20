@@ -264,6 +264,34 @@
     }
     f.addEventListener("input", calc);
     calc();
+
+    // Estimation envoyée avec la demande de devis : le formulaire arrive déjà chiffré.
+    var go = document.getElementById("calcGo"), chip = document.getElementById("estChip");
+    var field = document.getElementById("estField"), msg = document.getElementById("f-msg"), auto = "";
+    if (!go || !chip) return;
+    function summary() {
+      var m = day.value * price.value * open.value * 52 / 12;
+      return day.value + " casques/jour · " + price.value + " € le nettoyage · " + open.value + " j/semaine ≈ " + fmt(m) + " par mois";
+    }
+    go.addEventListener("click", function () {
+      var txt = summary();
+      field.value = txt; field.disabled = false;
+      document.getElementById("estTxt").textContent = "Estimation jointe : " + txt;
+      chip.hidden = false;
+      if (!msg.value || msg.value === auto) {
+        auto = "Bonjour, je souhaite un devis pour la borne AIRO. Mon estimation : " + txt + ".";
+        msg.value = auto;
+      }
+      var r = document.querySelector('.seg input[value="Demande de devis"]');
+      if (r && !r.checked) { r.checked = true; r.dispatchEvent(new Event("change", { bubbles: true })); }
+      document.getElementById("devis").scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+      setTimeout(function () { document.getElementById("f-name").focus({ preventScroll: true }); }, reduce ? 0 : 700);
+    });
+    document.getElementById("estDel").addEventListener("click", function () {
+      chip.hidden = true; field.disabled = true; field.value = "";
+      if (msg.value === auto) msg.value = "";
+      auto = "";
+    });
   })();
 
   /* ---------- Contrôle segmenté : la pastille suit un ressort ---------- */

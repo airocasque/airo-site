@@ -12,7 +12,9 @@
 <meta property="og:url" content="https://airocasque.github.io/airo-site/">
 <meta property="og:title" content="AIRO — Casque propre. En 10 minutes.">
 <meta property="og:description" content="La borne de nettoyage de casques en libre-service : vapeur sèche, deux casiers, paiement par carte. Demandez un devis.">
-<meta property="og:image" content="https://airocasque.github.io/airo-site/assets/img/og.jpg">
+<meta property="og:image" content="https://airocasque.github.io/airo-site/assets/img/og/accueil.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:locale" content="fr_FR">
 <meta property="og:site_name" content="AIRO">
 <meta name="twitter:card" content="summary_large_image">
@@ -357,7 +359,7 @@
       <div class="tile tile--wide reveal">
         <p class="tile__h">Où l’installer ?</p>
         <ul class="tags">
-          <li><a href="secteurs/karting.html">Karting</a></li><li><a href="secteurs/concession-moto.html">Concessions moto</a></li><li><a href="secteurs/centre-equestre.html">Centres équestres</a></li><li><a href="secteurs/station-ski.html">Stations de ski</a></li><li>Circuits</li><li>Ateliers et garages</li><li>Loueurs</li><li>Auto-écoles</li><li>Casernes</li>
+          <li><a href="secteurs/karting.html">Karting</a></li><li><a href="secteurs/concession-moto.html">Concessions moto</a></li><li><a href="secteurs/centre-equestre.html">Centres équestres</a></li><li><a href="secteurs/station-ski.html">Stations de ski</a></li><li><a href="secteurs/circuit.html">Circuits</a></li><li><a href="secteurs/moto-ecole.html">Moto-écoles</a></li><li><a href="secteurs/location-moto.html">Location moto et scooter</a></li><li>Ateliers et garages</li><li>Collectivités et casernes</li>
         </ul>
       </div>
     </div>
@@ -389,6 +391,7 @@
         <p class="calc__big"><span id="c-month">1 248 €</span></p>
         <p class="calc__unit">par mois, soit <strong id="c-year">14 976 €</strong> par an</p>
       </div>
+      <button type="button" class="pill pill--block calc__go" id="calcGo">Recevoir un devis sur cette base</button>
       <p class="calc__fine">Estimation indicative, hors frais de paiement. Jusqu’à 12 casques par heure en nettoyage avancé.</p>
     </form>
   </div>
@@ -461,6 +464,8 @@
         <label><input type="radio" name="Type de demande" value="Démonstration"><span>Démonstration</span></label>
         <i class="seg__thumb" aria-hidden="true"></i>
       </div>
+      <p class="est" id="estChip" hidden><span id="estTxt"></span><button type="button" id="estDel" aria-label="Retirer l’estimation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button></p>
+      <input type="hidden" name="Estimation" id="estField" disabled>
       <div class="field"><input id="f-name" name="Nom" type="text" autocomplete="name" placeholder=" " required><label for="f-name">Nom et prénom</label><p class="err">Indiquez votre nom.</p></div>
       <div class="field"><input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" spellcheck="false" placeholder=" " required><label for="f-email">E-mail</label><p class="err">Indiquez une adresse e-mail valide.</p></div>
       <div class="field"><input id="f-phone" name="Téléphone" type="tel" autocomplete="tel" inputmode="tel" placeholder=" "><label for="f-phone">Téléphone (facultatif)</label></div>
@@ -511,7 +516,7 @@
     <div class="foot__cols">
       <div><p class="foot__h">AIRO</p><p>Bornes de nettoyage de casques en libre-service. Marseille, Bouches-du-Rhône.</p></div>
       <div><p class="foot__h">Borne</p><ul><li><a href="#points">Points forts</a></li><li><a href="#programmes">Programmes</a></li><li><a href="#caracteristiques">Caractéristiques</a></li><li><a href="#faq">Questions fréquentes</a></li></ul></div>
-      <div><p class="foot__h">Secteurs</p><ul><li><a href="secteurs/karting.html">Karting</a></li><li><a href="secteurs/concession-moto.html">Concession moto</a></li><li><a href="secteurs/centre-equestre.html">Centre équestre</a></li><li><a href="secteurs/station-ski.html">Station de ski</a></li></ul></div>
+      <div><p class="foot__h">Secteurs</p><ul><li><a href="secteurs/karting.html">Karting</a></li><li><a href="secteurs/concession-moto.html">Concession moto</a></li><li><a href="secteurs/centre-equestre.html">Centre équestre</a></li><li><a href="secteurs/station-ski.html">Station de ski</a></li><li><a href="secteurs/circuit.html">Circuit</a></li><li><a href="secteurs/moto-ecole.html">Moto-école</a></li><li><a href="secteurs/location-moto.html">Location moto</a></li></ul></div>
       <div><p class="foot__h">Contact</p><ul><li><a href="tel:+33668731207">06 68 73 12 07</a></li><li><a href="mailto:airo.casque@gmail.com">airo.casque@gmail.com</a></li><li><a href="https://www.instagram.com/airo.officiel/" target="_blank" rel="noopener">Instagram</a></li><li><a href="#devis">Demander un devis</a></li></ul></div>
       <div><p class="foot__h">Informations</p><ul><li><a href="mentions-legales.html">Mentions légales</a></li><li><a href="confidentialite.html">Confidentialité</a></li><li><a href="assets/docs/AIRO-brochure.pdf" download>Brochure (PDF)</a></li><li><a href="assets/docs/AIRO-CGV.pdf" download>CGV (PDF)</a></li><li><a href="film.html">Version film</a></li></ul></div>
     </div>

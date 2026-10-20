@@ -97,6 +97,66 @@ SECTEURS = [
             ("Qui fixe le prix pour les skieurs ?", "Vous. Les tarifs et les programmes proposés se règlent selon votre activité."),
         ],
     },
+    {
+        "slug": "circuit",
+        "option": "Circuit ou sport automobile",
+        "menu": "Circuit",
+        "title": "Borne de nettoyage de casques pour circuits et stages de pilotage",
+        "desc": "Borne AIRO pour circuits, écoles et stages de pilotage : les casques auto et moto prêtés aux participants sont nettoyés, désinfectés et séchés à la vapeur sèche en 3 à 10 minutes.",
+        "h1": "Des casques de piste<br>propres à chaque roulage.",
+        "sub": "Stages, baptêmes, journées de roulage : la borne AIRO remet les casques prêtés au propre entre deux participants.",
+        "why_t": "Sur circuit, un casque prêté sert plusieurs fois par jour.",
+        "why": [
+            ("Entre deux participants", "Nettoyage rapide en 7 minutes ou séchage seul en 3 minutes. Deux casiers fonctionnent en même temps."),
+            ("Casques auto et moto", "Intégraux, jets, casques de sport automobile : les casques acceptés couvrent vos usages de piste."),
+            ("Pour les pilotes aussi", "Les pilotes qui roulent avec leur propre casque le nettoient en libre-service et paient par carte."),
+        ],
+        "img": ("film/m/145.webp", "La borne AIRO sur son socle"),
+        "faq": [
+            ("Les casques de sport automobile sont-ils compatibles ?", "Oui, les casques automobile font partie des casques acceptés, avec les intégraux, modulables, jets et casques de karting."),
+            ("Les casques avec intercom passent-ils ?", "Oui, les casques équipés d’intercom sont compatibles."),
+        ],
+    },
+    {
+        "slug": "moto-ecole",
+        "option": "Auto-école ou centre de formation",
+        "menu": "Moto-école",
+        "title": "Borne de nettoyage de casques pour moto-école",
+        "desc": "Borne AIRO pour moto-écoles et centres de formation : les casques prêtés aux élèves sont nettoyés, désinfectés et séchés à la vapeur sèche entre deux leçons, en 3 à 10 minutes.",
+        "h1": "Des casques d’élèves<br>propres à chaque leçon.",
+        "sub": "La borne AIRO nettoie, désinfecte et sèche les casques prêtés à vos élèves, à la vapeur sèche.",
+        "why_t": "En moto-école, les casques de prêt changent d’élève à chaque leçon.",
+        "why": [
+            ("Rassurer les élèves", "Un élève qui débute est plus à l’aise avec un casque qui sort de la borne, propre et sans odeur."),
+            ("Entre deux leçons", "Nettoyage rapide en 7 minutes, deux casiers en parallèle : le casque est prêt pour l’élève suivant."),
+            ("Sans y passer du temps", "Le casque se dépose, le cycle se lance sur l’écran, la borne s’occupe du reste."),
+        ],
+        "img": ("film/m/055.webp", "Écran de sélection du programme de la borne AIRO"),
+        "faq": [
+            ("Quels casques de moto-école sont compatibles ?", "Intégral, modulable, jet et trail. Les casques équipés d’intercom sont compatibles."),
+            ("Faut-il former le personnel ?", "La prise en main est incluse lorsqu’elle figure au devis. L’utilisation se fait sur l’écran tactile, en quelques gestes."),
+        ],
+    },
+    {
+        "slug": "location-moto",
+        "option": "Atelier, garage ou loueur",
+        "menu": "Location moto et scooter",
+        "title": "Borne de nettoyage de casques pour location de motos et scooters",
+        "desc": "Borne AIRO pour loueurs de motos et scooters : les casques fournis avec la location sont nettoyés, désinfectés et séchés à la vapeur sèche entre deux clients, en 3 à 10 minutes.",
+        "h1": "Le casque de location,<br>propre à chaque client.",
+        "sub": "La borne AIRO nettoie, désinfecte et sèche les casques fournis avec vos locations, à la vapeur sèche.",
+        "why_t": "En location, le casque change de client à chaque retour.",
+        "why": [
+            ("Au retour du véhicule", "Le casque rendu passe dans la borne : nettoyage rapide en 7 minutes, avancé en 10 minutes."),
+            ("Une image soignée", "Vos clients voient que le casque qu’on leur remet a été nettoyé et désinfecté."),
+            ("Un service en plus", "Les clients qui ont leur propre casque peuvent aussi le nettoyer, en libre-service, au tarif que vous fixez."),
+        ],
+        "img": ("img/tech-locker.webp", "Casier de la borne AIRO"),
+        "faq": [
+            ("Quels casques sont compatibles ?", "Intégral, modulable, jet, trail et casques de vélo, entre autres. Les casques équipés d’intercom sont compatibles."),
+            ("Deux casques à la fois ?", "Oui, les casiers A et B fonctionnent indépendamment et en même temps."),
+        ],
+    },
 ]
 
 COMMON_FAQ = [
@@ -141,7 +201,9 @@ def page(s):
 <meta property="og:url" content="{url}">
 <meta property="og:title" content="{s["title"]} | AIRO">
 <meta property="og:description" content="{s["desc"]}">
-<meta property="og:image" content="{SITE}assets/img/og.jpg">
+<meta property="og:image" content="{SITE}assets/img/og/{s["slug"]}.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:locale" content="fr_FR">
 <meta property="og:site_name" content="AIRO">
 <meta name="twitter:card" content="summary_large_image">
