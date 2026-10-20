@@ -10,6 +10,12 @@ for (const f of fs.readdirSync(path.join(root, 'secteurs')).filter(f => f.endsWi
   const k = html.match(/<span aria-hidden="true">›<\/span> ([^<]+)<\/p>/)[1];
   pages.push({ slug: f.replace('.html', ''), k, t, s: 'Nettoyage, désinfection et séchage en 3 à 10 minutes.' });
 }
+const gdir = path.join(root, 'guides');
+if (fs.existsSync(gdir)) for (const f of fs.readdirSync(gdir).filter(f => f.endsWith('.html') && f !== 'index.html').sort()) {
+  const html = fs.readFileSync(path.join(gdir, f), 'utf8');
+  const t = html.match(/<h1 class="art__t">([\s\S]*?)<\/h1>/)[1];
+  pages.push({ slug: f.replace('.html', ''), k: 'Guide pratique', t, s: 'Entretien et hygiène des casques, par AIRO.' });
+}
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1200, height: 630 } });
   await p.goto('file://' + path.join(__dirname, 'og.html'), { waitUntil: 'networkidle' });

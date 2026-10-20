@@ -12,6 +12,8 @@ def block(start, end):
     return home[i:j]
 
 def up(html):
+    # typographie française : espace insécable avant « : » et « ? » (jamais en début de ligne)
+    html = html.replace(" :", "\u00a0:").replace(" ?", "\u00a0?")
     # chemins relatifs depuis secteurs/
     html = re.sub(r'(href|src|poster)="(?!#|https?:|tel:|mailto:|\.\./)([^"]+)"', r'\1="../\2"', html)
     return html
@@ -334,8 +336,15 @@ for s in SECTEURS:
     (out / f"{s['slug']}.html").write_text(page(s))
     print("secteurs/" + s["slug"] + ".html")
 
-# Plan du site
-urls = [SITE] + [f"{SITE}secteurs/{s['slug']}.html" for s in SECTEURS] + [SITE + "mentions-legales.html", SITE + "confidentialite.html"]
-(ROOT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-    "".join(f"  <url><loc>{u}</loc></url>\n" for u in urls) + "</urlset>\n")
-print("sitemap.xml")
+# Plan du site (accueil, secteurs, guides présents sur le disque, pages légales)
+def sitemap():
+    urls = [SITE] + [f"{SITE}secteurs/{p.name}" for p in sorted((ROOT / "secteurs").glob("*.html"))]
+    if (ROOT / "guides").is_dir():
+        urls += [f"{SITE}guides/"] + [f"{SITE}guides/{p.name}" for p in sorted((ROOT / "guides").glob("*.html")) if p.name != "index.html"]
+    urls += [SITE + "mentions-legales.html", SITE + "confidentialite.html"]
+    (ROOT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+        "".join(f"  <url><loc>{u}</loc></url>\n" for u in urls) + "</urlset>\n")
+    print("sitemap.xml")
+
+if __name__ == "__main__":
+    sitemap()

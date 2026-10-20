@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://airocasque.github.io/airo-site/</loc></url>
-  <url><loc>https://airocasque.github.io/airo-site/secteurs/karting.html</loc></url>
-  <url><loc>https://airocasque.github.io/airo-site/secteurs/concession-moto.html</loc></url>
   <url><loc>https://airocasque.github.io/airo-site/secteurs/centre-equestre.html</loc></url>
-  <url><loc>https://airocasque.github.io/airo-site/secteurs/station-ski.html</loc></url>
   <url><loc>https://airocasque.github.io/airo-site/secteurs/circuit.html</loc></url>
-  <url><loc>https://airocasque.github.io/airo-site/secteurs/moto-ecole.html</loc></url>
+  <url><loc>https://airocasque.github.io/airo-site/secteurs/concession-moto.html</loc></url>
+  <url><loc>https://airocasque.github.io/airo-site/secteurs/karting.html</loc></url>
   <url><loc>https://airocasque.github.io/airo-site/secteurs/location-moto.html</loc></url>
+  <url><loc>https://airocasque.github.io/airo-site/secteurs/moto-ecole.html</loc></url>
+  <url><loc>https://airocasque.github.io/airo-site/secteurs/station-ski.html</loc></url>
+  <url><loc>https://airocasque.github.io/airo-site/guides/</loc></url>
+  <url><loc>https://airocasque.github.io/airo-site/guides/hygiene-casques-pret.html</loc></url>
+  <url><loc>https://airocasque.github.io/airo-site/guides/nettoyer-casque-moto.html</loc></url>
+  <url><loc>https://airocasque.github.io/airo-site/guides/odeurs-casque.html</loc></url>
+  <url><loc>https://airocasque.github.io/airo-site/guides/secher-casque-mouille.html</loc></url>
   <url><loc>https://airocasque.github.io/airo-site/mentions-legales.html</loc></url>
   <url><loc>https://airocasque.github.io/airo-site/confidentialite.html</loc></url>
 </urlset>
