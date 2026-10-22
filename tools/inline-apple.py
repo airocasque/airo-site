@@ -2,7 +2,7 @@
 import base64, json, re, sys, pathlib
 root = pathlib.Path(__file__).resolve().parent.parent; out = pathlib.Path(sys.argv[1])
 SITE = 'https://airocasque.github.io/airo-site/'
-MIME = {'.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.mp4':'video/mp4','.webm':'video/webm'}
+MIME = {'.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.mp4':'video/mp4','.webm':'video/webm','.woff2':'font/woff2'}
 def uri(rel):
     p = root / rel
     return f"data:{MIME[p.suffix]};base64," + base64.b64encode(p.read_bytes()).decode()

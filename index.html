@@ -119,6 +119,7 @@
 <link rel="icon" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <link rel="preload" as="image" href="assets/img/machine.webp" fetchpriority="high">
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/archivo-latin-wdth-normal.woff2" crossorigin>
 <link rel="stylesheet" href="apple/apple.css">
 <script>document.documentElement.className="js"</script>
 </head>
@@ -157,17 +158,27 @@
 
 <main id="main">
 
-<!-- 1. Héros -->
-<section class="hero" id="top" data-theme="dark">
-  <h1 class="hero__title in-1">Casque propre.<br>En 10 minutes.</h1>
-  <p class="hero__sub in-2">La borne de nettoyage de casques en libre-service.</p>
-  <div class="hero__cta in-3">
-    <a class="pill" href="#devis">Demander un devis</a>
-    <a class="link" href="#film">Voir la borne en action <span aria-hidden="true">›</span></a>
+<!-- 1. Héros électrique : l'éclair frappe, la borne s'allume -->
+<section class="vhero" id="top" data-theme="dark">
+  <canvas class="vhero__volt" id="volt" aria-hidden="true"></canvas>
+  <div class="vhero__flash" id="vflash" aria-hidden="true"></div>
+  <div class="vhero__grid">
+    <div class="vhero__txt">
+      <p class="vhero__kick" id="vkick"><i></i>Nettoyage par vapeur · Nouvelle génération</p>
+      <h1 class="vhero__t" id="vtitle"><span class="ln"><span>Casque propre.</span></span> <span class="ln"><span class="v">En 10 minutes.</span></span></h1>
+      <p class="vhero__sub" id="vsub">La borne qui nettoie, désinfecte et sèche les casques en libre-service. Vos clients paient par carte, sur la borne.</p>
+      <div class="vhero__cta" id="vcta">
+        <a class="pill vhero__btn" href="#devis">Demander un devis</a>
+        <a class="link" href="#film">Voir la borne en action <span aria-hidden="true">›</span></a>
+      </div>
+    </div>
+    <div class="vhero__stage">
+      <div class="vhero__halo" id="vhalo" aria-hidden="true"></div>
+      <div class="vhero__machine" id="vmachine"><img src="assets/img/machine.webp" alt="La borne AIRO : écran tactile, deux casiers vitrés A et B" width="581" height="1000" fetchpriority="high"></div>
+      <div class="vhero__floor" id="vfloor" aria-hidden="true"></div>
+    </div>
   </div>
-  <figure class="hero__machine in-4">
-    <img src="assets/img/machine.webp" alt="La borne AIRO : écran tactile, deux casiers vitrés A et B" width="581" height="1000" fetchpriority="high">
-  </figure>
+  <p class="vhero__scroll" id="vscroll" aria-hidden="true">Défiler<b></b></p>
 </section>
 
 <!-- 2. Film piloté par le défilement -->

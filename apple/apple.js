@@ -442,6 +442,111 @@
     });
   })();
 
+
+  /* ---------- Héros électrique : fond d'éclairs (WebGL), éclair d'arrivée, borne inclinable ---------- */
+  (function () {
+    var hero = document.querySelector(".vhero"); if (!hero) return;
+    var cv = document.getElementById("volt"), mach = document.getElementById("vmachine"), img = mach.querySelector("img");
+    var flash = document.getElementById("vflash"), mobile = matchMedia("(max-width: 900px)").matches;
+    var fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+    var gl = null, U = {}, strike = 0, on = true, raf = 0, last = 0, t0 = performance.now(), soft = false, done = false;
+    var mouse = [0.64, 0.45], target = [0.64, 0.45], rx = 0, ry = 0, vx = 0, vy = 0;
+
+    function initGL() {
+      try { gl = cv.getContext("webgl", { antialias: false, alpha: false, powerPreference: "high-performance" }); } catch (e) { gl = null; }
+      if (!gl) return;
+      var fs = [
+        "precision mediump float;uniform vec2 r;uniform float t,s;uniform vec2 m;",
+        "float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
+        "float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}",
+        "float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p*=2.03;a*=.5;}return v;}",
+        "void main(){vec2 uv=gl_FragCoord.xy/r;vec2 q=(gl_FragCoord.xy-.5*r)/r.y;vec3 c=vec3(.006,.01,.024);",
+        "float nb=fbm(q*1.6+vec2(t*.03,-t*.02));c+=vec3(.02,.05,.14)*nb*nb*2.2;",
+        "vec2 mm=(m-.5)*vec2(r.x/r.y,1.);c+=vec3(.08,.2,.6)*.18/(1.+dot(q-mm,q-mm)*14.);",
+        "for(int i=0;i<4;i++){float fi=float(i);",
+        " float x=(fi-1.5)*.38+.22*sin(t*.11+fi*2.1)+(fbm(vec2(q.y*2.2+fi*7.,t*.35+fi))-.5)*.55;",
+        " float d=abs(q.x-x-mm.x*.15);float fl=.55+.45*n(vec2(t*6.+fi*13.,fi));",
+        " c+=vec3(.25,.48,1.)*(.0016+.0022*s)/(d+.002)*fl*(.35+1.4*s)*smoothstep(.95,.2,abs(q.y));",
+        " c+=vec3(.1,.25,.8)*.02/(d+.03)*(.4+s);}",
+        "c+=vec3(.5,.7,1.)*s*s*.25*(1.-length(q));c*=1.-.55*length(uv-.5);gl_FragColor=vec4(pow(c,vec3(.92)),1.);}"
+      ].join("\n");
+      var sh = function (type, src) { var o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+      var pr = gl.createProgram();
+      gl.attachShader(pr, sh(gl.VERTEX_SHADER, "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}"));
+      gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(pr);
+      if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { gl = null; return; }
+      // sans carte graphique (rendu logiciel) : l'animation continue serait lourde → image fixe après l'arrivée
+      var dbg = gl.getExtension("WEBGL_debug_renderer_info");
+      soft = /swiftshader|llvmpipe|software|basic render/i.test(dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : "");
+      gl.useProgram(pr);
+      gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      var loc = gl.getAttribLocation(pr, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      ["r", "t", "s", "m"].forEach(function (k) { U[k] = gl.getUniformLocation(pr, k); });
+      size();
+    }
+    function size() {
+      // effet doux : une résolution réduite suffit et garde l'animation légère
+      var d = Math.min(devicePixelRatio || 1, 2) * (mobile ? 0.5 : 0.6);
+      cv.width = Math.max(1, Math.round(cv.clientWidth * d)); cv.height = Math.max(1, Math.round(cv.clientHeight * d));
+      if (gl) gl.viewport(0, 0, cv.width, cv.height);
+    }
+    function draw(now) {
+      if (!gl) return;
+      gl.uniform2f(U.r, cv.width, cv.height); gl.uniform1f(U.t, reduce ? 4 : (now - t0) / 1000);
+      gl.uniform1f(U.s, strike); gl.uniform2f(U.m, mouse[0], mouse[1]);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    function loop(now) {
+      raf = 0;
+      if (!on || document.hidden || (soft && done)) return;
+      raf = requestAnimationFrame(loop);
+      if (now - last < (soft ? 66 : 25)) return;         // ~40 images/s suffisent pour des éclairs (15 en rendu logiciel)
+      last = now;
+      mouse[0] += (target[0] - mouse[0]) * 0.08; mouse[1] += (target[1] - mouse[1]) * 0.08;
+      draw(now);
+      if (fine) {                                         // inclinaison 3D amortie, à la souris seulement
+        var tx = (mouse[1] - 0.5) * 10, ty = (mouse[0] - 0.55) * 18;
+        vx += (tx - rx) * 0.06; vy += (ty - ry) * 0.06; vx *= 0.8; vy *= 0.8; rx += vx; ry += vy;
+        mach.style.transform = "rotateX(" + rx.toFixed(2) + "deg) rotateY(" + ry.toFixed(2) + "deg)";
+      }
+    }
+    function start() { if (!raf && on && !reduce) raf = requestAnimationFrame(loop); }
+    new IntersectionObserver(function (e) { on = e[0].isIntersecting; if (on) start(); }).observe(hero);
+    document.addEventListener("visibilitychange", start);
+    addEventListener("resize", size);
+    if (fine) addEventListener("pointermove", function (e) { target = [e.clientX / innerWidth, 1 - e.clientY / innerHeight]; }, { passive: true });
+
+    var ease = function (t) { return 1 - Math.pow(1 - t, 3); };
+    var lines = [].slice.call(hero.querySelectorAll(".vhero__t .ln > span"));
+    var parts = [["vkick", 0.25], ["vsub", 0.75], ["vcta", 0.9], ["vscroll", 1.4]].map(function (a) { return [document.getElementById(a[0]), a[1]]; });
+    var halo = document.getElementById("vhalo"), floor = document.getElementById("vfloor");
+    function lit() {
+      hero.classList.add("is-lit"); strike = 0; flash.style.opacity = 0; done = true;
+      if (soft) draw(performance.now());
+      [img, halo, floor].concat(lines, parts.map(function (p) { return p[0]; })).forEach(function (el) { el.style.removeProperty("filter"); el.style.removeProperty("opacity"); el.style.removeProperty("transform"); });
+    }
+    function intro() {
+      initGL();
+      if (reduce) { lit(); draw(performance.now()); return; }
+      start();
+      var t1 = performance.now() + 300;
+      (function step(now) {
+        var k = (now - t1) / 1000;                       // secondes depuis l'éclair
+        strike = k < 0 ? 0 : Math.max(0, Math.exp(-k * 5) * (k < 0.08 ? 1 : 0.85) + (k > 0.16 && k < 0.26 ? 0.7 : 0));
+        flash.style.opacity = (strike * 0.5).toFixed(3);
+        var l = ease(clamp((k - 0.05) / 1.1, 0, 1));
+        img.style.filter = "brightness(" + (0.15 + 0.85 * l + strike * 0.6).toFixed(3) + ") saturate(" + (0.6 + 0.4 * l).toFixed(3) + ")";
+        halo.style.opacity = floor.style.opacity = l.toFixed(3);
+        lines.forEach(function (sp, i) { var p = ease(clamp((k - 0.35 - i * 0.12) / 0.9, 0, 1)); sp.style.transform = "translateY(" + ((1 - p) * 105).toFixed(1) + "%)"; });
+        parts.forEach(function (a) { var p = ease(clamp((k - a[1]) / 0.8, 0, 1)); a[0].style.opacity = p.toFixed(3); a[0].style.transform = "translateY(" + ((1 - p) * 14).toFixed(1) + "px)"; });
+        if (k < 2.3) requestAnimationFrame(step); else lit();
+      })(performance.now());
+    }
+    var go = function () { if (go.done) return; go.done = true; intro(); };
+    if (img.complete) go(); else { img.addEventListener("load", go); img.addEventListener("error", go); }
+    setTimeout(go, 2500);                                  // filet de sécurité : jamais de héros éteint
+  })();
+
   /* ---------- Menu mobile : feuille ancrée sous la barre ---------- */
   (function () {
     var btn = document.getElementById("navToggle"), sheet = document.getElementById("navSheet");
