@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Covering AIRO × BMW Motorrad — panneaux</title>
+<!-- Panneaux à l'échelle des textures 3D : flanc 1280×4071 px (0,588 × 1,87 m), façade 1536×4224 px (0,68 × 1,87 m).
+     ?panel=side|sideL|front  → un seul panneau (pour l'export). Cotes à confirmer sur le BAT de l'imprimeur. -->
+<style>
+@font-face { font-family: Inst; src: url("fonts/InstrumentSans-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: Inst; src: url("fonts/InstrumentSans-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: Inst; src: url("fonts/InstrumentSans-Italic.ttf"); font-weight: 400; font-style: italic; }
+@font-face { font-family: Inst; src: url("fonts/InstrumentSans-BoldItalic.ttf"); font-weight: 700; font-style: italic; }
+:root {
+  --white: #f4f5f7; --white-2: #e6e9ee; --ink: #16181d; --grey: #6b717c; --line: #c9ced6;
+  --sky: #8ec5f0; --blue: #1c69d4; --navy: #0b2a5b;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #2a2d33; font-family: Inst, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+.board { position: relative; overflow: hidden; background: var(--white); }
+.abs { position: absolute; }
+
+/* matière : blanc satiné, très léger dégradé et reflet diagonal */
+.satin { position: absolute; inset: 0; background:
+  linear-gradient(115deg, rgba(255,255,255,.0) 30%, rgba(255,255,255,.55) 46%, rgba(255,255,255,0) 60%),
+  linear-gradient(180deg, #f7f8fa, #eceef2 70%, #e3e6eb); }
+
+/* bandes : trois bleus parallèles */
+.stripes { position: absolute; transform-origin: 0 0; }
+.stripes i { display: block; }
+.stripes .s1 { background: var(--sky); }
+.stripes .s2 { background: var(--blue); }
+.stripes .s3 { background: var(--navy); }
+
+/* mot-symbole AIRO (masque de la maquette client) */
+.wm { position: absolute; color: var(--ink); }
+
+/* emplacement logo partenaire : jamais redessiné, fichier officiel à fournir */
+.partner { position: absolute; border: 6px dashed #9aa3b1; border-radius: 28px; display: grid; place-content: center; text-align: center; color: #7b8494; gap: 10px; background: rgba(255,255,255,.55); }
+.partner b { font-size: 40px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); }
+.partner span { font-size: 28px; line-height: 1.25; }
+.times { position: absolute; font-weight: 400; color: var(--grey); line-height: 1; }
+
+.icon { fill: none; stroke: var(--blue); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ===================== FLANC ===================== */
+#side { width: 1280px; height: 4071px; }
+.board .vtag { position: absolute; transform-origin: 0 0; transform: rotate(90deg); white-space: nowrap; }
+.board .vtag b { display: block; font-weight: 700; font-size: 92px; letter-spacing: .03em; line-height: .98; color: var(--blue); text-transform: uppercase; }
+.board .vtag span { display: block; margin-top: 14px; font-size: 44px; letter-spacing: .32em; color: var(--grey); text-transform: uppercase; }
+.board .feat { position: absolute; left: 250px; top: 3010px; display: grid; gap: 54px; }
+.board .feat div { display: grid; grid-template-columns: 104px 1fr; gap: 34px; align-items: center; }
+.board .feat svg { width: 104px; height: 104px; }
+.board .feat p { font-weight: 700; font-size: 44px; line-height: 1.12; letter-spacing: .04em; text-transform: uppercase; }
+.board .feat p small { display: block; font-size: 44px; font-weight: 400; color: var(--grey); }
+.board .plinth { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; background: var(--ink); }
+.board .plinth::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 10px; background: var(--blue); }
+
+/* ===================== FAÇADE ===================== */
+#front { width: 1536px; height: 4224px; }
+.dark { position: absolute; left: 0; right: 0; background: linear-gradient(180deg, #1b1e24, #111318); }
+.steps { position: absolute; left: 90px; right: 90px; top: 960px; height: 560px; }
+.step { position: absolute; display: grid; grid-template-columns: 64px 110px 1fr; align-items: center; gap: 20px; width: 500px; }
+.step .n { font-weight: 700; font-size: 96px; color: var(--blue); line-height: 1; }
+.step svg { width: 110px; height: 110px; }
+.step p { font-weight: 700; font-size: 32px; line-height: 1.18; letter-spacing: .04em; text-transform: uppercase; }
+.term { position: absolute; left: 628px; top: 1000px; width: 280px; height: 380px; border-radius: 36px; background: linear-gradient(180deg, #23262d, #121418); box-shadow: inset 0 0 0 6px #2f333b; }
+.term::before { content: ""; position: absolute; left: 40px; right: 40px; top: 46px; height: 170px; border-radius: 16px; background: #0b0c0f; box-shadow: inset 0 0 0 3px #3a3f48; }
+.term::after { content: ""; position: absolute; left: 50%; bottom: 46px; width: 120px; height: 18px; translate: -50% 0; border-radius: 9px; background: var(--blue); box-shadow: 0 0 24px rgba(28,105,212,.8); }
+.secure { position: absolute; left: 0; right: 0; top: 1430px; display: flex; justify-content: center; align-items: center; gap: 18px; font-weight: 700; font-size: 34px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
+.secure svg { width: 56px; height: 56px; }
+.band { position: absolute; left: 0; right: 0; display: grid; place-items: center; font-weight: 700; font-size: 40px; letter-spacing: .02em; color: var(--ink); border-bottom: 4px solid var(--line); }
+.badge { position: absolute; width: 168px; height: 168px; border-radius: 22px; background: var(--blue); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 118px; line-height: 1; box-shadow: 0 10px 30px -8px rgba(28,105,212,.55); }
+.handle { position: absolute; width: 64px; height: 340px; border-radius: 32px; background: linear-gradient(90deg, #c9ced6, #f4f5f7 45%, #aab1bc); box-shadow: inset 0 0 0 4px #9aa3b1; }
+.handle::after { content: ""; position: absolute; left: 18px; right: 18px; top: 40px; bottom: 40px; border-radius: 14px; background: #2a2d33; }
+.win { position: absolute; background: #0c0e12; outline: 6px solid #2f333b; border-radius: 10px; }
+.socle-wm { position: absolute; color: #fff; }
+.social { position: absolute; left: 0; right: 0; display: flex; justify-content: center; gap: 70px; color: #e8ebf0; font-weight: 700; font-size: 44px; letter-spacing: .02em; }
+.social span { display: inline-flex; align-items: center; gap: 18px; }
+.social svg { width: 52px; height: 52px; fill: none; stroke: #e8ebf0; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.partner--dark { border-color: #5b6372; background: rgba(255,255,255,.04); color: #9aa3b1; }
+.partner--dark b { color: #e8ebf0; }
+.screenzone { position: absolute; background: #050608; border-radius: 12px; display: grid; place-items: center; color: #3a3f48; font-size: 40px; letter-spacing: .2em; text-transform: uppercase; }
+
+body.one { background: transparent; }
+body.one .board { display: none; }
+body.one .board.show { display: block; }
+.sheet { display: flex; gap: 120px; padding: 120px; align-items: flex-start; width: max-content; }
+
+/* ===== mode impression (?print) : aplat sans reflet, réservations matériel en pointillés magenta ===== */
+body.print .satin { background: #f4f5f7; }
+body.print :is(.win, .screenzone, .term, .handle) { background: none !important; box-shadow: none !important; outline: none !important; border: 5px dashed #e6007e; color: #e6007e; display: grid; place-items: center; font: 700 30px Inst, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+body.print :is(.term, .handle)::before, body.print :is(.term, .handle)::after { display: none; }
+body.print .win::after { content: "Réservation vitre"; }
+body.print .screenzone { font-size: 0; } body.print .screenzone::after { content: "Réservation écran"; font-size: 30px; }
+body.print .term::after { content: "Terminal"; display: block !important; position: static; translate: none; width: auto; height: auto; background: none; box-shadow: none; font-size: 24px; }
+body.print .handle { writing-mode: vertical-rl; font-size: 20px; } body.print .handle::after { content: "Poignée"; display: block !important; position: static; background: none; }
+.wm svg, .socle-wm svg { width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<!-- ===================== FLANC (droit : bord gauche = avant) ===================== -->
+<section class="board" id="side" data-panel="side">
+  <div class="satin"></div>
+  <div class="stripes" style="--a:-32deg; left:-120px; top:2780px; transform: rotate(-32deg);">
+    <i class="s1" style="width:1900px;height:64px"></i><i style="height:18px"></i>
+    <i class="s2" style="width:1900px;height:96px"></i><i style="height:18px"></i>
+    <i class="s3" style="width:1900px;height:40px"></i>
+  </div>
+  <div class="wm" style="left:150px; top:330px; width:1560px; height:408px; transform-origin:0 0; transform: translate(408px,0) rotate(90deg);"></div>
+  <div class="vtag" style="left:930px; top:330px;"><b>Nettoyage<br>par vapeur</b><span>Nouvelle génération</span></div>
+  <p class="times" style="left:800px; top:1330px; font-size:150px;">×</p>
+  <div class="partner" style="left:760px; top:1520px; width:400px; height:400px;"><b>Logo<br>partenaire</b><span>BMW Motorrad<br>fichier officiel<br>de la concession</span></div>
+  <div class="feat">
+    <div><svg class="icon" viewBox="0 0 64 64"><circle cx="32" cy="24" r="15"/><circle cx="32" cy="24" r="7"/><path d="M22 36 16 58l9-5 5 8 4-19M42 36l6 22-9-5-5 8-2-19"/></svg><p>Vapeur sèche<small>haute performance</small></p></div>
+    <div><svg class="icon" viewBox="0 0 64 64"><path d="M24 22h16v6l6 8v22H18V36l6-8Z"/><path d="M28 22v-8h12l6 4M40 14h-6"/><path d="M50 10l4-3M51 16h5M50 22l4 3"/></svg><p>Désinfection<small>prouvée</small></p></div>
+    <div><svg class="icon" viewBox="0 0 64 64"><circle cx="32" cy="32" r="14"/><circle cx="27" cy="28" r="2.5"/><circle cx="36" cy="35" r="2.5"/><circle cx="34" cy="26" r="1.5"/><path d="M32 8v8M32 48v8M8 32h8M48 32h8M15 15l6 6M43 43l6 6M49 15l-6 6M21 43l-6 6"/></svg><p>Élimine 99,9 %<small>des bactéries</small></p></div>
+    <div><svg class="icon" viewBox="0 0 64 64"><path d="M20 56c-6-8 6-14 0-22s0-16 6-22"/><path d="M33 56c-6-8 6-14 0-22s0-16 6-22"/><path d="M46 56c-6-8 6-14 0-22"/></svg><p>Neutralise<small>les odeurs</small></p></div>
+    <div><svg class="icon" viewBox="0 0 64 64"><circle cx="32" cy="32" r="24"/><circle cx="32" cy="32" r="4"/><path d="M32 28c-2-8 2-14 10-12-1 7-5 10-10 12ZM36 33c8-1 13 4 10 11-7-1-9-6-10-11ZM28 34c-6 6-13 5-14-3 6-3 11-1 14 3Z"/></svg><p>Séchage rapide<small>intégré</small></p></div>
+    <div><svg class="icon" viewBox="0 0 64 64"><path d="M8 40c0-16 11-28 26-28 13 0 22 9 22 21v9H8Z"/><path d="M8 42h48M30 42V31h26"/></svg><p>Compatible<small>tous casques</small></p></div>
+  </div>
+  <div class="plinth"></div>
+</section>
+
+<!-- ===================== FLANC GAUCHE (bord gauche = arrière : bandes en miroir, textes identiques) ===================== -->
+<section class="board mirror-stripes" id="sideL" data-panel="sideL" style="width:1280px;height:4071px">
+  <div class="satin"></div>
+  <div class="abs" style="inset:0; transform:scaleX(-1);"><div class="stripes" style="left:-120px; top:2780px; transform: rotate(-32deg);">
+    <i class="s1" style="width:1900px;height:64px"></i><i style="height:18px"></i>
+    <i class="s2" style="width:1900px;height:96px"></i><i style="height:18px"></i>
+    <i class="s3" style="width:1900px;height:40px"></i>
+  </div></div>
+  <div class="wm" style="left:150px; top:330px; width:1560px; height:408px; transform-origin:0 0; transform: translate(408px,0) rotate(90deg);"></div>
+  <div class="vtag" style="left:930px; top:330px; position:absolute; transform-origin:0 0; transform: rotate(90deg); white-space:nowrap;"><b style="display:block;font-weight:700;font-size:92px;letter-spacing:.03em;line-height:.98;color:var(--blue);text-transform:uppercase">Nettoyage<br>par vapeur</b><span style="display:block;margin-top:14px;font-size:44px;letter-spacing:.32em;color:var(--grey);text-transform:uppercase">Nouvelle génération</span></div>
+  <p class="times" style="left:800px; top:1330px; font-size:150px;">×</p>
+  <div class="partner" style="left:760px; top:1520px; width:400px; height:400px;"><b>Logo<br>partenaire</b><span>BMW Motorrad<br>fichier officiel<br>de la concession</span></div>
+  <div class="feat-copy"></div>
+  <div class="plinth" style="position:absolute;left:0;right:0;bottom:0;height:120px;background:var(--ink)"></div>
+</section>
+
+<!-- ===================== FAÇADE ===================== -->
+<section class="board" id="front" data-panel="front">
+  <div class="satin"></div>
+  <!-- bloc écran (0 → 926 px) -->
+  <div class="dark" style="top:0;height:926px;"></div>
+  <div class="screenzone" style="left:255px; top:194px; width:1026px; height:676px;">écran</div>
+  <div class="abs" style="left:255px; right:255px; top:892px; height:8px; background:var(--blue); border-radius:4px; box-shadow:0 0 18px rgba(28,105,212,.8)"></div>
+  <!-- panneau de commande (926 → 1536) -->
+  <div class="step" style="left:96px; top:1010px;"><span class="n">1</span><svg class="icon" viewBox="0 0 64 64"><rect x="14" y="10" width="36" height="44" rx="5"/><path d="M14 24h36M42 36v6"/></svg><p>Sélectionnez<br>un casier</p></div>
+  <div class="step" style="left:96px; top:1220px;"><span class="n">2</span><svg class="icon" viewBox="0 0 64 64"><path d="M26 36V14a4 4 0 0 1 8 0v18l10 2a5 5 0 0 1 4 6l-3 14H28l-9-12a4 4 0 0 1 6-5Z"/><path d="M22 10l-4-4M38 10l4-4"/></svg><p>Choisissez<br>un programme</p></div>
+  <div class="step" style="left:948px; top:1010px; width:490px;"><span class="n">3</span><svg class="icon" viewBox="0 0 64 64"><rect x="8" y="16" width="48" height="32" rx="5"/><path d="M8 26h48M16 40h12"/></svg><p>Payez</p></div>
+  <div class="step" style="left:948px; top:1220px; width:490px;"><span class="n">4</span><svg class="icon" viewBox="0 0 64 64"><path d="M8 40c0-16 11-28 26-28 13 0 22 9 22 21v9H8Z"/><path d="M8 42h48M30 42V31h26"/></svg><p>Placez<br>votre casque</p></div>
+  <div class="term"></div>
+  <p class="secure"><svg class="icon" viewBox="0 0 64 64"><path d="M32 6 12 14v14c0 13 8.5 22 20 28 11.5-6 20-15 20-28V14Z"/><path d="m23 32 7 7 12-13"/></svg>Paiement sécurisé</p>
+
+  <!-- casier A : bandeau 1536→1714, porte 1714→2562, vitre 318→1371 × 1737→2528 -->
+  <div class="band" style="top:1536px; height:178px;">Veuillez fermer la porte après avoir retiré votre casque.</div>
+  <div class="win" style="left:318px; top:1737px; width:1053px; height:791px;"></div>
+  <div class="badge" style="left:120px; top:1760px;">A</div>
+  <div class="handle" style="left:172px; top:2010px;"></div>
+  <!-- casier B : bandeau 2575→2754, porte 2754→3601, vitre 318→1371 × 2777→3568 -->
+  <div class="band" style="top:2575px; height:179px;">Veuillez fermer la porte après avoir retiré votre casque.</div>
+  <div class="win" style="left:318px; top:2777px; width:1053px; height:791px;"></div>
+  <div class="badge" style="left:120px; top:2800px;">B</div>
+  <div class="handle" style="left:172px; top:3050px;"></div>
+
+  <!-- socle (3614 → 4224) -->
+  <div class="dark" style="top:3614px; height:610px;"></div>
+  <div class="abs" style="left:0; right:0; top:3614px; height:8px; background:var(--blue);"></div>
+  <div class="stripes" style="left:-80px; top:4215px; transform: rotate(-14deg);">
+    <i class="s1" style="width:470px;height:22px"></i><i style="height:10px"></i>
+    <i class="s2" style="width:470px;height:34px"></i><i style="height:10px"></i>
+    <i class="s3" style="width:470px;height:16px;background:#2c4f8f"></i>
+  </div>
+  <div class="socle-wm" style="left:250px; top:3730px; width:520px; height:136px;"></div>
+  <p class="times" style="left:812px; top:3720px; font-size:120px; color:#8a93a3;">×</p>
+  <div class="partner partner--dark" style="left:930px; top:3690px; width:360px; height:210px; border-radius:22px;"><b style="font-size:32px">Logo partenaire</b><span style="font-size:24px">BMW Motorrad · officiel</span></div>
+  <div class="social" style="top:4000px;">
+    <span><svg viewBox="0 0 64 64"><path d="M38 8v30a10 10 0 1 1-10-10M38 8c0 8 6 14 14 14"/></svg>Airo.Officiel</span>
+    <span><svg viewBox="0 0 64 64"><rect x="10" y="10" width="44" height="44" rx="13"/><circle cx="32" cy="32" r="10"/><circle cx="45" cy="19" r="1.5"/></svg>Airo.Officiel</span>
+  </div>
+</section>
+
+</div>
+<script type="module">
+  // le flanc gauche reprend la liste de pictos du flanc droit (textes identiques, non inversés)
+  document.querySelector("#sideL .feat-copy").outerHTML = document.querySelector(".board .feat").outerHTML.replace('class="feat"', 'class="feat" style="position:absolute;left:250px;top:3010px;display:grid;gap:54px"');
+  document.querySelectorAll("#sideL .feat > div").forEach(d => d.setAttribute("style", "display:grid;grid-template-columns:104px 1fr;gap:34px;align-items:center"));
+  // logo AIRO vectoriel (tracé depuis la maquette client) injecté dans chaque emplacement
+  const WM = await (await fetch("airo-wordmark.svg")).text();
+  document.querySelectorAll(".wm, .socle-wm").forEach(el => { el.innerHTML = WM.replace("<svg", '<svg preserveAspectRatio="none"'); });
+  if (new URLSearchParams(location.search).has("print")) document.body.classList.add("print");
+  document.body.dataset.ready = "1";
+  const p = new URLSearchParams(location.search).get("panel");
+  if (p) { document.body.classList.add("one"); document.getElementById(p).classList.add("show"); document.querySelector(".sheet").style.padding = 0; }
+</script>
+</body>
+</html>

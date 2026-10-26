@@ -361,7 +361,7 @@ function buildMachine(mats) {
   const SH = BH - TOP_R, sideGeo = new THREE.PlaneGeometry(D - 0.012, SH);
   { const uv = sideGeo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, uv.getY(i) * SH / BH); }
   const right = add(sideGeo, mats.side, W / 2 + 0.0015, Y0 + SH / 2, 0); right.rotation.y = Math.PI / 2;
-  const left = add(sideGeo, mats.side, -W / 2 - 0.0015, Y0 + SH / 2, 0); left.rotation.y = -Math.PI / 2;
+  const left = add(sideGeo, mats.sideL || mats.side, -W / 2 - 0.0015, Y0 + SH / 2, 0); left.rotation.y = -Math.PI / 2;
   const back = add(new THREE.PlaneGeometry(W - 0.07, BH - 0.03), mats.back, 0, Y0 + (BH - 0.03) / 2, -D / 2 - 0.0015); back.rotation.y = Math.PI;
 
   // bandeaux LED : arêtes avant et haut (animés à l'allumage)
@@ -480,16 +480,20 @@ async function init() {
   const basic = (o) => new THREE.MeshBasicMaterial(o);
   const loader = new THREE.TextureLoader();
   const loadTex = (src) => new Promise((res) => loader.load(src, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); res(t); }, undefined, () => res(null)));
-  const [frontTex, sideTexPhoto] = await Promise.all([loadTex("assets/img/tex-front-hd.webp"), loadTex("assets/img/tex-side-hd.webp")]);
+  // tournage : ?studio&front=…&side=…&sideL=… remplacent les textures (aperçus de covering)
+  const qs = new URLSearchParams(location.search), texQ = (k, d) => (STUDIO && qs.get(k)) || d;
+  const [frontTex, sideTexPhoto, sideLTex] = await Promise.all([loadTex(texQ("front", "assets/img/tex-front-hd.webp")), loadTex(texQ("side", "assets/img/tex-side-hd.webp")),
+    STUDIO && qs.get("sideL") ? loadTex(qs.get("sideL")) : Promise.resolve(null)]);
   // la photo est déjà éclairée : une part émissive garde son rendu, le reste réagit à la lumière de la scène
   const photoMat = (map, fallback) => map
-    ? std({ map, emissive: 0xffffff, emissiveMap: map, emissiveIntensity: 0.55, metalness: 0.25, roughness: 0.42 })
+    ? std({ map, color: new THREE.Color().setScalar(STUDIO && qs.get("alb") ? +qs.get("alb") : 1), emissive: 0xffffff, emissiveMap: map, emissiveIntensity: STUDIO && qs.get("emis") ? +qs.get("emis") : 0.55, metalness: 0.25, roughness: 0.42 })
     : std({ map: fallback, metalness: 0.3, roughness: 0.45 });
   const mats = {
     body: std({ color: 0x0c0d10, metalness: 0.6, roughness: 0.36 }),
     metal: std({ color: 0xb8bfca, metalness: 1, roughness: 0.22 }),
     front: photoMat(frontTex, controlTex()),
     side: photoMat(sideTexPhoto, sideTex()),
+    sideL: sideLTex ? photoMat(sideLTex, sideTex()) : null,
     back: std({ map: backTex(), metalness: 0.4, roughness: 0.5 }),
     screen: basic({ map: screen.tex, toneMapped: false, color: new THREE.Color(0.92, 0.92, 0.92) }),
     led: basic({ color: ledColor, toneMapped: false }),

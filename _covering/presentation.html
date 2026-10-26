@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>AIRO × BMW Motorrad — proposition de covering</title>
+<!-- Dossier de présentation (A4 paysage) : rendu en PDF par _covering/present.js -->
+<style>
+@font-face { font-family: Inst; src: url("fonts/InstrumentSans-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: Inst; src: url("fonts/InstrumentSans-Bold.ttf"); font-weight: 700; }
+@page { size: 297mm 210mm; margin: 0; }
+:root { --ink: #16181d; --grey: #6b717c; --line: #d6dae1; --white: #f4f5f7; --sky: #8ec5f0; --blue: #1c69d4; --navy: #0b2a5b; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Inst, sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pg { position: relative; width: 297mm; height: 210mm; overflow: hidden; page-break-after: always; padding: 16mm 18mm; background: var(--white); }
+.pg:last-child { page-break-after: auto; }
+.dark { background: #07090d; color: #eef1f6; }
+.foot { position: absolute; left: 18mm; right: 18mm; bottom: 9mm; display: flex; justify-content: space-between; font-size: 7.5pt; letter-spacing: .12em; text-transform: uppercase; color: #8a919c; }
+.kick { font-size: 8pt; letter-spacing: .26em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
+.dark .kick { color: var(--sky); }
+h1 { font-size: 40pt; line-height: .98; letter-spacing: -.02em; font-weight: 700; }
+h2 { font-size: 22pt; line-height: 1.05; letter-spacing: -.015em; font-weight: 700; margin-top: 3mm; }
+p.l { font-size: 10pt; line-height: 1.5; color: var(--grey); max-width: 120mm; margin-top: 4mm; }
+.dark p.l { color: #a3abb8; }
+.rule { position: absolute; left: 0; right: 0; height: 2.2mm; display: flex; flex-direction: column; gap: .6mm; }
+.rule i { display: block; height: .55mm; } .rule i:nth-child(1) { background: var(--sky); } .rule i:nth-child(2) { background: var(--blue); height: .8mm; } .rule i:nth-child(3) { background: var(--navy); }
+img { display: block; }
+
+/* 1. couverture */
+.cover-img { position: absolute; right: 0; top: 0; width: 196mm; height: 210mm; object-fit: cover; object-position: 62% 50%; -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%); mask-image: linear-gradient(90deg, transparent, #000 22%); }
+.cover-txt { position: absolute; left: 18mm; top: 50mm; width: 110mm; }
+.lockup { display: flex; align-items: center; gap: 5mm; margin-top: 8mm; }
+.lockup .wm { width: 46mm; height: 12mm; color: #fff; }
+.lockup .x { font-size: 22pt; color: #8a919c; }
+.lockup .ph { border: .5mm dashed #5b6372; border-radius: 2mm; padding: 2.5mm 4mm; font-size: 7pt; letter-spacing: .14em; text-transform: uppercase; color: #9aa3b1; line-height: 1.4; }
+
+/* 2. vues */
+.views { display: grid; grid-template-columns: 1.25fr 1fr; grid-template-rows: 1fr 1fr; gap: 4mm; position: absolute; left: 18mm; right: 18mm; top: 38mm; bottom: 18mm; }
+.views figure { position: relative; overflow: hidden; border-radius: 2.5mm; background: #000; }
+.views figure:first-child { grid-row: span 2; }
+.views img { width: 100%; height: 100%; object-fit: cover; }
+.views figcaption { position: absolute; left: 4mm; bottom: 3mm; font-size: 7pt; letter-spacing: .2em; text-transform: uppercase; color: #cfd6e2; }
+
+/* 3. à plat */
+.flat { position: absolute; left: 18mm; right: 18mm; top: 36mm; bottom: 16mm; display: flex; gap: 12mm; justify-content: center; align-items: flex-end; }
+.flat figure { display: grid; justify-items: center; gap: 3mm; }
+.flat img { height: 136mm; width: auto; box-shadow: 0 0 0 .25mm #c9ced6, 0 3mm 8mm -3mm rgba(0,0,0,.25); }
+.flat figcaption { font-size: 7.5pt; letter-spacing: .12em; text-transform: uppercase; color: var(--grey); text-align: center; line-height: 1.5; }
+.flat figcaption b { color: var(--ink); }
+.dim { position: relative; }
+.dim::before { content: attr(data-h); position: absolute; left: -8mm; top: 50%; translate: 0 -50%; rotate: -90deg; font-size: 7pt; color: var(--blue); letter-spacing: .1em; white-space: nowrap; }
+
+/* 4. système */
+.sys { position: absolute; left: 18mm; right: 18mm; top: 40mm; display: grid; grid-template-columns: 1.2fr 1fr; gap: 14mm; }
+.sw { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3mm; margin-top: 6mm; }
+.sw div { height: 62mm; border-radius: 2mm; position: relative; box-shadow: inset 0 0 0 .25mm rgba(0,0,0,.08); }
+.sw p { position: absolute; left: 2.5mm; bottom: 2.5mm; font-size: 7pt; line-height: 1.35; letter-spacing: .04em; }
+.sw b { display: block; font-size: 8pt; letter-spacing: .02em; }
+.type { margin-top: 6mm; border-top: .3mm solid var(--line); padding-top: 5mm; }
+.type .big { font-size: 40pt; font-weight: 700; letter-spacing: -.01em; line-height: 1; }
+.type .sm { margin-top: 2mm; font-size: 9pt; color: var(--grey); }
+.wmbox { margin-top: 10mm; background: #fff; border-radius: 2mm; padding: 7mm; box-shadow: inset 0 0 0 .25mm var(--line); display: flex; align-items: center; gap: 6mm; }
+.wmbox .wm { width: 60mm; height: 15.7mm; color: var(--ink); }
+
+/* 5. à valider */
+.todo { position: absolute; left: 18mm; right: 18mm; top: 46mm; display: grid; grid-template-columns: 1fr 1fr; gap: 11mm 16mm; }
+.todo div { border-top: .4mm solid var(--ink); padding-top: 3.5mm; }
+.todo h3 { font-size: 13pt; letter-spacing: -.005em; }
+.todo p { margin-top: 2.5mm; font-size: 10.5pt; line-height: 1.5; color: var(--grey); }
+.wm svg { width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+
+<section class="pg dark">
+  <img class="cover-img" src="renders/vue-trois-quarts.png" alt="">
+  <div class="cover-txt">
+    <p class="kick">Proposition de covering · V1</p>
+    <h1>AIRO<br><span style="color:#8a919c;font-weight:400">×</span> BMW<br>Motorrad</h1>
+    <p class="l">Un habillage blanc satiné, des lignes bleues qui montent vers l’arrière : la borne AIRO dans l’esprit des machines BMW Motorrad.</p>
+    <div class="lockup"><div class="wm"></div><span class="x">×</span><span class="ph">Logo BMW Motorrad<br>fichier officiel</span></div>
+  </div>
+  <div class="rule" style="bottom:20mm;width:60mm;left:18mm;right:auto"><i></i><i></i><i></i></div>
+  <p class="foot"><span>AIRO, Marseille</span><span>Document de travail · non contractuel</span></p>
+</section>
+
+<section class="pg">
+  <p class="kick">01 · Aperçu 3D</p>
+  <h2>Sous tous les angles.</h2>
+  <div class="views">
+    <figure><img src="renders/vue-face.png" alt=""><figcaption>Façade</figcaption></figure>
+    <figure><img src="renders/vue-flanc-droit.png" alt=""><figcaption>Flanc droit</figcaption></figure>
+    <figure><img src="renders/vue-flanc-gauche.png" alt=""><figcaption>Flanc gauche</figcaption></figure>
+  </div>
+  <p class="foot"><span>AIRO × BMW Motorrad</span><span>2</span></p>
+</section>
+
+<section class="pg">
+  <p class="kick">02 · Panneaux à plat</p>
+  <h2>Trois fichiers d’impression.</h2>
+  <div class="flat">
+    <figure><img class="dim" src="print-side.png" alt=""><figcaption><b>Flanc droit</b><br>588 × 1 870 mm*</figcaption></figure>
+    <figure><img src="print-sideL.png" alt=""><figcaption><b>Flanc gauche</b><br>588 × 1 870 mm* · bandes en miroir</figcaption></figure>
+    <figure><img src="print-front.png" alt=""><figcaption><b>Façade</b><br>680 × 1 870 mm* · découpe par panneau</figcaption></figure>
+  </div>
+  <p class="foot"><span>* Cotes du modèle 3D, à confirmer sur le gabarit de l’imprimeur · pointillés magenta : réservations (écran, terminal, vitres, poignées)</span><span>3</span></p>
+</section>
+
+<section class="pg">
+  <p class="kick">03 · Système graphique</p>
+  <h2>Trois bleus. Un blanc. Un anthracite.</h2>
+  <div class="sys">
+    <div>
+      <div class="sw">
+        <div style="background:#f4f5f7"><p><b>Blanc satiné</b>#F4F5F7<br>fond</p></div>
+        <div style="background:#8ec5f0"><p><b>Bleu ciel</b>#8EC5F0<br>bande 1</p></div>
+        <div style="background:#1c69d4;color:#fff"><p><b>Bleu</b>#1C69D4<br>bande 2 · accents</p></div>
+        <div style="background:#0b2a5b;color:#fff"><p><b>Bleu nuit</b>#0B2A5B<br>bande 3</p></div>
+        <div style="background:#16181d;color:#fff"><p><b>Anthracite</b>#16181D<br>textes · socle</p></div>
+      </div>
+      <p class="l" style="max-width:none">Valeurs écran (sRGB). Les équivalents CMJN ou Pantone sont à caler par l’imprimeur sur épreuve, en particulier le bleu, à aligner sur la charte de la concession.</p>
+    </div>
+    <div>
+      <div class="type"><p class="big">Instrument Sans</p><p class="sm">Grotesque nette, licence libre (OFL) · textes, étapes, pictos</p></div>
+      <div class="wmbox"><div class="wm"></div><p style="font-size:8pt;color:var(--grey);line-height:1.5">Logo AIRO vectorisé depuis la maquette existante. À remplacer par le fichier source du logo s’il existe.</p></div>
+    </div>
+  </div>
+  <p class="foot"><span>AIRO × BMW Motorrad</span><span>4</span></p>
+</section>
+
+<section class="pg">
+  <p class="kick">04 · Avant impression</p>
+  <h2>À valider ensemble.</h2>
+  <div class="todo">
+    <div><h3>Logo et charte BMW Motorrad</h3><p>Le logo BMW et toute mention de la marque nécessitent l’accord de BMW, via la concession partenaire. Elle fournit le logo officiel et les règles d’usage. L’emplacement est réservé, rien n’est redessiné.</p></div>
+    <div><h3>Lignes bleues</h3><p>Création originale inspirée de l’univers motorsport. Les bandes M tricolores sont une marque déposée de BMW : elles ne sont utilisées que si BMW les autorise.</p></div>
+    <div><h3>Cotes réelles</h3><p>Les dimensions viennent du modèle 3D. Mesurer la borne ou demander le gabarit de découpe à l’imprimeur avant production, avec 5 mm de fond perdu.</p></div>
+    <div><h3>Matière</h3><p>Conseil courant pour ce type de mobilier : vinyle coulé blanc, lamination satinée anti-UV, découpe autour de l’écran, des vitres, du terminal et des poignées.</p></div>
+    <div><h3>Réseaux sociaux</h3><p>La maquette actuelle porte « Airo.Offciel ». Cette version écrit « Airo.Officiel », comme le compte.</p></div>
+    <div><h3>Fichiers</h3><p>Panneaux vectoriels à l’échelle 1:1 (PDF) et textures de l’aperçu 3D fournis. Le fichier d’impression définitif est préparé par l’imprimeur.</p></div>
+  </div>
+  <p class="foot"><span>AIRO, Marseille · airo.casque@gmail.com · 06 68 73 12 07</span><span>5</span></p>
+</section>
+
+<script type="module">
+  const WM = await (await fetch("airo-wordmark.svg")).text();
+  document.querySelectorAll(".wm").forEach(el => { el.innerHTML = WM.replace("<svg", '<svg preserveAspectRatio="none"'); });
+  document.body.dataset.ready = "1";
+</script>
+</body>
+</html>
