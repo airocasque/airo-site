@@ -547,6 +547,19 @@
     setTimeout(go, 2500);                                  // filet de sécurité : jamais de héros éteint
   })();
 
+  /* ---------- Cartes « Six promesses » : le bord s'allume là où passe le pointeur ---------- */
+  (function () {
+    var cards = [].slice.call(document.querySelectorAll(".pcard")); if (!cards.length) return;
+    if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;   // au doigt : bord fixe, lumière en haut
+    cards.forEach(function (c) {
+      c.addEventListener("pointermove", function (e) {
+        var r = c.getBoundingClientRect();
+        c.style.setProperty("--x", (e.clientX - r.left).toFixed(0) + "px");
+        c.style.setProperty("--y", (e.clientY - r.top).toFixed(0) + "px");
+      });
+    });
+  })();
+
   /* ---------- Menu mobile : feuille ancrée sous la barre ---------- */
   (function () {
     var btn = document.getElementById("navToggle"), sheet = document.getElementById("navSheet");
