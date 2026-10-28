@@ -8,7 +8,7 @@ const fs = require('fs');
   const [w, h, dir, n] = [+process.argv[2], +process.argv[3], process.argv[4], +process.argv[5]];
   const from = +(process.argv[6] || 0), to = +(process.argv[7] || n - 1);
   fs.mkdirSync(dir, { recursive: true });
-  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: w, height: h } });
+  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: +(process.env.FILM_DPR || 1) });   // FILM_DPR=1.5 → images 1,5× plus nettes
   p.setDefaultTimeout(900000); const errs = [];
   p.on('pageerror', e => errs.push(e.message));
   await p.addInitScript(() => { window.__seqP = 0; window.__seqT = 0; });

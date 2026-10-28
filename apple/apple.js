@@ -459,16 +459,19 @@
         "precision mediump float;uniform vec2 r;uniform float t,s;uniform vec2 m;",
         "float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
         "float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}",
-        "float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p*=2.03;a*=.5;}return v;}",
-        "void main(){vec2 uv=gl_FragCoord.xy/r;vec2 q=(gl_FragCoord.xy-.5*r)/r.y;vec3 c=vec3(.006,.01,.024);",
-        "float nb=fbm(q*1.6+vec2(t*.03,-t*.02));c+=vec3(.02,.05,.14)*nb*nb*2.2;",
-        "vec2 mm=(m-.5)*vec2(r.x/r.y,1.);c+=vec3(.08,.2,.6)*.18/(1.+dot(q-mm,q-mm)*14.);",
-        "for(int i=0;i<4;i++){float fi=float(i);",
-        " float x=(fi-1.5)*.38+.22*sin(t*.11+fi*2.1)+(fbm(vec2(q.y*2.2+fi*7.,t*.35+fi))-.5)*.55;",
-        " float d=abs(q.x-x-mm.x*.15);float fl=.55+.45*n(vec2(t*6.+fi*13.,fi));",
-        " c+=vec3(.25,.48,1.)*(.0016+.0022*s)/(d+.002)*fl*(.35+1.4*s)*smoothstep(.95,.2,abs(q.y));",
-        " c+=vec3(.1,.25,.8)*.02/(d+.03)*(.4+s);}",
-        "c+=vec3(.5,.7,1.)*s*s*.25*(1.-length(q));c*=1.-.55*length(uv-.5);gl_FragColor=vec4(pow(c,vec3(.92)),1.);}"
+        // vapeur : bruit fractal déformé par lui-même (volutes), qui monte lentement et tourbillonne autour du pointeur
+        "float fbm(vec2 p){float v=0.,a=.5;mat2 R=mat2(.8,.6,-.6,.8);for(int i=0;i<5;i++){v+=a*n(p);p=R*p*2.02;a*=.5;}return v;}",
+        "void main(){vec2 uv=gl_FragCoord.xy/r;vec2 q=(gl_FragCoord.xy-.5*r)/r.y;vec2 mm=(m-.5)*vec2(r.x/r.y,1.);",
+        "float tt=t*.07;vec2 p=q*1.5;p.y-=tt*1.6;",
+        "vec2 d=q-mm;float md=exp(-dot(d,d)*7.);",
+        "vec2 w=vec2(fbm(p+vec2(0.,tt)),fbm(p+vec2(5.2,1.3)-tt*.7))+md*vec2(-d.y,d.x)*1.4;",
+        "float f=fbm(p+1.8*w);",
+        "float dens=smoothstep(.34,.82,f)*(.45+.55*smoothstep(.75,-.6,q.y))*(.9+.8*s);",
+        "vec3 c=vec3(.006,.01,.022);",
+        "c+=mix(vec3(.12,.24,.62),vec3(.82,.9,1.),smoothstep(.5,.85,f))*dens*.62;",
+        "c+=vec3(.12,.28,.8)*md*.13;",
+        "c+=vec3(.55,.7,1.)*s*s*.2*(1.-length(q));",
+        "c*=1.-.5*length(uv-.5);gl_FragColor=vec4(c,1.);}"
       ].join("\n");
       var sh = function (type, src) { var o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
       var pr = gl.createProgram();
@@ -500,7 +503,7 @@
       raf = 0;
       if (!on || document.hidden || (soft && done)) return;
       raf = requestAnimationFrame(loop);
-      if (now - last < (soft ? 66 : 25)) return;         // ~40 images/s suffisent pour des éclairs (15 en rendu logiciel)
+      if (now - last < (soft ? 66 : 25)) return;         // ~40 images/s suffisent pour la vapeur (15 en rendu logiciel)
       last = now;
       mouse[0] += (target[0] - mouse[0]) * 0.08; mouse[1] += (target[1] - mouse[1]) * 0.08;
       draw(now);
@@ -531,9 +534,10 @@
       start();
       var t1 = performance.now() + 300;
       (function step(now) {
-        var k = (now - t1) / 1000;                       // secondes depuis l'éclair
-        strike = k < 0 ? 0 : Math.max(0, Math.exp(-k * 5) * (k < 0.08 ? 1 : 0.85) + (k > 0.16 && k < 0.26 ? 0.7 : 0));
-        flash.style.opacity = (strike * 0.5).toFixed(3);
+        var k = (now - t1) / 1000;                       // secondes depuis la bouffée de vapeur
+        // bouffée : montée rapide (0,25 s) puis dissipation douce, qui découvre la borne
+        strike = k < 0 ? 0 : (k < 0.25 ? ease(k / 0.25) : Math.exp(-(k - 0.25) * 2.2));
+        flash.style.opacity = (strike * 0.22).toFixed(3);
         var l = ease(clamp((k - 0.05) / 1.1, 0, 1));
         img.style.filter = "brightness(" + (0.15 + 0.85 * l + strike * 0.6).toFixed(3) + ") saturate(" + (0.6 + 0.4 * l).toFixed(3) + ")";
         halo.style.opacity = floor.style.opacity = l.toFixed(3);
