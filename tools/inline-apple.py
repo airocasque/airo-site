@@ -10,7 +10,8 @@ html = (root/'index.html').read_text()
 css = (root/'apple/apple.css').read_text()
 css = re.sub(r'url\("\.\./(assets/[^"]+)"\)', lambda m: f'url("{uri(m.group(1))}")', css)
 js = (root/'apple/apple.js').read_text()
-files = {f'assets/{d}/{p.name}': uri(f'assets/{d}/{p.name}') for d in ('film/d','film/m') for p in sorted((root/'assets'/d).glob('*.webp'))}
+# images du film embarquées seulement si la page a encore le film au défilement
+files = {f'assets/{d}/{p.name}': uri(f'assets/{d}/{p.name}') for d in ('film/d','film/m') for p in sorted((root/'assets'/d).glob('*.webp'))} if 'id="film"' in html else {}
 js = re.sub(r'function src\(i\) \{ return (.*?); \}', r'function src(i) { var k = \1; return window.__AIRO_FILES[k] || k; }', js, count=1)
 assert '__AIRO_FILES' in js
 html = re.sub(r'<link rel="preload"[^>]*>\n?', '', html)

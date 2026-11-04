@@ -131,8 +131,7 @@
   <div class="nav__in">
     <a class="nav__logo" href="#top" aria-label="AIRO, retour en haut"><img src="assets/img/logo-sm.webp" alt="" width="64" height="24">AIRO</a>
     <nav class="nav__links" aria-label="Sections">
-      <a href="#film">Aperçu</a>
-      <a href="#points">Points forts</a>
+      <a href="#promesses">Promesses</a>
       <a href="#parcours">Utilisation</a>
       <a href="#essai">Essayer</a>
       <a href="#programmes">Programmes</a>
@@ -144,8 +143,7 @@
     <button class="nav__toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navSheet" aria-label="Ouvrir le menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9.5 6 6 6-6"/></svg></button>
   </div>
   <div class="nav__sheet" id="navSheet" hidden>
-    <a href="#film">Aperçu</a>
-    <a href="#points">Points forts</a>
+    <a href="#promesses">Promesses</a>
     <a href="#parcours">Utilisation</a>
     <a href="#essai">Essayer la borne</a>
     <a href="#programmes">Programmes</a>
@@ -164,12 +162,12 @@
   <div class="vhero__flash" id="vflash" aria-hidden="true"></div>
   <div class="vhero__grid">
     <div class="vhero__txt">
-      <p class="vhero__kick" id="vkick"><i></i>Nettoyage par vapeur · Nouvelle génération</p>
+      <p class="vhero__kick" id="vkick"><i></i>Nettoyage par vapeur<span class="hide-m"> · Nouvelle génération</span></p>
       <h1 class="vhero__t" id="vtitle"><span class="ln"><span>Casque propre.</span></span> <span class="ln"><span class="v">En 10 minutes.</span></span></h1>
       <p class="vhero__sub" id="vsub">La borne qui nettoie, désinfecte et sèche les casques en libre-service. Vos clients paient par carte, sur la borne.</p>
       <div class="vhero__cta" id="vcta">
         <a class="pill vhero__btn" href="#devis">Demander un devis</a>
-        <a class="link" href="#film">Voir la borne en action <span aria-hidden="true">›</span></a>
+        <a class="link vhero__alt" href="#essai">Essayer la borne <span aria-hidden="true">›</span></a>
       </div>
     </div>
     <div class="vhero__stage">
@@ -179,21 +177,6 @@
     </div>
   </div>
   <p class="vhero__scroll" id="vscroll" aria-hidden="true">Défiler<b></b></p>
-</section>
-
-<!-- 2. Film piloté par le défilement -->
-<section class="film" id="film" data-theme="dark" aria-label="La borne en action">
-  <div class="film__sticky">
-    <canvas class="film__canvas" id="filmCanvas" aria-hidden="true"></canvas>
-    <div class="film__bar" aria-hidden="true"><i id="filmBar"></i></div>
-    <div class="film__caps">
-      <p class="cap" data-from="0.02" data-to="0.20"><span>Conçue pour</span> le libre-service.</p>
-      <p class="cap" data-from="0.26" data-to="0.42"><span>Trois programmes.</span> Un écran tactile.</p>
-      <p class="cap" data-from="0.47" data-to="0.62"><span>Deux casiers.</span> Deux casques à la fois.</p>
-      <p class="cap" data-from="0.66" data-to="0.80"><span>Vapeur sèche.</span> 99,9 % des bactéries éliminées.</p>
-      <p class="cap" data-from="0.85" data-to="1.01"><span>Casque prêt.</span> Propre et sec.</p>
-    </div>
-  </div>
 </section>
 
 <!-- 2 bis. Six promesses : cartes dont le bord s'allume sous le pointeur (style du héros électrique) -->
@@ -211,56 +194,8 @@
   </div>
 </section>
 
-<!-- 3. Points forts (galerie à faire glisser) -->
-<section class="sec sec--light" id="points" data-theme="light" aria-labelledby="points-t">
-  <div class="wrap">
-    <h2 class="h2 reveal" id="points-t">Les points forts.</h2>
-  </div>
-  <div class="gal" id="gal">
-    <ul class="gal__track" id="galTrack" role="list">
-      <li class="card" aria-roledescription="diapositive" aria-label="1 sur 6">
-        <img src="assets/film/m/055.webp" alt="" loading="lazy" width="576" height="1024">
-        <p class="card__kicker">Écran tactile</p>
-        <p class="card__t">Le client choisit. La borne s’occupe du reste.</p>
-      </li>
-      <li class="card" aria-roledescription="diapositive" aria-label="2 sur 6">
-        <img src="assets/film/m/080.webp" alt="" loading="lazy" width="576" height="1024">
-        <p class="card__kicker">Deux casiers</p>
-        <p class="card__t">Deux casques nettoyés en même temps, indépendamment.</p>
-      </li>
-      <li class="card" aria-roledescription="diapositive" aria-label="3 sur 6">
-        <img src="assets/film/m/100.webp" alt="" loading="lazy" width="576" height="1024">
-        <p class="card__kicker">Vapeur sèche</p>
-        <p class="card__t">99,9 % des bactéries éliminées. Les odeurs aussi.</p>
-      </li>
-      <li class="card" aria-roledescription="diapositive" aria-label="4 sur 6">
-        <img src="assets/film/m/125.webp" alt="" loading="lazy" width="576" height="1024">
-        <p class="card__kicker">Séchage intégré</p>
-        <p class="card__t">Le casque ressort sec, prêt à être porté.</p>
-      </li>
-      <li class="card" aria-roledescription="diapositive" aria-label="5 sur 6">
-        <img src="assets/img/tech-locker.webp" alt="" loading="lazy" width="480" height="690">
-        <p class="card__kicker">Paiement par carte</p>
-        <p class="card__t">Terminal intégré. Aucun personnel nécessaire.</p>
-      </li>
-      <li class="card" aria-roledescription="diapositive" aria-label="6 sur 6">
-        <img src="assets/film/m/020.webp" alt="" loading="lazy" width="576" height="1024">
-        <p class="card__kicker">Tous les casques</p>
-        <p class="card__t">Intégral, jet, karting, équitation, ski. Intercom compris.</p>
-      </li>
-    </ul>
-  </div>
-  <div class="wrap gal__ctl">
-    <div class="gal__dots" id="galDots" aria-hidden="true"></div>
-    <div class="gal__btns">
-      <button class="round" id="galPrev" type="button" aria-label="Précédent"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"/></svg></button>
-      <button class="round" id="galNext" type="button" aria-label="Suivant"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button>
-    </div>
-  </div>
-</section>
-
 <!-- 3 bis. Parcours client -->
-<section class="sec steps" id="parcours" data-theme="light" aria-labelledby="steps-t">
+<section class="sec steps steps--plain" id="parcours" data-theme="light" aria-labelledby="steps-t">
   <div class="wrap steps__grid">
     <div class="steps__text">
       <h2 class="h2" id="steps-t">Trois gestes.<br>Aucun personnel.</h2>
@@ -270,14 +205,7 @@
         <li class="step" data-i="2"><span class="step__n">3</span><div><h3>Il le récupère, propre et sec.</h3><p>Vapeur sèche, désinfection, séchage. Le casier se déverrouille à la fin du cycle.</p></div></li>
       </ol>
     </div>
-    <div class="steps__media" aria-hidden="true">
-      <div class="steps__frame">
-        <img class="is-on" src="assets/film/m/055.webp" alt="" width="576" height="1024" loading="lazy">
-        <img src="assets/film/m/080.webp" alt="" width="576" height="1024" loading="lazy">
-        <img src="assets/film/m/125.webp" alt="" width="576" height="1024" loading="lazy">
       </div>
-    </div>
-  </div>
 </section>
 
 <!-- 3 ter. Démo de l'écran -->
@@ -377,7 +305,7 @@
     <h2 class="h2 reveal" id="pros-t">Un service de plus.<br>Sans effort de plus.</h2>
     <div class="bento">
       <figure class="tile tile--wide tile--img reveal">
-        <img src="assets/img/pros-showroom.webp" alt="La borne AIRO installée dans un espace d’accueil" loading="lazy" width="800" height="600">
+        <img src="assets/img/machine.webp" alt="La borne AIRO" loading="lazy" width="581" height="1000" style="object-position:50% 18%">
         <figcaption><strong>Concessions et magasins moto.</strong> Vos clients repartent avec un casque frais.</figcaption>
       </figure>
       <div class="tile reveal"><p class="tile__big">0</p><p>personnel nécessaire. Le client paie et lance le cycle seul.</p></div>
@@ -523,8 +451,8 @@
     <ul class="contact reveal">
       <li><a href="tel:+33668731207"><span>Appeler</span>06 68 73 12 07</a></li>
       <li><a href="https://wa.me/33668731207?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20borne%20AIRO." target="_blank" rel="noopener"><span>WhatsApp</span>Écrire</a></li>
-      <li><a href="mailto:airo.casque@gmail.com"><span>E-mail</span>airo.casque@gmail.com</a></li>
       <li><a href="https://www.instagram.com/airo.officiel/" target="_blank" rel="noopener"><span>Instagram</span>@airo.officiel</a></li>
+      <li><a href="mailto:airo.casque@gmail.com"><span>E-mail</span>airo.casque@gmail.com</a></li>
     </ul>
   </div>
 </section>
@@ -541,10 +469,10 @@
   <div class="wrap">
     <div class="foot__cols">
       <div><p class="foot__h">AIRO</p><p>Bornes de nettoyage de casques en libre-service. Marseille, Bouches-du-Rhône.</p></div>
-      <div><p class="foot__h">Borne</p><ul><li><a href="#points">Points forts</a></li><li><a href="#programmes">Programmes</a></li><li><a href="#caracteristiques">Caractéristiques</a></li><li><a href="#faq">Questions fréquentes</a></li><li><a href="guides/">Guides pratiques</a></li></ul></div>
+      <div><p class="foot__h">Borne</p><ul><li><a href="#promesses">Promesses</a></li><li><a href="#programmes">Programmes</a></li><li><a href="#caracteristiques">Caractéristiques</a></li><li><a href="#faq">Questions fréquentes</a></li><li><a href="guides/">Guides pratiques</a></li></ul></div>
       <div><p class="foot__h">Secteurs</p><ul><li><a href="secteurs/karting.html">Karting</a></li><li><a href="secteurs/concession-moto.html">Concession moto</a></li><li><a href="secteurs/centre-equestre.html">Centre équestre</a></li><li><a href="secteurs/station-ski.html">Station de ski</a></li><li><a href="secteurs/circuit.html">Circuit</a></li><li><a href="secteurs/moto-ecole.html">Moto-école</a></li><li><a href="secteurs/location-moto.html">Location moto</a></li></ul></div>
       <div><p class="foot__h">Contact</p><ul><li><a href="tel:+33668731207">06 68 73 12 07</a></li><li><a href="mailto:airo.casque@gmail.com">airo.casque@gmail.com</a></li><li><a href="https://www.instagram.com/airo.officiel/" target="_blank" rel="noopener">Instagram</a></li><li><a href="#devis">Demander un devis</a></li></ul></div>
-      <div><p class="foot__h">Informations</p><ul><li><a href="mentions-legales.html">Mentions légales</a></li><li><a href="confidentialite.html">Confidentialité</a></li><li><a href="assets/docs/AIRO-brochure.pdf" download>Brochure (PDF)</a></li><li><a href="assets/docs/AIRO-CGV.pdf" download>CGV (PDF)</a></li><li><a href="film.html">Version film</a></li></ul></div>
+      <div><p class="foot__h">Informations</p><ul><li><a href="mentions-legales.html">Mentions légales</a></li><li><a href="confidentialite.html">Confidentialité</a></li><li><a href="assets/docs/AIRO-brochure.pdf" download>Brochure (PDF)</a></li><li><a href="assets/docs/AIRO-CGV.pdf" download>CGV (PDF)</a></li></ul></div>
     </div>
     <p class="foot__copy">© <span id="year">2026</span> AIRO. Tous droits réservés.</p>
   </div>
